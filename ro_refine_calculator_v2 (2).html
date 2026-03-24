@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RO Refine Calculator</title>
+<!-- Page-specific favicons (Oridecon) -->
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<style>
+/* ══ CSS Variables ══ */
+:root {
+--bg: #ffffff;
+--bg2: #f9f9f7;
+--bg3: #f5f5f3;
+--bg4: #fafafa;
+--border: #e4e4e0;
+--border2: #e8e8e4;
+--border3: #e0e0e0;
+--text: #222222;
+--text2: #444444;
+--text3: #666666;
+--text4: #888888;
+--text5: #aaaaaa;
+--input-border:#dddddd;
+--card-bg: #ffffff;
+--th-bg: #fafafa;
+--row-dim-bg: #fafafa;
+--row-dim-col: #bbbbbb;
+--row-act-bg: #fffdf5;
+--note-bg: #f8f8f8;
+--formula-bg: #f8f8f8;
+--code-bg: #ebebeb;
+--bar-track: #f0f0f0;
+--pbar-zero: #aaaaaa;
+/* tinted cards light */
+--elu-bg: #e8f5ff; --elu-br: #90c8f0;
+--ori-bg: #fff2e8; --ori-br: #f0b87a;
+--enrelu-bg:#f5eeff; --enrelu-br:#c8a8f0;
+--enrori-bg:#fff2e0; --enrori-br:#f0c070;
+--tab-eq-bg:#f0eeff; --tab-eq-br:#c8bff5;
+--tab-hi-bg:#eef4ff; --tab-hi-br:#c0d0f0;
+--tab-st-bg:#fff7e6; --tab-st-br:#f5c842;
+--tab-sl-bg:#eaf7ec; --tab-sl-br:#7dcea0;
+/* status tags */
+--safe-bg: #eaf7ec; --safe-col: #27ae60;
+--risky-bg: #fdecea; --risky-col: #c0392b;
+--target-bg: #eef0fd; --target-col: #2a4ccc;
+--start-bg: #fff3cc; --start-col: #b86f00;
+--enrb-bg: #f3e8ff; --enrb-col: #7b00aa;
+/* alerts */
+--alert-green-bg:#eaf7ec; --alert-green-br:#2ecc71;
+--alert-red-bg: #fdecea; --alert-red-br: #e74c3c;
+--alert-blue-bg: #eef4ff; --alert-blue-br: #5a7de8;
+--alert-warn-bg: #fff7e6; --alert-warn-br: #f5c842;
+/* result cards */
+--win-border:#27ae60;
+--lose-border:#e74c3c;
+/* profit */
+--profit-pos:#1a7a35;
+--profit-neg:#c0392b;
+--bprof-bg: #eaf7ec;
+--mix-win-bg:#eaf7ec;
+/* toggle btn */
+--toggle-bg: #f0f0ee;
+--toggle-br: #d0d0cc;
+}
+
+[data-theme="dark"] {
+--bg: #1a1a1e;
+--bg2: #23232a;
+--bg3: #2a2a33;
+--bg4: #1f1f26;
+--border: #3a3a46;
+--border2: #3a3a46;
+--border3: #3a3a46;
+--text: #e8e8e8;
+--text2: #cccccc;
+--text3: #aaaaaa;
+--text4: #888888;
+--text5: #666666;
+--input-border:#4a4a58;
+--card-bg: #23232a;
+--th-bg: #1f1f26;
+--row-dim-bg: #1f1f26;
+--row-dim-col: #555566;
+--row-act-bg: #2a2a1a;
+--note-bg: #23232a;
+--formula-bg: #1f1f26;
+--code-bg: #2e2e3a;
+--bar-track: #2e2e3a;
+--pbar-zero: #666677;
+--elu-bg: #1a2a38; --elu-br: #2a5a80;
+--ori-bg: #2e2018; --ori-br: #7a5030;
+--enrelu-bg:#261a38; --enrelu-br:#6040a0;
+--enrori-bg:#2e2010; --enrori-br:#907030;
+--tab-eq-bg:#221a38; --tab-eq-br:#6040a8;
+--tab-hi-bg:#1a2038; --tab-hi-br:#3050a0;
+--tab-st-bg:#2a2010; --tab-st-br:#907020;
+--tab-sl-bg:#1a2e1a; --tab-sl-br:#306830;
+--safe-bg: #1a2e1a; --safe-col: #4ecf7a;
+--risky-bg: #2e1a1a; --risky-col: #e07070;
+--target-bg: #1a1e38; --target-col: #7090e8;
+--start-bg: #2a2010; --start-col: #e0b040;
+--enrb-bg: #221535; --enrb-col: #c080f0;
+--alert-green-bg:#1a2e1a; --alert-green-br:#2a6a3a;
+--alert-red-bg: #2e1a1a; --alert-red-br: #7a3030;
+--alert-blue-bg: #1a1e38; --alert-blue-br: #2a3a80;
+--alert-warn-bg: #2a2010; --alert-warn-br: #806020;
+--win-border:#2a8a4a;
+--lose-border:#aa3030;
+--profit-pos:#4ecf7a;
+--profit-neg:#e07070;
+--bprof-bg: #1a2e1a;
+--mix-win-bg:#1a2e1a;
+--toggle-bg: #2e2e3a;
+--toggle-br: #4a4a58;
+}
+
+/* ══ Base ══ */
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:sans-serif;font-size:14px;color:var(--text);background:var(--bg);padding:20px;transition:background .2s,color .2s}
+h2{font-size:18px;font-weight:600;margin-bottom:4px;color:var(--text)}
+.subtitle{font-size:13px;color:var(--text4);margin-bottom:16px}
+h3{font-size:14px;font-weight:600;margin-bottom:10px;color:var(--text2)}
+.section{margin-bottom:24px}
+
+/* ══ Top bar (title + toggle) ══ */
+.top-bar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;max-width:1800px;margin-left:auto;margin-right:auto}
+.top-bar-right{display:flex;align-items:center;gap:10px}
+.theme-toggle{display:flex;align-items:center;gap:7px;cursor:pointer;background:var(--toggle-bg);border:1px solid var(--toggle-br);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--text3);transition:background .2s;user-select:none;white-space:nowrap}
+.theme-toggle:hover{color:var(--text)}
+.toggle-track{width:28px;height:16px;background:var(--border2);border-radius:8px;position:relative;transition:background .2s;flex-shrink:0}
+.toggle-thumb{position:absolute;top:2px;left:2px;width:12px;height:12px;background:#fff;border-radius:50%;transition:transform .2s}
+[data-theme="dark"] .toggle-track{background:var(--tab-active)}
+[data-theme="dark"] .toggle-thumb{transform:translateX(12px)}
+.coffee-btn-top{display:flex;align-items:center;gap:6px;padding:6px 14px;background:#FFDD00;border:none;border-radius:20px;color:#000;text-decoration:none;font-size:12px;font-weight:600;transition:all .2s;white-space:nowrap;cursor:pointer}
+.coffee-btn-top:hover{background:#FFC700;transform:translateY(-1px);box-shadow:0 2px 8px rgba(255,221,0,0.3)}
+.feedback-btn{display:flex;align-items:center;gap:6px;padding:6px 14px;background:var(--bg3);border:1px solid var(--border);border-radius:20px;color:var(--text2);text-decoration:none;font-size:12px;font-weight:600;transition:all .2s;white-space:nowrap;cursor:pointer}
+.feedback-btn:hover{background:var(--bg4);border-color:var(--text3);transform:translateY(-1px)}
+
+/* ══ Shared header ══ */
+.shared-header{background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;margin-bottom:20px;max-width:1800px;margin-left:auto;margin-right:auto}
+.shared-header h3{font-size:13px;font-weight:600;color:var(--text4);margin-bottom:10px;text-transform:uppercase;letter-spacing:.5px}
+.shared-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}
+.price-card{border-radius:8px;padding:11px 13px;border:1px solid var(--border2);background:var(--card-bg)}
+.price-card.elu{background:var(--elu-bg);border-color:var(--elu-br)}
+.price-card.ori{background:var(--ori-bg);border-color:var(--ori-br)}
+.price-card.enrelu{background:var(--enrelu-bg);border-color:var(--enrelu-br)}
+.price-card.enrori{background:var(--enrori-bg);border-color:var(--enrori-br)}
+.price-card label{display:block;font-size:11px;color:var(--text4);margin-bottom:4px;font-weight:500;text-transform:uppercase;letter-spacing:.4px}
+.price-card input,.price-card select{width:100%;font-size:14px;font-weight:600;color:var(--text);background:transparent;border:none;border-bottom:1.5px solid var(--input-border);padding:3px 0;outline:none}
+.price-card input:focus,.price-card select:focus{border-bottom-color:#5a7de8}
+.price-card select option{background:var(--card-bg);color:var(--text)}
+.price-card .sublabel{font-size:11px;color:var(--text5);margin-top:3px}
+
+/* ══ Two Column Layout ══ */
+.two-column-container{
+display:grid;
+grid-template-columns:1fr 1fr;
+gap:30px;
+max-width:1800px;
+margin:0 auto;
+}
+
+.column{
+min-width:0; /* Prevents overflow */
+}
+
+.column-header{
+background:var(--bg2);
+border:1px solid var(--border);
+border-radius:10px 10px 0 0;
+padding:14px 16px;
+text-align:center;
+}
+
+.column-header h2{
+font-size:16px;
+font-weight:600;
+color:var(--text);
+margin:0;
+}
+
+.column-content{
+background:var(--bg);
+border:1px solid var(--border);
+border-top:none;
+border-radius:0 0 10px 10px;
+padding:20px;
+}
+
+/* ══ Per-tab config cards ══ */
+.tab-config{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:10px}
+.tab-card{background:var(--bg3);border-radius:8px;padding:11px 13px;border:1px solid transparent}
+.tab-card.highlight{background:var(--tab-hi-bg);border-color:var(--tab-hi-br)}
+.tab-card.equip{background:var(--tab-eq-bg);border-color:var(--tab-eq-br)}
+.tab-card.start{background:var(--tab-st-bg);border-color:var(--tab-st-br)}
+.tab-card.sell{background:var(--tab-sl-bg);border-color:var(--tab-sl-br)}
+.tab-card label{display:block;font-size:11px;color:var(--text4);margin-bottom:4px;font-weight:500;text-transform:uppercase;letter-spacing:.4px}
+.tab-card input,.tab-card select{width:100%;font-size:14px;font-weight:600;color:var(--text);background:transparent;border:none;border-bottom:1.5px solid var(--input-border);padding:3px 0;outline:none}
+.tab-card input:focus,.tab-card select:focus{border-bottom-color:#5a7de8}
+.tab-card select option{background:var(--card-bg);color:var(--text)}
+
+/* ══ Tables ══ */
+table{width:100%;border-collapse:collapse;font-size:13px;margin-bottom:6px}
+th{padding:7px 9px;font-weight:600;color:var(--text4);border-bottom:1.5px solid var(--border3);text-align:left;font-size:12px;background:var(--th-bg)}
+td{padding:6px 9px;border-bottom:1px solid var(--border3);color:var(--text2);vertical-align:middle}
+tr:last-child td{border-bottom:none}
+.center{text-align:center}
+.col-sep{border-left:2px solid var(--border2)}
+.rate-100{color:#27ae60;font-weight:600}
+.rate-hi{color:#2a9d5c;font-weight:600}
+.rate-mid{color:#e67e22;font-weight:600}
+.rate-lo{color:#d05030;font-weight:600}
+.rate-vlo{color:#c03030;font-weight:700}
+.rate-na{color:var(--text5);font-style:italic}
+.tries-good{color:#27ae60;font-size:12px;font-weight:600}
+.tries-ok{color:#e67e22;font-size:12px;font-weight:600}
+.tries-bad{color:#d05030;font-size:12px;font-weight:600}
+.row-before td{color:var(--row-dim-col);background:var(--row-dim-bg)}
+.row-dimmed td{color:var(--row-dim-col);background:var(--row-dim-bg)}
+.row-active{background:var(--row-act-bg)}
+
+/* ══ Status tags ══ */
+.safe-tag{font-size:11px;color:var(--safe-col);background:var(--safe-bg);padding:1px 6px;border-radius:3px}
+.risky-tag{font-size:11px;color:var(--risky-col);background:var(--risky-bg);padding:1px 6px;border-radius:3px}
+.target-tag{font-size:11px;color:var(--target-col);background:var(--target-bg);padding:1px 6px;border-radius:3px;font-weight:700}
+.start-tag{font-size:11px;color:var(--start-col);background:var(--start-bg);padding:1px 6px;border-radius:3px}
+.enr-better{font-size:11px;color:var(--enrb-col);background:var(--enrb-bg);padding:1px 6px;border-radius:3px}
+
+/* ══ Result cards ══ */
+.result-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:14px}
+.result-grid-4{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-bottom:14px}
+.result-card{background:var(--card-bg);border:1px solid var(--border3);border-radius:10px;padding:13px}
+.result-card.winner{border:2px solid var(--win-border)}
+.result-card.loser{border:2px solid var(--lose-border)}
+.result-label{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text4);margin-bottom:3px}
+.result-cost{font-size:20px;font-weight:700;color:var(--text);margin-bottom:3px}
+.result-cost.green{color:var(--profit-pos)}
+.result-cost.red{color:var(--profit-neg)}
+.result-detail{font-size:12px;color:var(--text3);line-height:1.7}
+.badge{display:inline-block;font-size:11px;font-weight:700;padding:2px 8px;border-radius:4px;margin-bottom:5px}
+.badge-green{background:var(--alert-green-bg);color:var(--profit-pos)}
+.badge-red{background:var(--alert-red-bg);color:var(--profit-neg)}
+.badge-blue{background:var(--alert-blue-bg);color:var(--tab-active)}
+.badge-gray{background:var(--bg3);color:var(--text4)}
+
+/* ══ Bars ══ */
+.bar-row{display:flex;align-items:center;gap:10px;margin-bottom:7px}
+.bar-lbl{font-size:12px;color:var(--text3);width:180px;flex-shrink:0;text-align:right;line-height:1.3}
+.bar-track{flex:1;height:20px;background:var(--bar-track);border-radius:4px;overflow:hidden}
+.bar-fill{height:100%;border-radius:4px}
+.bar-val{font-size:12px;font-weight:600;color:var(--text2);width:85px;flex-shrink:0}
+.pbar-wrap{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.pbar-lbl{font-size:12px;color:var(--text3);width:150px;flex-shrink:0;text-align:right;line-height:1.3}
+.pbar-track{flex:1;height:20px;background:var(--bar-track);border-radius:4px;position:relative;overflow:hidden}
+.pbar-zero{position:absolute;left:50%;top:0;bottom:0;width:1px;background:var(--pbar-zero)}
+.pbar-fill{position:absolute;top:0;bottom:0;border-radius:3px}
+.pbar-val{font-size:12px;font-weight:600;width:110px;flex-shrink:0}
+
+/* ══ Misc ══ */
+.mix-winner{background:var(--mix-win-bg)!important}
+.mix-winner td{color:var(--profit-pos);font-weight:600}
+.best-profit{background:var(--bprof-bg)!important}
+.best-profit td{color:var(--profit-pos);font-weight:600}
+.arrow-note{color:var(--profit-pos);font-weight:700}
+.profit-pos{color:var(--profit-pos);font-weight:700}
+.profit-neg{color:var(--profit-neg);font-weight:700}
+.profit-zero{color:var(--text4);font-weight:600}
+.alert{border-radius:8px;padding:11px 15px;font-size:13px;line-height:1.7;margin-bottom:14px}
+.alert-green{background:var(--alert-green-bg);border:1px solid var(--alert-green-br)}
+.alert-red{background:var(--alert-red-bg);border:1px solid var(--alert-red-br)}
+.alert-blue{background:var(--alert-blue-bg);border:1px solid var(--alert-blue-br)}
+.alert-warn{background:var(--alert-warn-bg);border:1px solid var(--alert-warn-br)}
+.note{font-size:12px;color:var(--text3);background:var(--note-bg);border-radius:6px;padding:9px 13px;line-height:1.6;margin-top:8px}
+.formula-block{background:var(--formula-bg);border-left:3px solid #5a7de8;border-radius:0 8px 8px 0;padding:13px 15px;font-size:13px;line-height:2;color:var(--text3)}
+.formula-block code{font-family:monospace;font-size:12px;color:var(--text);background:var(--code-bg);padding:1px 5px;border-radius:3px}
+.formula-block .eq{margin-left:20px}
+
+/* ══ Responsive ══ */
+@media (max-width: 1400px) {
+.two-column-container {
+grid-template-columns: 1fr;
+}
+.tab-config{grid-template-columns:repeat(4,1fr)}
+.result-grid-4{grid-template-columns:repeat(4,1fr)}
+}
+
+@media (max-width: 768px) {
+.top-bar{
+flex-direction:column;
+gap:12px;
+}
+.top-bar-right{
+width:100%;
+justify-content:flex-end;
+flex-wrap:wrap;
+}
+}
+
+/* ══ Footer ══ */
+.footer{
+max-width:1800px;
+margin:30px auto 0;
+padding:20px;
+text-align:center;
+border-top:1px solid var(--border);
+}
+.coffee-link{
+display:inline-flex;
+align-items:center;
+gap:8px;
+padding:10px 20px;
+background:var(--bg2);
+border:1px solid var(--border);
+border-radius:8px;
+color:var(--text2);
+text-decoration:none;
+font-size:14px;
+font-weight:500;
+transition:all .2s;
+}
+.coffee-link:hover{
+background:var(--bg3);
+border-color:var(--text4);
+transform:translateY(-2px);
+}
+.coffee-icon{
+font-size:18px;
+}
+</style>
+</head>
+<body>
+<!-- ══ Header ══ -->
+<div class="top-bar">
+<div>
+<h2>RO Refine Calculator</h2>
+<p class="subtitle">Armor & Weapons · both ores destroy item on failure · rates from RateMyServer</p>
+</div>
+<div class="top-bar-right">
+<a href="https://buymeacoffee.com/lucazedo" target="_blank" class="coffee-btn-top">
+<span>☕</span>
+<span>Buy me a coffee</span>
+</a>
+<a href="https://forms.gle/Y5v2BzeCTe7XeErUA" target="_blank" class="feedback-btn">
+<span>💬</span>
+<span>Send Feedback</span>
+</a>
+<div class="theme-toggle" onclick="toggleTheme()">
+<span id="theme-icon">🌙</span>
+<div class="toggle-track"><div class="toggle-thumb"></div></div>
+<span id="theme-label">Dark</span>
+</div>
+</div>
+</div>
+
+<!-- ══ Shared inputs ══ -->
+<div class="shared-header">
+<h3>Shared prices</h3>
+<div class="shared-grid">
+<div class="price-card elu">
+<label>Elunium (z)</label>
+<input type="number" id="s-elu" value="7000" oninput="onSharedChange()">
+<div class="sublabel">Armor / Shadow</div>
+</div>
+<div class="price-card ori">
+<label>Oridecon (z)</label>
+<input type="number" id="s-ori" value="7000" oninput="onSharedChange()">
+<div class="sublabel">All Weapon levels</div>
+</div>
+<div class="price-card enrelu">
+<label>Enriched Elunium (z)</label>
+<input type="number" id="s-enr-elu" value="1500000" oninput="onSharedChange()">
+<div class="sublabel">Armor / Shadow enriched</div>
+</div>
+<div class="price-card enrori">
+<label>Enriched Oridecon (z)</label>
+<input type="number" id="s-enr-ori" value="1500000" oninput="onSharedChange()">
+<div class="sublabel">All Weapon levels enriched</div>
+</div>
+</div>
+<div style="margin-top:10px;font-size:12px;color:var(--text5)">
+NPC fees applied automatically — Regular: Armor 2,000z · Wep Lv1 50z · Lv2 200z · Lv3 5,000z · Lv4 20,000z &nbsp;·&nbsp; Enriched (Suhnbi): always 2,000z
+</div>
+</div>
+
+<!-- ══ Two Column Layout ══ -->
+<div class="two-column-container">
+
+<!-- ══════════ COLUMN 1: COST ══════════ -->
+<div class="column">
+<div class="column-header">
+<h2>🔨 Refine Cost</h2>
+</div>
+<div class="column-content">
+<div class="section">
+<h3>Configuration</h3>
+<div class="tab-config">
+<div class="tab-card equip">
+<label>Equipment type</label>
+<select id="etype" onchange="onEtypeChange()">
+<option value="armor">Armor / Shadow</option>
+<option value="wlv3">Weapon Level 3</option>
+<option value="wlv4">Weapon Level 4</option>
+</select>
+</div>
+<div class="tab-card start">
+<label>Starting refine level</label>
+<select id="start" onchange="onStartChange()">
+<option value="0" selected>+0 (base item)</option>
+<option value="1">+1</option><option value="2">+2</option><option value="3">+3</option>
+<option value="4">+4</option><option value="5">+5</option><option value="6">+6</option>
+<option value="7">+7</option><option value="8">+8</option><option value="9">+9</option>
+</select>
+</div>
+<div class="tab-card highlight">
+<label>Target refine level</label>
+<select id="tgt" onchange="onTargetChange()">
+<option value="1">+1</option><option value="2">+2</option><option value="3">+3</option>
+<option value="4">+4</option><option value="5">+5</option><option value="6">+6</option>
+<option value="7">+7</option><option value="8">+8</option>
+<option value="9" selected>+9</option><option value="10">+10</option>
+</select>
+</div>
+<div class="tab-card">
+<label id="item-lbl">Item price at +0 (z)</label>
+<input type="number" id="ip" value="20000" oninput="saveInputs();calc()">
+</div>
+</div>
+<div class="alert alert-warn" id="start-note" style="display:none"></div>
+</div>
+
+<div class="section">
+<h3>Step-by-step rates & average attempts</h3>
+<table id="rates-tbl"></table>
+<div class="note" id="rates-note"></div>
+</div>
+
+<div class="section">
+<h3>Expected cost by strategy</h3>
+<div class="result-grid">
+<div class="result-card">
+<div class="badge badge-gray">Regular only</div>
+<div class="result-label" id="reg-card-lbl">All Regular</div>
+<div class="result-cost" id="c-reg">—</div>
+<div class="result-detail" id="d-reg">—</div>
+</div>
+<div class="result-card">
+<div class="badge badge-blue">Enriched only</div>
+<div class="result-label" id="enr-card-lbl">All Enriched</div>
+<div class="result-cost" id="c-enr">—</div>
+<div class="result-detail" id="d-enr">—</div>
+</div>
+<div class="result-card winner">
+<div class="badge badge-green">✓ Cheapest</div>
+<div class="result-label" id="label-opt">Optimal</div>
+<div class="result-cost" id="c-opt">—</div>
+<div class="result-detail" id="d-opt">—</div>
+</div>
+</div>
+<div id="bars"></div>
+<div class="alert alert-green" id="verdict" style="margin-top:12px">—</div>
+</div>
+
+<div class="section">
+<h3>All switch-point strategies</h3>
+<div class="alert alert-blue" id="switch-note">—</div>
+<table id="mix-tbl"></table>
+</div>
+
+<div class="section">
+<h3>Formula</h3>
+<div class="formula-block">
+<div>On failure: item destroyed, ore & fee lost. Restart = buy new item at +start price, retry from +start.</div>
+<div style="margin-top:6px">Risky step: <code>C(n) = (ore+fee) + p·C(n+1) + (1−p)·(item + C(start))</code></div>
+<div>Substitute <code>C(n) = aₙ + bₙ·C(start)</code> → <code>C(start) = a_start / (1 − b_start)</code></div>
+<div><b>Total = item + C(start)</b> &nbsp;·&nbsp; Regular and enriched use their own respective NPC fees.</div>
+</div>
+</div>
+</div>
+</div>
+
+<!-- ══════════ COLUMN 2: PROFIT ══════════ -->
+<div class="column">
+<div class="column-header">
+<h2>📈 Profit / Loss</h2>
+</div>
+<div class="column-content">
+<div class="section">
+<h3>Configuration</h3>
+<div class="tab-config">
+<div class="tab-card equip">
+<label>Equipment type</label>
+<select id="p-etype" onchange="saveInputs();calcProfit()">
+<option value="armor">Armor / Shadow</option>
+<option value="wlv3">Weapon Level 3</option>
+<option value="wlv4">Weapon Level 4</option>
+</select>
+</div>
+<div class="tab-card highlight">
+<label>Target refine level</label>
+<select id="p-tgt" onchange="saveInputs();calcProfit()">
+<option value="1">+1</option><option value="2">+2</option><option value="3">+3</option>
+<option value="4">+4</option><option value="5">+5</option><option value="6">+6</option>
+<option value="7">+7</option><option value="8">+8</option>
+<option value="9" selected>+9</option><option value="10">+10</option>
+</select>
+</div>
+<div class="tab-card start">
+<label>Buy price of +0 item (z)</label>
+<input type="number" id="p-buy" value="20000" oninput="saveInputs();calcProfit()">
+</div>
+<div class="tab-card sell">
+<label id="p-sell-lbl">Sell price of +9 item (z)</label>
+<input type="number" id="p-sell" value="500000" oninput="saveInputs();calcProfit()">
+</div>
+</div>
+</div>
+
+<div class="section">
+<h3>Profit / loss summary</h3>
+<div class="result-grid-4" id="p-summary-cards"></div>
+<div class="alert" id="p-verdict">—</div>
+</div>
+
+<div class="section">
+<h3>Profit by strategy</h3>
+<div id="p-bars"></div>
+<div class="note">Bars right of centre = profit · left = loss · all figures are expected values (averages over many attempts)</div>
+</div>
+
+<div class="section">
+<h3>Full breakdown by switch strategy</h3>
+<table id="p-mix-tbl"></table>
+<div class="note" id="p-mix-note"></div>
+</div>
+</div>
+</div>
+
+</div>
+
+<!-- ══ Footer ══ -->
+<div class="footer">
+<a href="https://buymeacoffee.com/lucazedo" target="_blank" class="coffee-link">
+<span class="coffee-icon">☕</span>
+<span>Buy me a coffee</span>
+</a>
+</div>
+
+<script>
+/* ── Rate tables ── */
+const REG = [0,1,1,1,1,0.6,0.4,0.4,0.2,0.2,0.1];
+const ENR = {
+armor:[0,1,1,1,1,0.9,0.7,0.7,0.4,0.4,0.2],
+wlv1: [0,1,1,1,1,1.0,1.0,1.0,0.9,0.7,0.3],
+wlv2: [0,1,1,1,1,1.0,1.0,1.0,0.7,0.4,0.3],
+wlv3: [0,1,1,1,1,1.0,0.9,0.8,0.4,0.4,0.3],
+wlv4: [0,1,1,1,1,0.9,0.7,0.7,0.4,0.4,0.2],
+};
+const REG_FEE = {armor:2000,wlv1:50,wlv2:200,wlv3:5000,wlv4:20000};
+const ENR_FEE = 2000;
+const ORE_LABEL = {
+armor:['Elunium','Enriched Elunium'],
+wlv1: ['Oridecon','Enriched Oridecon'],
+wlv2: ['Oridecon','Enriched Oridecon'],
+wlv3: ['Oridecon','Enriched Oridecon'],
+wlv4: ['Oridecon','Enriched Oridecon'],
+};
+
+/* ── Theme toggle ── */
+function toggleTheme(){
+const html = document.documentElement;
+const isDark = html.getAttribute('data-theme') === 'dark';
+html.setAttribute('data-theme', isDark ? 'light' : 'dark');
+document.getElementById('theme-icon').textContent = isDark ? '🌙' : '☀️';
+document.getElementById('theme-label').textContent = isDark ? 'Dark' : 'Light';
+localStorage.setItem('ro-calc-theme', isDark ? 'light' : 'dark');
+}
+(function(){
+const saved = localStorage.getItem('ro-calc-theme');
+if(saved === 'dark'){
+document.documentElement.setAttribute('data-theme','dark');
+document.addEventListener('DOMContentLoaded',()=>{
+document.getElementById('theme-icon').textContent = '☀️';
+document.getElementById('theme-label').textContent = 'Light';
+});
+}
+})();
+
+/* ── Save/Load Inputs ── */
+function saveInputs(){
+const inputs = {
+sElu: document.getElementById('s-elu').value,
+sOri: document.getElementById('s-ori').value,
+sEnrElu: document.getElementById('s-enr-elu').value,
+sEnrOri: document.getElementById('s-enr-ori').value,
+etype: document.getElementById('etype').value,
+start: document.getElementById('start').value,
+tgt: document.getElementById('tgt').value,
+ip: document.getElementById('ip').value,
+pEtype: document.getElementById('p-etype').value,
+pTgt: document.getElementById('p-tgt').value,
+pBuy: document.getElementById('p-buy').value,
+pSell: document.getElementById('p-sell').value
+};
+localStorage.setItem('ro-calc-inputs', JSON.stringify(inputs));
+}
+
+function loadInputs(){
+const saved = localStorage.getItem('ro-calc-inputs');
+if(!saved) return;
+try {
+const inputs = JSON.parse(saved);
+if(inputs.sElu) document.getElementById('s-elu').value = inputs.sElu;
+if(inputs.sOri) document.getElementById('s-ori').value = inputs.sOri;
+if(inputs.sEnrElu) document.getElementById('s-enr-elu').value = inputs.sEnrElu;
+if(inputs.sEnrOri) document.getElementById('s-enr-ori').value = inputs.sEnrOri;
+if(inputs.etype) document.getElementById('etype').value = inputs.etype;
+if(inputs.start) document.getElementById('start').value = inputs.start;
+if(inputs.tgt) document.getElementById('tgt').value = inputs.tgt;
+if(inputs.ip) document.getElementById('ip').value = inputs.ip;
+if(inputs.pEtype) document.getElementById('p-etype').value = inputs.pEtype;
+if(inputs.pTgt) document.getElementById('p-tgt').value = inputs.pTgt;
+if(inputs.pBuy) document.getElementById('p-buy').value = inputs.pBuy;
+if(inputs.pSell) document.getElementById('p-sell').value = inputs.pSell;
+} catch(e) {
+console.error('Error loading saved inputs:', e);
+}
+}
+
+
+/* ── Shared prices ── */
+function shared(etype){
+const isArm = etype === 'armor';
+return {
+fReg: REG_FEE[etype],
+fEnr: ENR_FEE,
+reg: isArm ? (+document.getElementById('s-elu').value ||7000)
+: (+document.getElementById('s-ori').value ||7000),
+enr: isArm ? (+document.getElementById('s-enr-elu').value ||1500000)
+: (+document.getElementById('s-enr-ori').value ||1500000),
+};
+}
+
+/* ── Core solver ── */
+function solve(item,reg,enr,fReg,fEnr,target,switchAt,etype,start){
+const enrR=ENR[etype];
+const a=new Array(12).fill(0), b=new Array(12).fill(0);
+for(let n=target-1;n>=start;n--){
+const dest=n+1;
+if(dest<=4){a[n]=(reg+fReg)+a[n+1];b[n]=b[n+1];}
+else{
+const useEnr=dest>=switchAt;
+const ore=useEnr?enr:reg, fee=useEnr?fEnr:fReg, p=useEnr?enrR[dest]:REG[dest];
+a[n]=(ore+fee)+p*a[n+1]+(1-p)*item;
+b[n]=p*b[n+1]+(1-p);
+}
+}
+return item + a[start]/(1-b[start]);
+}
+
+function runProb(target,switchAt,etype,start){
+const enrR=ENR[etype]; let p=1;
+for(let d=start+1;d<=target;d++){
+if(d<=4)continue;
+p*=(d>=switchAt?enrR[d]:REG[d]);
+}
+return p;
+}
+
+function getResults(item,reg,enr,fReg,fEnr,target,etype,start){
+const fr=Math.max(start+1,5), hasRisky=target>=fr, pts=[];
+if(!hasRisky){pts.push(target+1);}
+else{for(let k=fr;k<=target+1;k++)pts.push(k);}
+return{hasRisky,firstRisky:fr,results:pts.map(k=>({
+k,cost:solve(item,reg,enr,fReg,fEnr,target,k,etype,start),
+p:runProb(target,k,etype,start)
+}))};
+}
+
+/* ── Formatting ── */
+function fz(v){
+const s=Math.sign(v);v=Math.abs(v);
+const r=v>=1e9?(v/1e9).toFixed(2)+'B':v>=1e6?(v/1e6).toFixed(2)+'M':v>=1e3?(v/1000).toFixed(1)+'k':Math.round(v).toLocaleString();
+return(s<0?'-':'')+r+' z';
+}
+
+function fzs(v){
+const s=Math.sign(v);v=Math.abs(v);
+const r=v>=1e9?(v/1e9).toFixed(2)+'B':v>=1e6?(v/1e6).toFixed(2)+'M':v>=1e3?(v/1000).toFixed(1)+'k':Math.round(v).toLocaleString();
+return(s<0?'-':'')+r;
+}
+
+function fpct(v){return(v>=0?'+':'')+v.toFixed(1)+'%';}
+function pClass(v){return v>0?'profit-pos':v<0?'profit-neg':'profit-zero';}
+
+function triesStr(r){
+if(r>=1)return'<span class="tries-good">1</span>';
+const t=1/r,cls=t<=2?'tries-ok':'tries-bad';
+return`<span class="${cls}">${Number.isInteger(t)?t:t.toFixed(1)}</span>`;
+}
+
+function rateClass(r){return r>=1?'rate-100':r>=0.8?'rate-hi':r>=0.6?'rate-mid':r>=0.3?'rate-lo':'rate-vlo';}
+
+function stratDesc(target,k,start){
+const fr=Math.max(start+1,5);
+if(k<=fr)return'All Enriched';
+if(k>target)return'All Regular';
+return`Reg→+${k-1}, Enr +${k}→+${target}`;
+}
+
+/* ── Shared / type change ── */
+function onSharedChange(){saveInputs();calc();calcProfit();}
+function onEtypeChange(){saveInputs();onSharedChange();}
+function onStartChange(){saveInputs();enforceRange();calc();}
+function onTargetChange(){saveInputs();enforceRange();calc();}
+
+function enforceRange(){
+const s=+document.getElementById('start').value,t=+document.getElementById('tgt').value;
+if(s>=t)document.getElementById('tgt').value=Math.min(s+1,10);
+}
+
+/* ── TAB 1: calc ── */
+function calc(){
+const item =+document.getElementById('ip').value ||20000;
+const target=+document.getElementById('tgt').value ||9;
+const start =+document.getElementById('start').value;
+const etype = document.getElementById('etype').value;
+const {fReg,fEnr,reg,enr}=shared(etype);
+const enrR=ENR[etype];
+const [regName,enrName]=ORE_LABEL[etype];
+
+document.getElementById('item-lbl').textContent=start===0?'Item price at +0 (z)':`Item price at +${start} (z)`;
+document.getElementById('reg-card-lbl').textContent='All '+regName;
+document.getElementById('enr-card-lbl').textContent='All '+enrName;
+
+const sn=document.getElementById('start-note');
+if(start>0){sn.style.display='block';sn.innerHTML=`Starting from <b>+${start}</b>: on failure buy another +${start} item and retry. Item price = merchant price for a +${start} item.`;}
+else sn.style.display='none';
+
+const safeEnr=[];
+for(let n=5;n<=10;n++)if(enrR[n]===1.0&&REG[n]<1.0)safeEnr.push(`+${n-1}→+${n}`);
+
+let rows=`<tr>
+<th rowspan="2">Step</th>
+<th class="center col-sep" colspan="2">${regName} (fee: ${fReg.toLocaleString()}z)</th>
+<th class="center col-sep" colspan="2">${enrName} (fee: ${fEnr.toLocaleString()}z)</th>
+<th class="center" rowspan="2">Enriched<br>advantage</th>
+<th rowspan="2">Status</th>
+</tr><tr>
+<th class="center col-sep">Rate</th><th class="center">Avg attempts</th>
+<th class="center col-sep">Rate</th><th class="center">Avg attempts</th>
+</tr>`;
+
+for(let n=1;n<=10;n++){
+const isBefore=n<=start,isDone=n>target,isTarget=n===target;
+const rr=REG[n],er=enrR[n];
+let adv='';
+if(!isBefore&&!isDone){
+if(rr===1&&er===1)adv='<span style="color:var(--text5)">—</span>';
+else if(er>rr)adv=`<span style="color:var(--enrb-col);font-weight:600">+${Math.round((er-rr)*100)} pp</span>`;
+else if(er===rr&&rr<1)adv='<span style="color:#e67e22">same</span>';
+}
+let status='';
+if(isBefore)status='<span class="start-tag">already done</span>';
+else if(isDone)status='<span class="rate-na">beyond target</span>';
+else if(isTarget)status=`<span class="target-tag">TARGET +${target}</span>`;
+else if(rr===1&&er===1)status='<span class="safe-tag">100% safe</span>';
+else if(er===1&&rr<1)status='<span class="enr-better">safe w/ enriched</span>';
+else status='<span class="risky-tag">risky</span>';
+const skip=isBefore||isDone,na='<span class="rate-na">—</span>';
+const rc=isBefore?'row-before':isDone?'row-dimmed':isTarget?'row-active':'';
+rows+=`<tr class="${rc}">
+<td><b>+${n-1}→+${n}</b></td>
+<td class="center col-sep ${skip?'rate-na':rateClass(rr)}">${skip?'—':(rr*100)+'%'}</td>
+<td class="center">${skip?na:triesStr(rr)}</td>
+<td class="center col-sep ${skip?'rate-na':rateClass(er)}">${skip?'—':(er*100)+'%'}</td>
+<td class="center">${skip?na:triesStr(er)}</td>
+<td class="center">${adv}</td>
+<td>${status}</td>
+</tr>`;
+}
+
+document.getElementById('rates-tbl').innerHTML=rows;
+document.getElementById('rates-note').innerHTML='<b>Avg attempts</b> = expected tries for that step in isolation (1 ÷ rate). '+
+(safeEnr.length?`Steps ${safeEnr.join(', ')} are <b>100% safe with Enriched</b> but risky with Regular.`:'');
+
+const{hasRisky,firstRisky,results}=getResults(item,reg,enr,fReg,fEnr,target,etype,start);
+const rRes=results[results.length-1],eRes=results[0];
+const best=results.reduce((a,b)=>b.cost<a.cost?b:a);
+
+function fmtCard(r){return !hasRisky?'All steps guaranteed — no risk!':
+`Success/run: <b>${(r.p*100).toFixed(3)}%</b><br>Avg items bought: <b>~${(1/r.p).toFixed(1)}</b>`;}
+
+document.getElementById('c-reg').textContent=fz(rRes.cost);document.getElementById('d-reg').innerHTML=fmtCard(rRes);
+document.getElementById('c-enr').textContent=fz(eRes.cost);document.getElementById('d-enr').innerHTML=fmtCard(eRes);
+document.getElementById('c-opt').textContent=fz(best.cost);
+document.getElementById('label-opt').textContent=stratDesc(target,best.k,start);
+document.getElementById('d-opt').innerHTML=fmtCard(best);
+
+let vHtml;
+if(!hasRisky)vHtml=`All steps from +${start} to +${target} are 100% guaranteed. Total cost: <b>${fz(best.cost)}</b>. Use Regular.`;
+else if(best.k>target)vHtml=`✓ <b>All ${regName}</b> is cheapest at <b>${fz(best.cost)}</b>. All ${enrName} would cost <b>${fz(eRes.cost)}</b>.`;
+else if(best.k<=firstRisky)vHtml=`✓ <b>All ${enrName}</b> is cheapest at <b>${fz(best.cost)}</b>. All ${regName} would cost <b>${fz(rRes.cost)}</b>.`;
+else vHtml=`✓ Best mix: <b>${regName}</b> up to +${best.k-1}, then <b>${enrName}</b> from +${best.k} to +${target}. Cost: <b>${fz(best.cost)}</b>.`;
+
+document.getElementById('verdict').innerHTML=vHtml;
+
+const maxC=Math.max(...results.map(r=>r.cost));
+const pal=['#27ae60','#2a7d4f','#4a90d9','#d4a017','#e07a35','#e05535','#9b0000'];
+
+document.getElementById('bars').innerHTML=results.map(({k,cost},i)=>{
+const isBest=k===best.k;
+const lbl=k<=firstRisky?`All ${enrName}`:k>target?`All ${regName}`:`Switch at +${k}`;
+return`<div class="bar-row"><div class="bar-lbl">${lbl}</div>
+<div class="bar-track"><div class="bar-fill" style="width:${Math.max(2,(cost/maxC*100)).toFixed(1)}%;background:${pal[i%pal.length]};opacity:${isBest?1:.5}"></div></div>
+<div class="bar-val">${fzs(cost)} z${isBest?' ✓':''}</div></div>`;
+}).join('');
+
+document.getElementById('switch-note').innerHTML=hasRisky
+?`"Switch at +k" = use <b>${regName}</b> (fee ${fReg.toLocaleString()}z) below +k, then <b>${enrName}</b> (fee ${fEnr.toLocaleString()}z) from +k to +${target}. On failure buy a fresh +${start} item and retry.`
+:'No risky steps in the selected range.';
+
+const hdr=`<tr><th>Switch at</th><th>Strategy</th><th>Expected total cost</th><th>Success/run</th><th>Avg items bought</th><th></th></tr>`;
+document.getElementById('mix-tbl').innerHTML=hdr+results.map(({k,cost,p})=>{
+const isBest=k===best.k;
+return`<tr class="${isBest?'mix-winner':''}">
+<td><b>${k>target?'—':'+'+k}</b></td>
+<td style="font-size:12px;color:var(--text3)">${stratDesc(target,k,start)}</td>
+<td><b>${fzs(cost)} z</b></td>
+<td>${hasRisky?(p*100).toFixed(3)+'%':'100%'}</td>
+<td>${hasRisky?'~'+(1/p).toFixed(1):'1'}</td>
+<td class="arrow-note">${isBest?'← cheapest':''}</td>
+</tr>`;
+}).join('');
+}
+
+/* ── TAB 2: profit ── */
+function calcProfit(){
+const buy =+document.getElementById('p-buy').value ||20000;
+const sell =+document.getElementById('p-sell').value ||500000;
+const target=+document.getElementById('p-tgt').value ||9;
+const etype = document.getElementById('p-etype').value;
+const {fReg,fEnr,reg,enr}=shared(etype);
+const [regName,enrName]=ORE_LABEL[etype];
+const start=0;
+
+document.getElementById('p-sell-lbl').textContent=`Sell price of +${target} item (z)`;
+
+const{hasRisky,firstRisky,results}=getResults(buy,reg,enr,fReg,fEnr,target,etype,start);
+const best=results.reduce((a,b)=>b.cost<a.cost?b:a);
+const rRes=results[results.length-1],eRes=results[0];
+
+const profit=c=>sell-c, roi=c=>(profit(c)/c)*100;
+const pBest=profit(best.cost),pReg=profit(rRes.cost),pEnr=profit(eRes.cost);
+const isP=pBest>=0;
+
+document.getElementById('p-summary-cards').innerHTML=`
+<div class="result-card">
+<div class="badge badge-gray">Buy cost</div>
+<div class="result-label">+0 item purchase</div>
+<div class="result-cost">${fz(buy)}</div>
+<div class="result-detail">Per attempt</div>
+</div>
+<div class="result-card">
+<div class="badge badge-blue">Sell price</div>
+<div class="result-label">+${target} on market</div>
+<div class="result-cost">${fz(sell)}</div>
+<div class="result-detail">When successfully sold</div>
+</div>
+<div class="result-card">
+<div class="badge badge-gray">Best refine cost</div>
+<div class="result-label">${stratDesc(target,best.k,start)}</div>
+<div class="result-cost">${fz(best.cost)}</div>
+<div class="result-detail">Expected total spend</div>
+</div>
+<div class="result-card ${isP?'winner':'loser'}">
+<div class="badge ${isP?'badge-green':'badge-red'}">${isP?'✓ Profit':'✗ Loss'}</div>
+<div class="result-label">Expected result (best strategy)</div>
+<div class="result-cost ${isP?'green':'red'}">${fz(pBest)}</div>
+<div class="result-detail">ROI: <b class="${pClass(pBest)}">${fpct(roi(best.cost))}</b><br>
+All ${regName}: <span class="${pClass(pReg)}">${fz(pReg)}</span> (${fpct(roi(rRes.cost))})<br>
+All ${enrName}: <span class="${pClass(pEnr)}">${fz(pEnr)}</span> (${fpct(roi(eRes.cost))})</div>
+</div>`;
+
+const vEl=document.getElementById('p-verdict');
+if(isP){vEl.className='alert alert-green';vEl.innerHTML=`✓ Refining is <b>profitable</b> with the optimal strategy (<b>${stratDesc(target,best.k,start)}</b>). Expected profit: <b>${fz(pBest)}</b> per +${target} sold (${fpct(roi(best.cost))} ROI).`;}
+else{vEl.className='alert alert-red';vEl.innerHTML=`✗ Refining is a <b>net loss</b> at these prices regardless of strategy. Best case: <b>${fz(pBest)}</b> with ${stratDesc(target,best.k,start)}. You need to sell for at least <b>${fz(best.cost)}</b> to break even.`;}
+
+const profits=results.map(r=>profit(r.cost)),maxAbs=Math.max(...profits.map(Math.abs),1);
+
+document.getElementById('p-bars').innerHTML=results.map(({k,cost},i)=>{
+const pr=profit(cost),isBest=k===best.k;
+const lbl=k<=firstRisky?`All ${enrName}`:k>target?`All ${regName}`:`Switch at +${k}`;
+const pct=(pr/maxAbs)*50,left=pct>=0?'50%':`${50+pct}%`,width=Math.abs(pct)+'%',col=pr>=0?'#27ae60':'#e05535';
+return`<div class="pbar-wrap">
+<div class="pbar-lbl">${lbl}${isBest?' ✓':''}</div>
+<div class="pbar-track"><div class="pbar-zero"></div>
+<div class="pbar-fill" style="left:${left};width:${width};background:${col};opacity:${isBest?0.9:0.45}"></div></div>
+<div class="pbar-val ${pClass(pr)}">${fzs(pr)} z (${fpct(roi(cost))})</div>
+</div>`;
+}).join('');
+
+const bestK=results.reduce((a,b)=>profit(b.cost)>profit(a.cost)?b:a).k;
+const hdr=`<tr><th>Switch at</th><th>Strategy</th><th>Expected total cost</th><th>Expected profit/loss</th><th>ROI</th><th>Breakeven sell price</th><th></th></tr>`;
+
+document.getElementById('p-mix-tbl').innerHTML=hdr+results.map(({k,cost,p})=>{
+const pr=profit(cost),isBest=k===bestK;
+return`<tr class="${isBest?'best-profit':''}">
+<td><b>${k>target?'—':'+'+k}</b></td>
+<td style="font-size:12px;color:var(--text3)">${stratDesc(target,k,start)}</td>
+<td>${fzs(cost)} z</td>
+<td class="${pClass(pr)}"><b>${fz(pr)}</b></td>
+<td class="${pClass(pr)}">${fpct(roi(cost))}</td>
+<td style="color:var(--text4);font-size:12px">${fzs(cost)} z</td>
+<td class="arrow-note">${isBest?'← best profit':''}</td>
+</tr>`;
+}).join('');
+
+document.getElementById('p-mix-note').innerHTML=`<b>ROI</b> = profit ÷ total expected spend × 100. <b>Breakeven sell price</b> = minimum sale price to cover expected costs. All figures are <i>expected values</i>.`;
+}
+
+// Initialize: Load saved inputs and run calculations
+loadInputs();
+onEtypeChange();
+calcProfit();
+</script>
+</body>
+</html>
