@@ -315,9 +315,20 @@ tr:last-child td{border-bottom:none}
 @media (max-width:768px){.top-bar{flex-direction:column;gap:12px}.top-bar-right{width:100%;justify-content:flex-end;flex-wrap:wrap}.sv-grid-4{grid-template-columns:repeat(2,1fr)}.shared-grid{grid-template-columns:repeat(2,1fr)}}
 
 /* ══ Footer ══ */
-.footer{max-width:1800px;margin:30px auto 0;padding:20px;text-align:center;border-top:1px solid var(--border)}
-.coffee-link{display:inline-flex;align-items:center;gap:8px;padding:10px 20px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text2);text-decoration:none;font-size:14px;font-weight:500;transition:all .2s}
-.coffee-link:hover{background:var(--bg3);border-color:var(--text4);transform:translateY(-2px)}
+.footer{max-width:1800px;margin:40px auto 0;padding:32px 24px 24px;border-top:1px solid var(--border)}
+.footer-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:32px;margin-bottom:28px;text-align:left}
+.footer-col h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text4);margin-bottom:10px}
+.footer-col p,.footer-col a{font-size:12px;color:var(--text3);line-height:1.8;text-decoration:none;display:block}
+.footer-col a:hover{color:var(--text)}
+.footer-bottom{border-top:1px solid var(--border3);padding-top:16px;display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px}
+.footer-disclaimer{font-size:11px;color:var(--text4);line-height:1.6}
+.coffee-link{display:inline-flex;align-items:center;gap:8px;padding:8px 16px;background:var(--bg2);border:1px solid var(--border);border-radius:8px;color:var(--text2);text-decoration:none;font-size:13px;font-weight:500;transition:all .2s}
+.coffee-link:hover{background:var(--bg3);border-color:var(--text4);transform:translateY(-1px)}
+.changelog-entry{display:flex;gap:12px;margin-bottom:8px;font-size:12px}
+.changelog-ver{font-weight:700;color:var(--text);white-space:nowrap;min-width:36px}
+.changelog-date{color:var(--text4);white-space:nowrap;min-width:80px}
+.changelog-desc{color:var(--text3);line-height:1.5}
+@media(max-width:768px){.footer-grid{grid-template-columns:1fr}.footer-bottom{flex-direction:column;align-items:flex-start}}
 
 .server-mode-wrap{display:flex;align-items:center;gap:6px}
 .server-mode-lbl{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:var(--text4);white-space:nowrap}
@@ -593,9 +604,49 @@ tr:last-child td{border-bottom:none}
 </div><!-- #view-profit -->
 
 <div class="footer">
-  <a href="https://buymeacoffee.com/lucazedo" target="_blank" class="coffee-link">
-    <span style="font-size:18px">☕</span><span>Buy me a coffee</span>
-  </a>
+  <div class="footer-grid">
+
+    <!-- Changelog -->
+    <div class="footer-col">
+      <h4>Changelog</h4>
+      <div class="changelog-entry">
+        <span class="changelog-ver">v2.0</span>
+        <span class="changelog-date">Mar 2026</span>
+        <span class="changelog-desc">Three-tab layout (Simple / Advanced / Profit &amp; Loss), server mode selector (rAthena · Hercules · Renewal), accurate refine rates from emulator source DBs, DEF/ATK bonus column, collapsible ore prices, dark mode</span>
+      </div>
+      <div class="changelog-entry">
+        <span class="changelog-ver">v1.0</span>
+        <span class="changelog-date">2024</span>
+        <span class="changelog-desc">Initial release — Advanced refine cost calculator and Profit/Loss view</span>
+      </div>
+    </div>
+
+    <!-- Data sources -->
+    <div class="footer-col">
+      <h4>Data Sources</h4>
+      <a href="https://github.com/rathena/rathena" target="_blank">rAthena — db/pre-re/refine.yml &amp; db/re/refine.yml</a>
+      <a href="https://github.com/HerculesWS/Hercules" target="_blank">Hercules — db/pre-re/refine_db.conf</a>
+      <a href="https://irowiki.org/wiki/Refinement_System" target="_blank">iROWiki — Refinement System</a>
+      <a href="https://www.ratemyserver.net" target="_blank">RateMyServer — item &amp; rate references</a>
+      <a href="https://www.divine-pride.net" target="_blank">Divine Pride — item icons</a>
+    </div>
+
+    <!-- About -->
+    <div class="footer-col">
+      <h4>About</h4>
+      <p>Refine cost estimates are based on expected values over many attempts. Actual results will vary.</p>
+      <p style="margin-top:6px">Rates reflect emulator defaults. Custom servers may use different values — use the Server selector accordingly.</p>
+      <a href="https://github.com/lucas0/ro-calc" target="_blank" style="margin-top:8px">View source on GitHub ↗</a>
+    </div>
+
+  </div>
+
+  <div class="footer-bottom">
+    <p class="footer-disclaimer">Not affiliated with Gravity Co., Ltd., WarpPortal, or any official Ragnarok Online publisher. All game assets belong to their respective owners.</p>
+    <a href="https://buymeacoffee.com/lucazedo" target="_blank" class="coffee-link">
+      <span>☕</span><span>Buy me a coffee</span>
+    </a>
+  </div>
 </div>
 
 </div><!-- #view-adv-wrapper -->
