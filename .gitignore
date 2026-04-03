@@ -1,0 +1,21 @@
+# Secrets and local config
+mvp-tracker/config.json
+mvp-tracker/data/
+
+# Logs
+backend.log
+*.log
+
+# Windows scripts (local dev only)
+*.ps1
+*.bat
+
+# Test scripts
+test-*.ps1
+watch-*.ps1
+debug-*.ps1
+restart-*.ps1
+force-*.ps1
+
+# Claude Code
+.claude/

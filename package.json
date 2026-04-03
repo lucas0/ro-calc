@@ -1,0 +1,13 @@
+{
+  "name": "ro-calc",
+  "version": "1.0.0",
+  "description": "RO Refine Calculator + MVP Tracker",
+  "main": "serve.js",
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "node serve.js",
+    "dev": "node serve.js"
+  }
+}

@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>RO Refine Calculator</title>
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; }
+
+body {
+  font-family: Verdana, Arial, sans-serif;
+  font-size: 13px;
+  background: #e8dfa0;
+  color: #333;
+  padding: 20px;
+}
+
+.wrapper {
+  max-width: 480px;
+  margin: 0 auto;
+}
+
+h1 {
+  font-size: 17px;
+  font-weight: bold;
+  color: #3a2a00;
+  margin-bottom: 14px;
+  text-align: center;
+}
+
+.card {
+  background: #f5eebb;
+  border: 1px solid #c8b860;
+  border-radius: 6px;
+  padding: 18px 22px;
+  margin-bottom: 18px;
+}
+
+.type-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+}
+.type-row span { font-weight: bold; color: #5a3e00; margin-right: 4px; }
+
+.type-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 5px 12px;
+  border: 1px solid #b8a050;
+  border-radius: 4px;
+  background: #fffbe8;
+  color: #4a3200;
+  cursor: pointer;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background .15s;
+}
+.type-btn:hover, .type-btn.active {
+  background: #d4a800;
+  border-color: #a07800;
+  color: #fff;
+}
+.type-btn img { width: 20px; height: 20px; object-fit: contain; }
+
+#wlv-row {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 14px;
+}
+#wlv-row span { font-weight: bold; color: #5a3e00; margin-right: 4px; }
+.wlv-btn {
+  padding: 4px 10px;
+  border: 1px solid #b8a050;
+  border-radius: 4px;
+  background: #fffbe8;
+  color: #4a3200;
+  cursor: pointer;
+  font-size: 12px;
+  font-weight: 600;
+  transition: background .15s;
+}
+.wlv-btn:hover, .wlv-btn.active {
+  background: #d4a800;
+  border-color: #a07800;
+  color: #fff;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: 180px 1fr;
+  gap: 8px 10px;
+  align-items: center;
+  margin-bottom: 14px;
+}
+.form-grid label {
+  text-align: right;
+  font-weight: bold;
+  color: #4a3200;
+}
+.form-grid input, .form-grid select {
+  padding: 5px 8px;
+  border: 1px solid #b8a050;
+  border-radius: 4px;
+  background: #fffbe8;
+  font-size: 13px;
+  color: #333;
+  width: 100%;
+}
+.form-grid input:focus, .form-grid select:focus {
+  outline: none;
+  border-color: #d4a800;
+  background: #fff;
+}
+
+.ore-icon {
+  display: inline-block;
+  width: 16px; height: 16px;
+  border-radius: 50%;
+  margin-right: 3px;
+  vertical-align: middle;
+}
+.elu-dot { background: #5090e0; }
+.ori-dot { background: #e07030; }
+.enr-dot { background: #9050d0; }
+
+.go-btn {
+  display: block;
+  width: 100%;
+  padding: 9px;
+  background: #c89000;
+  border: 1px solid #8a6000;
+  border-radius: 4px;
+  color: #fff;
+  font-size: 14px;
+  font-weight: bold;
+  cursor: pointer;
+  letter-spacing: .5px;
+  transition: background .15s;
+}
+.go-btn:hover { background: #a87000; }
+
+/* Results */
+.result-card {
+  background: #f5eebb;
+  border: 1px solid #c8b860;
+  border-radius: 6px;
+  padding: 18px 22px;
+}
+.result-card h2 {
+  font-size: 14px;
+  font-weight: bold;
+  color: #3a2a00;
+  margin-bottom: 14px;
+  border-bottom: 1px solid #c8b860;
+  padding-bottom: 8px;
+}
+
+.result-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+  margin-bottom: 14px;
+}
+.result-table th {
+  text-align: left;
+  background: #ddd090;
+  color: #3a2a00;
+  padding: 6px 10px;
+  font-weight: bold;
+}
+.result-table td {
+  padding: 6px 10px;
+  border-bottom: 1px solid #d8c878;
+  color: #333;
+  vertical-align: middle;
+}
+.result-table tr:last-child td { border-bottom: none; }
+.result-table tr.best-row td { background: #fffbd0; font-weight: bold; }
+.result-table tr.best-row td:last-child { color: #1a7a35; }
+
+.verdict {
+  background: #fffbd0;
+  border: 1px solid #c8b060;
+  border-radius: 4px;
+  padding: 10px 14px;
+  font-size: 13px;
+  line-height: 1.6;
+  color: #3a2a00;
+}
+
+.step-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 12px;
+  margin-top: 14px;
+}
+.step-table th {
+  background: #ddd090;
+  color: #3a2a00;
+  padding: 5px 8px;
+  font-weight: bold;
+  text-align: center;
+}
+.step-table th:first-child { text-align: left; }
+.step-table td {
+  padding: 5px 8px;
+  border-bottom: 1px solid #d8c878;
+  color: #333;
+  text-align: center;
+}
+.step-table td:first-child { text-align: left; font-weight: bold; }
+.step-table tr:last-child td { border-bottom: none; }
+.step-table .safe { color: #1a8a3a; font-weight: bold; }
+.step-table .risky { color: #c03030; font-weight: bold; }
+.step-table .enr-safe { color: #7020c0; font-weight: bold; }
+.step-table .target-row td { background: #fffbd0; }
+
+.hidden { display: none !important; }
+</style>
+</head>
+<body>
+<div class="wrapper">
+
+<h1>Ragnarok Refine Calculator</h1>
+
+<div class="card">
+  <div class="type-row">
+    <span>Item type:</span>
+    <button class="type-btn active" id="btn-armor" onclick="setType('armor')">
+      ⛨ Armor
+    </button>
+    <button class="type-btn" id="btn-weapon" onclick="setType('weapon')">
+      ⚔ Weapon
+    </button>
+  </div>
+
+  <div id="wlv-row" class="hidden">
+    <span>Weapon level:</span>
+    <button class="wlv-btn active" id="wlv1" onclick="setWlv(1)">Lv 1</button>
+    <button class="wlv-btn" id="wlv2" onclick="setWlv(2)">Lv 2</button>
+    <button class="wlv-btn" id="wlv3" onclick="setWlv(3)">Lv 3</button>
+    <button class="wlv-btn" id="wlv4" onclick="setWlv(4)">Lv 4</button>
+  </div>
+
+  <div class="form-grid">
+    <label>+0 item price (z):</label>
+    <input type="number" id="ip" value="20000" min="0">
+
+    <label id="ore-label"><span class="ore-icon elu-dot"></span>Elunium price (z):</label>
+    <input type="number" id="ore" value="7000" min="0">
+
+    <label id="enr-label"><span class="ore-icon enr-dot"></span>Enriched Elunium (z):</label>
+    <input type="number" id="enr" value="1500000" min="0">
+
+    <label>Upgrade till:</label>
+    <select id="tgt">
+      <option value="1">+1</option>
+      <option value="2">+2</option>
+      <option value="3">+3</option>
+      <option value="4">+4</option>
+      <option value="5">+5</option>
+      <option value="6">+6</option>
+      <option value="7">+7</option>
+      <option value="8">+8</option>
+      <option value="9" selected>+9</option>
+      <option value="10">+10</option>
+    </select>
+  </div>
+
+  <button class="go-btn" onclick="calc()">/Go</button>
+</div>
+
+<div class="result-card hidden" id="result-panel">
+  <h2 id="result-title">Results</h2>
+
+  <table class="result-table" id="strat-table">
+    <thead>
+      <tr>
+        <th>Strategy</th>
+        <th>Expected total cost</th>
+        <th>Success chance / run</th>
+      </tr>
+    </thead>
+    <tbody id="strat-body"></tbody>
+  </table>
+
+  <div class="verdict" id="verdict-box"></div>
+
+  <table class="step-table" id="step-table">
+    <thead>
+      <tr>
+        <th>Step</th>
+        <th id="reg-hdr">Elunium rate</th>
+        <th id="enr-hdr">Enr. Elunium rate</th>
+      </tr>
+    </thead>
+    <tbody id="step-body"></tbody>
+  </table>
+</div>
+
+<script>
+/* ── Rate tables ── */
+const REG = [0,1,1,1,1,0.6,0.4,0.4,0.2,0.2,0.1];
+const ENR = {
+  armor:[0,1,1,1,1,0.9,0.7,0.7,0.4,0.4,0.2],
+  wlv1: [0,1,1,1,1,1.0,1.0,1.0,0.9,0.7,0.3],
+  wlv2: [0,1,1,1,1,1.0,1.0,1.0,0.7,0.4,0.3],
+  wlv3: [0,1,1,1,1,1.0,0.9,0.8,0.4,0.4,0.3],
+  wlv4: [0,1,1,1,1,0.9,0.7,0.7,0.4,0.4,0.2],
+};
+const REG_FEE = {armor:2000,wlv1:50,wlv2:200,wlv3:5000,wlv4:20000};
+const ENR_FEE = 2000;
+
+let currentType = 'armor';
+let currentWlv  = 1;
+
+function etype() {
+  return currentType === 'armor' ? 'armor' : 'wlv' + currentWlv;
+}
+
+function setType(t) {
+  currentType = t;
+  document.getElementById('btn-armor').classList.toggle('active', t === 'armor');
+  document.getElementById('btn-weapon').classList.toggle('active', t === 'weapon');
+  document.getElementById('wlv-row').classList.toggle('hidden', t === 'armor');
+  updateOreLabels();
+}
+
+function setWlv(n) {
+  currentWlv = n;
+  [1,2,3,4].forEach(i => document.getElementById('wlv'+i).classList.toggle('active', i===n));
+  updateOreLabels();
+}
+
+function updateOreLabels() {
+  const isArm = currentType === 'armor';
+  document.getElementById('ore-label').innerHTML =
+    `<span class="ore-icon ${isArm?'elu-dot':'ori-dot'}"></span>${isArm?'Elunium':'Oridecon'} price (z):`;
+  document.getElementById('enr-label').innerHTML =
+    `<span class="ore-icon enr-dot"></span>Enriched ${isArm?'Elunium':'Oridecon'} (z):`;
+  const th = document.getElementById('reg-hdr');
+  const th2 = document.getElementById('enr-hdr');
+  if (th) { th.textContent = isArm ? 'Elunium rate' : 'Oridecon rate'; }
+  if (th2) { th2.textContent = isArm ? 'Enr. Elunium rate' : 'Enr. Oridecon rate'; }
+}
+
+/* ── Core solver ── */
+function solve(item, reg, enr, fReg, fEnr, target, switchAt, et) {
+  const start = 0;
+  const enrR = ENR[et];
+  const a = new Array(12).fill(0), b = new Array(12).fill(0);
+  for (let n = target - 1; n >= start; n--) {
+    const dest = n + 1;
+    if (dest <= 4) { a[n] = (reg + fReg) + a[n+1]; b[n] = b[n+1]; }
+    else {
+      const useEnr = dest >= switchAt;
+      const ore = useEnr ? enr : reg, fee = useEnr ? fEnr : fReg;
+      const p   = useEnr ? enrR[dest] : REG[dest];
+      a[n] = (ore + fee) + p * a[n+1] + (1 - p) * item;
+      b[n] = p * b[n+1] + (1 - p);
+    }
+  }
+  return item + a[start] / (1 - b[start]);
+}
+
+function runProb(target, switchAt, et) {
+  const enrR = ENR[et]; let p = 1;
+  for (let d = 1; d <= target; d++) {
+    if (d <= 4) continue;
+    p *= (d >= switchAt ? enrR[d] : REG[d]);
+  }
+  return p;
+}
+
+function fz(v) {
+  const s = Math.sign(v); v = Math.abs(v);
+  const r = v >= 1e9 ? (v/1e9).toFixed(2)+'B'
+          : v >= 1e6 ? (v/1e6).toFixed(2)+'M'
+          : v >= 1e3 ? (v/1000).toFixed(1)+'k'
+          : Math.round(v).toLocaleString();
+  return (s < 0 ? '-' : '') + r + ' z';
+}
+
+function stratLabel(target, switchAt) {
+  if (switchAt <= 5)    return 'All Enriched';
+  if (switchAt > target) return 'All Regular';
+  return `Regular → +${switchAt-1}, Enriched +${switchAt} → +${target}`;
+}
+
+function calc() {
+  const item   = +document.getElementById('ip').value  || 20000;
+  const ore    = +document.getElementById('ore').value || 7000;
+  const enr    = +document.getElementById('enr').value || 1500000;
+  const target = +document.getElementById('tgt').value || 9;
+  const et     = etype();
+  const fReg   = REG_FEE[et];
+  const fEnr   = ENR_FEE;
+  const enrR   = ENR[et];
+  const isArm  = currentType === 'armor';
+  const regName = isArm ? 'Elunium' : 'Oridecon';
+  const enrName = isArm ? 'Enriched Elunium' : 'Enriched Oridecon';
+
+  /* Build switch-point list */
+  const firstRisky = 5;
+  const pts = [];
+  for (let k = firstRisky; k <= target + 1; k++) pts.push(k);
+  if (pts.length === 0) pts.push(target + 1); // all safe
+
+  const results = pts.map(k => ({
+    k,
+    cost: solve(item, ore, enr, fReg, fEnr, target, k, et),
+    p: runProb(target, k, et)
+  }));
+
+  const allReg  = results[results.length - 1];
+  const allEnr  = results[0];
+  const best    = results.reduce((a, b) => b.cost < a.cost ? b : a);
+  const hasRisk = target >= 5;
+
+  /* Strategy summary table */
+  const shown = [];
+  if (allEnr.k !== best.k) shown.push(allEnr);
+  if (allReg.k !== best.k) shown.push(allReg);
+  shown.push(best); // always last (highlighted)
+
+  let tbody = '';
+  shown.forEach(r => {
+    const isBest = r.k === best.k;
+    const pct = hasRisk ? (r.p * 100).toFixed(3) + '%' : '100%';
+    tbody += `<tr class="${isBest ? 'best-row' : ''}">
+      <td>${stratLabel(target, r.k)}${isBest ? ' ✓' : ''}</td>
+      <td>${fz(r.cost)}</td>
+      <td>${pct}</td>
+    </tr>`;
+  });
+  document.getElementById('strat-body').innerHTML = tbody;
+
+  /* Verdict */
+  let vtext;
+  if (!hasRisk) {
+    vtext = `All steps to +${target} are 100% safe. Expected cost: <b>${fz(best.cost)}</b>. Use Regular ${regName}.`;
+  } else if (best.k > target) {
+    vtext = `✓ <b>All ${regName}</b> is cheapest: <b>${fz(best.cost)}</b>. All ${enrName} would cost <b>${fz(allEnr.cost)}</b>.`;
+  } else if (best.k <= firstRisky) {
+    vtext = `✓ <b>All ${enrName}</b> is cheapest: <b>${fz(best.cost)}</b>. All ${regName} would cost <b>${fz(allReg.cost)}</b>.`;
+  } else {
+    vtext = `✓ Best strategy: use <b>${regName}</b> up to +${best.k-1}, then <b>${enrName}</b> from +${best.k} to +${target}. Expected cost: <b>${fz(best.cost)}</b>.`;
+  }
+  document.getElementById('verdict-box').innerHTML = vtext;
+
+  /* Per-step table */
+  document.getElementById('reg-hdr').textContent  = regName + ' rate';
+  document.getElementById('enr-hdr').textContent  = enrName + ' rate';
+  document.getElementById('result-title').textContent =
+    `Results — ${isArm ? 'Armor' : 'Weapon Lv ' + currentWlv} → +${target}`;
+
+  let stbody = '';
+  for (let n = 1; n <= target; n++) {
+    const rr = REG[n], er = enrR[n];
+    const isTarget = n === target;
+    stbody += `<tr class="${isTarget ? 'target-row' : ''}">
+      <td>+${n-1} → +${n}${isTarget ? ' 🎯' : ''}</td>
+      <td>${(rr*100).toFixed(0)}%</td>
+      <td>${(er*100).toFixed(0)}%</td>
+    </tr>`;
+  }
+  document.getElementById('step-body').innerHTML = stbody;
+
+  document.getElementById('result-panel').classList.remove('hidden');
+}
+</script>
+</div>
+</body>
+</html>

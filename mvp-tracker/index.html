@@ -1,0 +1,1781 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>RO MVP Tracker</title>
+<style>
+:root {
+  --bg:#f0f2f5;--bg2:#fff;--bg3:#e8eaed;
+  --text:#1a1a2e;--text2:#2d3561;--text3:#555;--text4:#888;
+  --border:#dde1e7;--border3:#e0e3e8;--card-bg:#fff;
+  --input-bg:#f5f7fa;--input-border:#d0d4dc;
+  --accent:#5a7de8;--accent-hover:#4a6dd8;
+  --safe-col:#2a9d2a;--safe-bg:#f0fff0;
+  --risky-col:#c0392b;--risky-bg:#fff5f5;
+  --warn-col:#e67e22;--warn-bg:#fff8f0;
+}
+[data-theme="dark"] {
+  --bg:#0f1117;--bg2:#1a1d2e;--bg3:#252840;
+  --text:#e8eaf6;--text2:#b0b8e8;--text3:#9096b8;--text4:#6068a0;
+  --border:#2a2d4a;--border3:#2e3150;--card-bg:#1e2136;
+  --input-bg:#252840;--input-border:#3a3d60;
+  --safe-col:#4caf50;--safe-bg:#0a1f0a;
+  --risky-col:#ef5350;--risky-bg:#1f0a0a;
+  --warn-col:#ff9800;--warn-bg:#1f1200;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
+.top-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;z-index:200;gap:12px}
+.top-bar h1{font-size:17px;font-weight:700;white-space:nowrap}
+.top-bar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+.user-badge{display:flex;align-items:center;gap:7px;padding:5px 11px;border-radius:6px;background:var(--bg3);border:1px solid var(--border3);font-size:12px;font-weight:600;color:var(--text)}
+.user-badge .avatar{width:22px;height:22px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}
+.theme-toggle{display:flex;align-items:center;gap:5px;cursor:pointer;padding:5px 9px;border-radius:6px;border:1px solid var(--border3);font-size:12px;font-weight:600;color:var(--text3);background:var(--bg2)}
+.theme-toggle:hover{background:var(--bg3)}
+.nav-tabs{display:flex;gap:2px;padding:0 20px;background:var(--bg2);border-bottom:1px solid var(--border)}
+.nav-tab{padding:10px 15px;font-size:12px;font-weight:600;color:var(--text4);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
+.nav-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.nav-tab:hover:not(.active){color:var(--text)}
+.main{max-width:1400px;margin:0 auto;padding:20px}
+.mvp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:11px}
+.mvp-card{background:var(--card-bg);border:1.5px solid var(--border3);border-radius:10px;padding:13px 11px 11px;transition:transform .15s,box-shadow .15s;position:relative}
+.mvp-card:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.12)}
+.mvp-card.status-available{border-color:var(--safe-col)}
+.mvp-card.status-window{border-color:var(--warn-col)}
+.mvp-card-img{width:58px;height:58px;object-fit:contain;display:block;margin:0 auto 7px}
+.mvp-card-name{font-size:12px;font-weight:700;text-align:center;margin-bottom:2px}
+.mvp-card-map{font-size:10px;color:var(--text4);text-align:center;margin-bottom:7px}
+.mvp-card-timer{font-size:14px;font-weight:700;text-align:center;font-variant-numeric:tabular-nums}
+.mvp-card-timer.available{color:var(--safe-col)}
+.mvp-card-timer.window{color:var(--warn-col)}
+.mvp-card-timer.pending{color:var(--text3)}
+.mvp-card-timer.unknown{color:var(--text4);font-size:12px}
+.status-pill{display:inline-block;font-size:9px;font-weight:700;padding:2px 6px;border-radius:20px;text-transform:uppercase;letter-spacing:.4px;margin:4px 0}
+.pill-available{background:var(--safe-bg);color:var(--safe-col)}
+.pill-window{background:var(--warn-bg);color:var(--warn-col)}
+.pill-pending{background:var(--bg3);color:var(--text4)}
+.pill-unknown{background:var(--bg3);color:var(--text4)}
+.mvp-card-btn{width:100%;margin-top:7px;padding:6px;background:var(--accent);border:none;border-radius:6px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;transition:background .15s}
+.mvp-card-btn:hover{background:var(--accent-hover)}
+.mvp-card-btn:disabled{background:var(--bg3);color:var(--text4);cursor:default}
+.filters{display:flex;gap:7px;margin-bottom:15px;align-items:center;flex-wrap:wrap}
+.filter-btn{padding:5px 12px;border:1px solid var(--border3);border-radius:20px;background:var(--bg2);color:var(--text3);font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+.filter-btn.active{background:var(--accent);color:#fff;border-color:var(--accent)}
+.search-input{padding:5px 12px;border:1px solid var(--border3);border-radius:20px;background:var(--input-bg);color:var(--text);font-size:12px;outline:none;width:160px}
+.search-input:focus{border-color:var(--accent)}
+.filter-spacer{flex:1}
+.auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:var(--bg)}
+.auth-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:32px;width:100%;max-width:400px;box-shadow:0 8px 32px rgba(0,0,0,.12)}
+.auth-box h2{font-size:20px;font-weight:700;margin-bottom:6px}
+.auth-box p{font-size:13px;color:var(--text4);margin-bottom:24px}
+.auth-tabs{display:flex;border-bottom:1px solid var(--border);margin-bottom:22px}
+.auth-tab{flex:1;padding:9px;font-size:13px;font-weight:600;color:var(--text4);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent}
+.auth-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1000;display:flex;align-items:center;justify-content:center;padding:20px}
+.modal{background:var(--bg2);border-radius:12px;width:100%;max-width:540px;max-height:90vh;overflow-y:auto;box-shadow:0 20px 60px rgba(0,0,0,.35)}
+.modal-sm{max-width:420px}
+.modal-lg{max-width:680px}
+.modal-header{padding:16px 20px 13px;border-bottom:1px solid var(--border);display:flex;align-items:center;justify-content:space-between;position:sticky;top:0;background:var(--bg2);z-index:1}
+.modal-header h3{font-size:14px;font-weight:700}
+.modal-close{background:none;border:none;font-size:18px;cursor:pointer;color:var(--text4);padding:2px 6px;border-radius:4px}
+.modal-close:hover{background:var(--bg3)}
+.modal-body{padding:16px 20px}
+.modal-footer{padding:13px 20px;border-top:1px solid var(--border);display:flex;gap:8px;justify-content:flex-end}
+.form-group{margin-bottom:13px}
+.form-label{display:block;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text4);margin-bottom:5px}
+.form-input,.form-select{width:100%;padding:8px 11px;border:1px solid var(--input-border);border-radius:7px;background:var(--input-bg);color:var(--text);font-size:13px;outline:none;transition:border .15s}
+.form-input:focus,.form-select:focus{border-color:var(--accent)}
+.form-error{font-size:11px;color:var(--risky-col);margin-top:4px}
+.form-hint{font-size:11px;color:var(--text4);margin-top:4px;line-height:1.5}
+.member-chips{display:flex;flex-wrap:wrap;gap:6px}
+.member-chip{display:flex;align-items:center;gap:5px;padding:5px 10px;border:2px solid var(--border3);border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text3);transition:all .15s;user-select:none}
+.member-chip.selected{border-color:var(--accent);background:var(--accent);color:#fff}
+.member-chip:hover:not(.selected){border-color:var(--accent);color:var(--accent)}
+.drop-rows-header{display:flex;align-items:center;gap:7px;padding:3px 0 6px;border-bottom:2px solid var(--border);margin-bottom:2px}
+.drop-hdr-check{width:15px;flex-shrink:0}
+.drop-hdr-item{flex:1;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text4)}
+.drop-hdr-keeper{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text4);min-width:130px;text-align:right;padding-right:2px}
+.drop-row{display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid var(--border3)}
+.drop-row:last-child{border-bottom:none}
+.drop-check{width:15px;height:15px;cursor:pointer;flex-shrink:0;accent-color:var(--accent)}
+.drop-item-name{flex:1;font-size:12px}
+.drop-taken-sel{font-size:11px;padding:3px 7px;border-radius:5px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);outline:none;max-width:130px}
+.coord-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.coord-input{width:72px;padding:7px 8px;border:1px solid var(--input-border);border-radius:6px;background:var(--input-bg);color:var(--text);font-size:13px;outline:none;text-align:center;transition:border .15s}
+.coord-input:focus{border-color:var(--accent)}
+.navi-preview{font-family:monospace;font-size:11px;color:var(--accent);background:var(--bg3);padding:4px 8px;border-radius:5px;flex:1;min-width:0;word-break:break-all;cursor:pointer}
+.navi-preview.empty{color:var(--text4);cursor:default}
+.kill-time-wrap{background:var(--bg3);border:2px solid var(--border3);border-radius:10px;padding:12px 14px;transition:border .15s}
+.kill-time-wrap:focus-within{border-color:var(--accent)}
+#kill-time{font-size:22px!important;padding:6px 4px!important;font-weight:700;font-variant-numeric:tabular-nums;cursor:text;background:transparent;border:none!important;outline:none!important;box-shadow:none!important;width:100%;color:var(--text)}
+.time-ago-label{font-size:15px;color:var(--accent);margin-top:8px;font-weight:700;min-height:22px;text-align:center;letter-spacing:.2px}
+.kill-time-hint{font-size:10px;color:var(--text4);margin-top:5px;text-align:center}
+.kbo-row{display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--bg3);border-radius:8px;margin-bottom:13px;cursor:pointer;border:2px solid transparent;transition:border .15s}
+.kbo-row.active{border-color:var(--accent)}
+.kbo-row input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--accent);flex-shrink:0}
+.kbo-row label{font-size:12px;font-weight:600;cursor:pointer;flex:1;user-select:none}
+.kbo-hint{font-size:10px;color:var(--text4);margin-top:2px}
+.map-pick-wrap{position:relative;cursor:crosshair;border-radius:8px;overflow:hidden;border:2px solid var(--border3);display:block;width:100%;margin-top:8px;transition:border .15s}
+.map-pick-wrap:hover{border-color:var(--accent)}
+.map-pick-img{display:block;width:100%;height:auto;max-height:200px;object-fit:contain;background:var(--bg3);pointer-events:none;user-select:none}
+.map-pick-marker{position:absolute;width:14px;height:14px;border-radius:50%;background:var(--risky-col);border:2px solid #fff;transform:translate(-50%,-50%);pointer-events:none;box-shadow:0 0 0 3px rgba(192,57,43,.35),0 2px 6px rgba(0,0,0,.4);display:none}
+.map-pick-tip{font-size:10px;color:var(--text4);margin-top:4px;text-align:center}
+.btn{padding:7px 15px;border:none;border-radius:7px;font-size:12px;font-weight:600;cursor:pointer;transition:all .15s}
+.btn-primary{background:var(--accent);color:#fff}
+.btn-primary:hover{background:var(--accent-hover)}
+.btn-secondary{background:var(--bg3);color:var(--text);border:1px solid var(--border3)}
+.btn-secondary:hover{background:var(--border3)}
+.btn-danger{background:var(--risky-bg);color:var(--risky-col);border:1px solid var(--risky-col)}
+.btn-success{background:var(--safe-bg);color:var(--safe-col);border:1px solid var(--safe-col)}
+.btn-warn{background:var(--warn-bg);color:var(--warn-col);border:1px solid var(--warn-col)}
+.btn-warn.toggled{background:var(--warn-col);color:#fff}
+.btn-sm{padding:4px 10px;font-size:11px;border-radius:5px}
+.btn-xs{padding:2px 7px;font-size:10px;border-radius:4px}
+.btn-full{width:100%;padding:10px}
+.btn-discord{background:#5865F2;color:#fff;font-weight:700}
+.btn-discord:hover{background:#4752c4}
+.tracking-grid{display:grid;grid-template-columns:1fr 1fr;gap:16px}
+.tracking-col h4{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text4);margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid var(--border)}
+.tracking-item{display:flex;align-items:center;gap:8px;padding:6px 8px;border-radius:6px;font-size:12px;margin-bottom:4px;cursor:pointer;transition:background .1s}
+.tracking-item:hover{background:var(--bg3)}
+.tracking-item img{width:28px;height:28px;object-fit:contain;flex-shrink:0}
+.tracking-item-name{flex:1;font-weight:600}
+.tracking-item-map{font-size:10px;color:var(--text4)}
+.tracking-item-actions{display:flex;gap:3px;flex-shrink:0}
+.track-btn{padding:3px 7px;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer;border:none;transition:all .1s}
+.track-add{background:var(--safe-bg);color:var(--safe-col)}
+.track-add:hover{background:var(--safe-col);color:#fff}
+.track-remove{background:var(--risky-bg);color:var(--risky-col)}
+.track-remove:hover{background:var(--risky-col);color:#fff}
+.track-up,.track-down{background:var(--bg3);color:var(--text3)}
+.track-up:hover,.track-down:hover{background:var(--border3)}
+.section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
+.section-hdr h2{font-size:14px;font-weight:700}
+.loot-split{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
+@media(max-width:900px){.loot-split{grid-template-columns:1fr}}
+.loot-section-hdr{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text4);padding-bottom:7px;border-bottom:2px solid var(--border);margin-bottom:12px}
+.loot-kill-group{margin-bottom:14px;background:var(--card-bg);border:1px solid var(--border3);border-radius:9px;overflow:hidden}
+.loot-kill-hdr{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;padding:8px 10px;background:var(--bg3);border-bottom:1px solid var(--border3)}
+.loot-kill-hdr .kill-map{font-size:10px;font-weight:400;color:var(--text4)}
+.loot-kill-hdr .kill-date{font-size:10px;font-weight:400;color:var(--text4);margin-left:auto}
+.loot-kill-hdr .kill-navi{font-family:monospace;font-size:10px;color:var(--accent);background:var(--bg2);padding:2px 6px;border-radius:4px;cursor:pointer;border:1px solid var(--border3);white-space:nowrap}
+.loot-item-row{display:flex;align-items:center;gap:7px;padding:7px 10px;border-bottom:1px solid var(--border3)}
+.loot-item-row:last-child{border-bottom:none}
+.loot-item-name{flex:1;font-size:12px}
+.loot-item-status{font-size:10px;padding:2px 6px;border-radius:4px;white-space:nowrap}
+.loot-status-kept{background:var(--bg3);color:var(--text4)}
+.loot-status-sell{background:var(--warn-bg);color:var(--warn-col)}
+.loot-status-sold{background:var(--safe-bg);color:var(--safe-col)}
+.payment-card{background:var(--card-bg);border:1px solid var(--border3);border-radius:9px;padding:12px 14px;margin-bottom:9px}
+.payment-card-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
+.payment-card-member{font-size:13px;font-weight:700}
+.payment-card-total{font-size:18px;font-weight:700;color:var(--safe-col)}
+.payment-item{font-size:10px;color:var(--text4);padding:1px 0;line-height:1.5}
+.user-list{list-style:none}
+.user-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border3)}
+.user-avatar-lg{width:34px;height:34px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
+.user-item-info{flex:1;min-width:0}
+.user-item-name{font-size:13px;font-weight:700;display:flex;align-items:center;gap:5px;flex-wrap:wrap}
+.user-item-email{font-size:11px;color:var(--text4)}
+.history-card{background:var(--card-bg);border:1px solid var(--border3);border-radius:9px;padding:12px 14px;margin-bottom:9px}
+.history-top{display:flex;align-items:center;gap:11px;margin-bottom:7px}
+.drop-tag{font-size:10px;background:var(--bg3);padding:2px 6px;border-radius:4px;color:var(--text3);display:inline-block;margin:2px}
+.empty-state{text-align:center;padding:44px;color:var(--text4)}
+.empty-state p{font-size:13px;margin-top:5px}
+.info-banner{padding:10px 14px;border-radius:7px;font-size:12px;line-height:1.6;margin-bottom:14px}
+.info-banner.warn{background:var(--warn-bg);color:var(--warn-col);border:1px solid var(--warn-col)}
+.info-banner.info{background:var(--bg3);color:var(--text3);border:1px solid var(--border3)}
+.hidden{display:none!important}
+@media(max-width:768px){
+  .main{padding:13px}.mvp-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
+  .tracking-grid{grid-template-columns:1fr}
+}
+</style>
+</head>
+<body>
+
+<!-- AUTH SCREEN -->
+<div id="auth-screen" class="auth-screen hidden">
+  <div class="auth-box">
+    <h2>⚔️ RO MVP Tracker</h2>
+    <p>Track MVP respawns with your group</p>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchAuthTab('login')">Sign In</button>
+      <button class="auth-tab" onclick="switchAuthTab('register')">Register</button>
+    </div>
+
+    <div id="auth-login">
+      <div class="form-group">
+        <label class="form-label">Character Name</label>
+        <input type="text" class="form-input" id="login-id" placeholder="DarkKnight99" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-input" id="login-pw" placeholder="••••••••" onkeydown="if(event.key==='Enter')doLogin()">
+      </div>
+      <div id="login-error" class="form-error hidden"></div>
+      <button class="btn btn-primary btn-full" style="margin-top:4px" onclick="doLogin()">Sign In</button>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:14px">
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+        <span style="font-size:11px;color:var(--text4)">or</span>
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+      </div>
+      <button class="btn btn-discord btn-full" style="margin-top:10px" onclick="loginWithDiscord()">Login with Discord</button>
+    </div>
+
+    <div id="auth-register" class="hidden">
+      <div class="form-group">
+        <label class="form-label">Character Name</label>
+        <input type="text" class="form-input" id="reg-name" placeholder="DarkKnight99">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Password</label>
+        <input type="password" class="form-input" id="reg-pw" placeholder="At least 6 characters">
+      </div>
+      <div class="form-group">
+        <label class="form-label">Confirm Password</label>
+        <input type="password" class="form-input" id="reg-pw2" placeholder="Repeat password" onkeydown="if(event.key==='Enter')doRegister()">
+      </div>
+      <div id="reg-error" class="form-error hidden"></div>
+      <button class="btn btn-primary btn-full" style="margin-top:4px" onclick="doRegister()">Create Account</button>
+      <div style="display:flex;align-items:center;gap:10px;margin-top:14px">
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+        <span style="font-size:11px;color:var(--text4)">or</span>
+        <div style="flex:1;height:1px;background:var(--border)"></div>
+      </div>
+      <button class="btn btn-discord btn-full" style="margin-top:10px" onclick="loginWithDiscord()">Register with Discord</button>
+    </div>
+  </div>
+</div>
+
+<!-- GROUP SETUP SCREEN -->
+<div id="group-setup" class="auth-screen hidden">
+  <div class="auth-box">
+    <h2>⚔️ Set Up Your Group</h2>
+    <p>Create a new group or join an existing one with an invite code.</p>
+    <div class="auth-tabs">
+      <button class="auth-tab active" onclick="switchGroupTab('create')">Create Group</button>
+      <button class="auth-tab" onclick="switchGroupTab('join')">Join Group</button>
+    </div>
+    <div id="group-create">
+      <div class="form-group">
+        <label class="form-label">Group Name</label>
+        <input type="text" class="form-input" id="group-name" placeholder="e.g. Valhalla Guild RO1" onkeydown="if(event.key==='Enter')createGroup()">
+      </div>
+      <div id="group-create-error" class="form-error hidden"></div>
+      <button class="btn btn-primary btn-full" style="margin-top:4px" onclick="createGroup()">Create Group</button>
+    </div>
+    <div id="group-join" class="hidden">
+      <div class="form-group">
+        <label class="form-label">Invite Code</label>
+        <input type="text" class="form-input" id="group-invite" placeholder="Invite code" style="font-size:18px;letter-spacing:3px;text-align:center;font-family:monospace" onkeydown="if(event.key==='Enter')joinGroup()">
+      </div>
+      <div id="group-join-error" class="form-error hidden"></div>
+      <button class="btn btn-primary btn-full" style="margin-top:4px" onclick="joinGroup()">Join Group</button>
+    </div>
+  </div>
+</div>
+
+<!-- APP -->
+<div id="app" class="hidden">
+  <div class="top-bar">
+    <h1>⚔️ RO MVP Tracker</h1>
+    <div class="top-bar-right">
+      <a href="/" style="font-size:11px;color:var(--text4);text-decoration:none;padding:4px 8px;border:1px solid var(--border);border-radius:5px;white-space:nowrap" title="RO Refine Calculator">🧮 Refine Calc</a>
+      <div class="user-badge" id="user-badge">
+        <div class="avatar" id="user-avatar">?</div>
+        <span id="user-name">—</span>
+      </div>
+      <button class="btn btn-secondary btn-sm" onclick="doLogout()">Sign Out</button>
+      <div class="theme-toggle" onclick="toggleTheme()">
+        <span id="theme-icon">☀️</span>
+        <span id="theme-label">Light</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="nav-tabs">
+    <button class="nav-tab active" onclick="showTab('timers')">⏱ Timers</button>
+    <button class="nav-tab" onclick="showTab('loot')">💰 Loot &amp; Payments</button>
+    <button class="nav-tab" onclick="showTab('members')">👥 Group</button>
+    <button class="nav-tab" onclick="showTab('history')">📋 History</button>
+  </div>
+
+  <div class="main">
+    <!-- TIMERS -->
+    <div id="tab-timers">
+      <div class="filters">
+        <button class="filter-btn active" onclick="setFilter('all',this)">All</button>
+        <button class="filter-btn" onclick="setFilter('available',this)">🟢 Alive</button>
+        <button class="filter-btn" onclick="setFilter('window',this)">🟡 Window</button>
+        <button class="filter-btn" onclick="setFilter('pending',this)">⏳ On Timer</button>
+        <button class="filter-btn" onclick="setFilter('unknown',this)">❓ Unknown</button>
+        <input type="text" class="search-input" id="mvp-search" placeholder="Search MVP…" oninput="renderTimers()">
+        <div class="filter-spacer"></div>
+        <button class="btn btn-secondary btn-sm" onclick="openTrackingEditor()">✦ Edit Tracking</button>
+      </div>
+      <div id="no-tracking-banner" class="info-banner info hidden"></div>
+      <div class="mvp-grid" id="mvp-grid"></div>
+    </div>
+
+    <!-- LOOT -->
+    <div id="tab-loot" class="hidden">
+      <div class="loot-split">
+        <div>
+          <div class="loot-section-hdr">🎁 Loot</div>
+          <div id="loot-list"></div>
+        </div>
+        <div>
+          <div class="loot-section-hdr">💸 Payments</div>
+          <div id="payment-list"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- GROUP / MEMBERS -->
+    <div id="tab-members" class="hidden">
+      <div class="section-hdr" style="margin-bottom:16px">
+        <h2>Group: <span id="group-name-display" style="color:var(--accent)"></span></h2>
+        <div style="display:flex;gap:7px;flex-wrap:wrap">
+          <button class="btn btn-secondary btn-sm" onclick="showInviteCode()">🔗 Invite Code</button>
+          <button class="btn btn-secondary btn-sm" onclick="showWebhookSetting()">🔔 Discord Webhook</button>
+          <button class="btn btn-secondary btn-sm" onclick="switchGroup()">⇄ Switch Group</button>
+          <button class="btn btn-discord btn-sm" onclick="linkDiscord()">Link Discord</button>
+        </div>
+      </div>
+      <ul class="user-list" id="members-list"></ul>
+    </div>
+
+    <!-- HISTORY -->
+    <div id="tab-history" class="hidden">
+      <div class="section-hdr">
+        <h2>Kill History</h2>
+        <button class="btn btn-danger btn-sm" onclick="clearHistory()">Clear All</button>
+      </div>
+      <div id="history-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Kill Modal -->
+<div class="modal-overlay hidden" id="kill-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="kill-modal-title">Register Kill</h3>
+      <button class="modal-close" onclick="closeKillModal()">×</button>
+    </div>
+    <div class="modal-body">
+      <div style="display:flex;align-items:center;gap:13px;margin-bottom:16px;padding:10px 13px;background:var(--bg3);border-radius:8px">
+        <img id="km-img" src="" style="width:50px;height:50px;object-fit:contain" onerror="this.style.opacity=.2">
+        <div>
+          <div id="km-name" style="font-size:14px;font-weight:700"></div>
+          <div id="km-map-text" style="font-size:11px;color:var(--text4);margin-top:2px"></div>
+        </div>
+      </div>
+
+      <div class="form-group hidden" id="km-specific-mvp-group">
+        <label class="form-label">Which MVP appeared?</label>
+        <select class="form-select" id="km-specific-mvp">
+          <option value="">— Unknown / not sure —</option>
+        </select>
+        <p class="form-hint">Select the specific MVP that spawned in this biolab floor.</p>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">Death Time</label>
+        <div class="kill-time-wrap">
+          <input type="datetime-local" class="form-input" id="kill-time" oninput="updateTimeAgo()">
+          <div class="time-ago-label" id="km-time-ago"></div>
+        </div>
+        <div class="kill-time-hint">Scroll ↕ on the field to adjust by ±1 minute</div>
+      </div>
+
+      <div class="form-group hidden" id="km-map-group">
+        <label class="form-label">Map</label>
+        <select class="form-select" id="km-map-sel" onchange="updateNaviPreview(); updateMapPreview()"></select>
+      </div>
+
+      <label class="kbo-row" id="km-kbo-row">
+        <input type="checkbox" id="km-kbo" onchange="toggleKilledByOthers()">
+        <div>
+          <span style="font-size:12px;font-weight:600">Killed by others</span>
+          <div class="kbo-hint">Starts the timer without requiring loot split</div>
+        </div>
+      </label>
+
+      <div class="form-group" id="km-location-group">
+        <label class="form-label">Death Location <span style="font-weight:400;text-transform:none;color:var(--text4)">(optional — click map or type)</span></label>
+        <div class="coord-group">
+          <input type="number" class="coord-input" id="km-coord-x" placeholder="X" min="0" max="999" oninput="updateNaviPreview(); updateMarkerFromInputs()">
+          <span style="color:var(--text4);font-size:13px">/</span>
+          <input type="number" class="coord-input" id="km-coord-y" placeholder="Y" min="0" max="999" oninput="updateNaviPreview(); updateMarkerFromInputs()">
+          <span class="navi-preview empty" id="navi-preview" onclick="copyNaviCmd()">enter X / Y for /navi</span>
+          <button class="btn btn-secondary btn-sm" onclick="copyNaviCmd()" id="navi-copy-btn">📋 Copy</button>
+        </div>
+        <div class="map-pick-wrap" id="km-map-pick" onclick="handleMapClick(event)">
+          <img class="map-pick-img" id="km-map-pick-img" src="" alt="map" onerror="this.style.opacity=.15">
+          <div class="map-pick-marker" id="km-map-marker"></div>
+        </div>
+        <div class="map-pick-tip">Click on the map to mark the death location</div>
+      </div>
+
+      <div class="form-group" id="km-party-group">
+        <label class="form-label">Party Members Present</label>
+        <div class="member-chips" id="km-party-chips"></div>
+        <p class="form-hint" id="km-party-hint">Click to toggle.</p>
+      </div>
+
+      <div class="form-group" id="km-drops-group">
+        <label class="form-label">Items Dropped</label>
+        <div class="drop-rows-header">
+          <span class="drop-hdr-check"></span>
+          <span class="drop-hdr-item">Item</span>
+          <span class="drop-hdr-keeper">Who kept it?</span>
+        </div>
+        <div id="km-drops"></div>
+        <div style="display:flex;gap:7px;margin-top:8px;flex-wrap:wrap">
+          <button class="btn btn-secondary btn-sm" onclick="addCustomDrop()">+ Custom item</button>
+          <button class="btn btn-warn btn-sm" id="keep-all-btn" onclick="toggleKeepAllByMe()">✓ All kept by me</button>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeKillModal()">Cancel</button>
+      <button class="btn btn-primary" onclick="registerKill()">⚔ Register Kill</button>
+    </div>
+  </div>
+</div>
+
+<!-- Sell Modal -->
+<div class="modal-overlay hidden" id="sell-modal">
+  <div class="modal modal-sm">
+    <div class="modal-header">
+      <h3>Mark as Sold</h3>
+      <button class="modal-close" onclick="closeModal('sell-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div id="sell-modal-info" style="margin-bottom:13px;padding:10px 12px;background:var(--bg3);border-radius:8px;font-size:12px;line-height:1.7"></div>
+      <div class="form-group">
+        <label class="form-label">Sold For (z)</label>
+        <input type="text" class="form-input" id="sell-price" placeholder="e.g. 5m or 5,000,000" onkeydown="if(event.key==='Enter')confirmSell()">
+        <p class="form-hint">Type k = ×1,000 · m = ×1,000,000</p>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('sell-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="confirmSell()">Confirm Sale</button>
+    </div>
+  </div>
+</div>
+
+<!-- Invite Modal -->
+<div class="modal-overlay hidden" id="invite-modal">
+  <div class="modal" style="max-width:420px">
+    <div class="modal-header">
+      <h3>🔗 Invite Friends</h3>
+      <button class="modal-close" onclick="closeModal('invite-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <p style="font-size:12px;color:var(--text4);margin-bottom:12px">Share your group with friends — they can join via link or code.</p>
+      <div class="form-group">
+        <label class="form-label">Invite Link</label>
+        <div style="display:flex;gap:6px">
+          <input type="text" class="form-input" id="invite-link-input" readonly style="font-size:11px;cursor:pointer;flex:1" onclick="this.select()">
+          <button class="btn btn-secondary btn-sm" onclick="copyInviteLink()" id="invite-copy-btn" style="white-space:nowrap">📋 Copy</button>
+        </div>
+      </div>
+      <div class="form-group">
+        <label class="form-label">Invite Code</label>
+        <div style="font-size:22px;font-family:monospace;letter-spacing:4px;font-weight:700;color:var(--accent);text-align:center;padding:10px;background:var(--bg3);border-radius:8px" id="invite-code-display"></div>
+        <p class="form-hint" style="text-align:center">Friends can enter this code on the Join Group screen</p>
+      </div>
+      <div id="invite-discord-section" class="hidden">
+        <div style="height:1px;background:var(--border);margin:8px 0 14px"></div>
+        <button class="btn btn-discord btn-full" onclick="sendInviteToDiscord()">📨 Send Invite to Discord Channel</button>
+        <p class="form-hint" style="text-align:center;margin-top:6px">Posts the invite link to your group's webhook channel</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Tracking Editor Modal -->
+<div class="modal-overlay hidden" id="tracking-modal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3>Edit Your MVP Tracking List</h3>
+      <button class="modal-close" onclick="closeModal('tracking-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <div class="tracking-grid">
+        <div>
+          <h4>Your Tracked MVPs <span id="tracked-count" style="color:var(--accent)"></span></h4>
+          <p class="form-hint" style="margin-bottom:10px">These appear on your home screen. Use arrows to reorder.</p>
+          <div id="tracked-list"></div>
+        </div>
+        <div>
+          <h4>Available to Add</h4>
+          <input type="text" class="search-input" style="width:100%;margin-bottom:10px;border-radius:7px" id="tracking-search" placeholder="Search…" oninput="renderTrackingEditor()">
+          <div id="untracked-list" style="max-height:400px;overflow-y:auto"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('tracking-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveTracking()">Save</button>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ════════════════════════════════════════
+   MVP DATABASE
+════════════════════════════════════════ */
+const MVP_DB = [
+  {id:'amon_ra',    mid:1511, name:'Amon Ra',             maps:['moc_pryd06'],   rMin:60,  rWin:10, drops:['Fragment of Rossata Stone','Safety Ring','Sphinx Hat','Old Card Album','Amon Ra Card']},
+  {id:'atroce',     mid:1785, name:'Atroce',              maps:['ra_fild02','ra_fild03','ra_fild04','ve_fild01','ve_fild02'], rMin:240, rWin:10, drops:['Bloody Rune','Ring [1]','Yggdrasil Seed','Atroce Card']},
+  {id:'baphomet',   mid:1039, name:'Baphomet',            maps:['prt_maze03'],   rMin:120, rWin:10, drops:['Crescent Scythe','Majestic Goat',"Baphomet's Horn",'Baphomet Card']},
+  {id:'bacsojin',   mid:1630, name:'Bacsojin',            maps:['lou_dun03'],    rMin:117, rWin:10, drops:['Red Silk Seal','Tiara','Heavenly Maiden Robe [1]','White Lady Card']},
+  {id:'dark_lord',  mid:1272, name:'Dark Lord',           maps:['gl_chyard'],    rMin:60,  rWin:10, drops:['Evil Bone Wand','Kronos','Mage Coat','Dark Lord Card']},
+  {id:'doppelganger',mid:1046,name:'Doppelganger',        maps:['gef_dun02'],    rMin:120, rWin:10, drops:['Full Plate [1]','Spiky Band','Zweihander','Doppelganger Card']},
+  {id:'dracula',    mid:1389, name:'Dracula',             maps:['gef_dun01'],    rMin:60,  rWin:10, drops:['Wizardry Staff','Ancient Cape','Ring [1]','Dracula Card']},
+  {id:'drake',      mid:1112, name:'Drake',               maps:['treasure02'],   rMin:120, rWin:10, drops:['Saber [3]','Haedonggum [2]','Corsair','Drake Card']},
+  {id:'eddga',      mid:1115, name:'Eddga',               maps:['pay_fild10'],   rMin:120, rWin:10, drops:['Fireblend','Pipe','Katar of Raging Blaze','Eddga Card']},
+  {id:'evil_snake', mid:1418, name:'Evil Snake Lord',     maps:['gon_dun03'],    rMin:94,  rWin:10, drops:["Grave Keeper's Sword",'Gae Bolg','Ba Gua','Evil Snake Lord Card']},
+  {id:'fbh',        mid:1871, name:'Fallen Bishop',       maps:['abbey02'],      rMin:120, rWin:10, drops:['Wand of Occult','Long Horn [1]','Spiritual Ring','Fallen Bishop Card']},
+  {id:'garm',       mid:1252, name:'Garm',                maps:['xmas_fild01'],  rMin:120, rWin:10, drops:['Ice Falchion','Katar of Frozen Icicle','Hatii Claw [1]','Hatii Card']},
+  {id:'gtb',        mid:1086, name:'Golden Thief Bug',    maps:['prt_sewb4'],    rMin:60,  rWin:10, drops:['Gold','Golden Gear','Golden Mace [1]','GTB Card']},
+  {id:'inc_samurai',mid:1492, name:'Incantation Samurai', maps:['ama_dun03'],    rMin:91,  rWin:10, drops:['Huuma Blaze Shuriken','Assassin Mask','Azoth','Samurai Specter Card']},
+  {id:'kiel',       mid:1734, name:'Kiel D-01',           maps:['kh_dun02'],     rMin:120, rWin:10, drops:["Morrigane's Pendant",'Pocket Watch',"Morrigane's Belt",'Kiel-D-01 Card']},
+  {id:'ktullanux',  mid:1779, name:'Ktullanux',           maps:['ice_dun03'],    rMin:120, rWin:10, drops:['Ice Scale','Sacred Mission',"Survivor's Manteau",'Ktullanux Card'], special:true},
+  {id:'lady_tanee', mid:1688, name:'Lady Tanee',          maps:['ayo_dun02'],    rMin:420, rWin:10, drops:['Gakkung Bow [2]','Banana Hat',"Hwergelmir's Tonic",'Lady Tanee Card']},
+  {id:'lord_death', mid:1373, name:'Lord of Death',       maps:['niflheim'],     rMin:133, rWin:10, drops:['Pole Axe [1]','Iron Driver','Ring [1]','Lord of the Dead Card']},
+  {id:'maya',       mid:1147, name:'Maya',                maps:['anthell02'],    rMin:120, rWin:10, drops:["Queen's Hair Ornament",'Safety Ring','Tiara','Maya Card']},
+  {id:'mistress',   mid:1059, name:'Mistress',            maps:['mjolnir_04'],   rMin:120, rWin:10, drops:['Gungnir','Coronet','Old Card Album','Mistress Card']},
+  {id:'moonlight',  mid:1150, name:'Moonlight Flower',    maps:['pay_dun04'],    rMin:60,  rWin:10, drops:['Spectral Spear','Moonlight Dagger','Punisher','Moonlight Flower Card']},
+  {id:'orc_hero',   mid:1087, name:'Orc Hero',            maps:['gef_fild14'],   rMin:60,  rWin:10, drops:['Heroic Emblem','Light Epsilon','Giant Axe [1]','Orc Hero Card']},
+  {id:'orc_lord',   mid:1190, name:'Orc Lord',            maps:['gef_fild10'],   rMin:120, rWin:10, drops:['Bloody Axe','Doom Slayer [1]','Grand Circlet','Orc Lord Card']},
+  {id:'osiris',     mid:1038, name:'Osiris',              maps:['moc_pryd04'],   rMin:60,  rWin:10, drops:['Jamadhar [1]','Hand of God','Sphinx Hat','Osiris Card']},
+  {id:'pharaoh',    mid:1157, name:'Pharaoh',             maps:['in_sphinx5'],   rMin:60,  rWin:10, drops:['Solar Sword','Jewel Crown','Holy Robe','Pharaoh Card']},
+  {id:'phreeoni',   mid:1159, name:'Phreeoni',            maps:['moc_fild17'],   rMin:120, rWin:10, drops:['Fortune Sword','Sucsamad','Mr. Scream','Phreeoni Card']},
+  {id:'stormy',     mid:1251, name:'Stormy Knight',       maps:['xmas_dun02'],   rMin:60,  rWin:10, drops:['Zephyrus','Manteau [1]','Ring [1]','Stormy Knight Card']},
+  {id:'tao_gunka',  mid:1583, name:'Tao Gunka',           maps:['beach_dun'],    rMin:300, rWin:10, drops:['Gemstone','Binoculars','Gemmed Sallet [1]','Tao Gunka Card']},
+  {id:'thanatos',   mid:1708, name:'Memory of Thanatos',  maps:['thana_boss'],   rMin:240, rWin:10, drops:['Memory of Thanatos Card','Skeletal Armor Piece',"Morrigane's Manteau"], special:true},
+  {id:'turtle_gen', mid:1312, name:'Turtle General',      maps:['tur_dun04'],    rMin:60,  rWin:10, drops:['Iron Driver','Pole Axe [1]','Immaterial Sword','Turtle General Card']},
+  {id:'vesper',     mid:1685, name:'Vesper',              maps:['jupe_core'],    rMin:120, rWin:10, drops:['Vesper Core 01','Vesper Core 02','Vesper Core 03','Vesper Core 04','Vesper Card']},
+  // World-spawn additions
+  {id:'beelzebub',  mid:1873, name:'Beelzebub',           maps:['abbey03'],      rMin:720, rWin:10, drops:['Ledger of Death [2]','Staff of Destruction [1]','Variant Shoes','Beelzebub Card']},
+  {id:'big_eggring',mid:3505, name:'Big Eggring',         maps:['lasa_dun01'],   rMin:60,  rWin:30, drops:['Old Purple Box','Big Eggring Card']},
+  {id:'boitata',    mid:2068, name:'Boitata',             maps:['bra_dun02'],    rMin:120, rWin:10, drops:['Flame Heart','Scarlet Odor','Boitata Card']},
+  {id:'detale',     mid:1719, name:'Detardeurus',         maps:['abyss_03'],     rMin:180, rWin:10, drops:['Abyss Bow [2]','Dragon Breath','Detardeurus Card']},
+  {id:'egnigem',    mid:1658, name:'Egnigem Cenia',       maps:['lhz_dun02'],    rMin:120, rWin:10, drops:['Safety Ring','Clip [1]','Egnigem Cenia Card']},
+  {id:'gloom',      mid:1768, name:'Gloom Under Night',   maps:['ra_san05'],     rMin:300, rWin:10, drops:['Heavenly Maiden Robe [1]','Hurricane Fury [1]','Old Card Album','Gloom Under Night Card']},
+  {id:'gopinich',   mid:1885, name:'Gopinich',            maps:['mosk_dun03'],   rMin:120, rWin:10, drops:['Treasure Box','Ixion Wing [1]','Gopinich Card']},
+  {id:'ifrit',      mid:1832, name:'Ifrit',               maps:['thor_v03'],     rMin:660, rWin:10, drops:['Ring of Flame Lord','Ring of Resonance','Spiritual Ring','Ifrit Card']},
+  {id:'leak',       mid:2156, name:'Leak',                maps:['dew_dun01'],    rMin:120, rWin:10, drops:['Old Purple Box','Leak Card']},
+  {id:'queen_scaraba',mid:2087,name:'Queen Scaraba',      maps:['dic_dun02'],    rMin:120, rWin:10, drops:['Alca Bringer','Meteo Plate Armor [1]','Queen Scaraba Card']},
+  {id:'randgris',   mid:1751, name:'Valkyrie Randgris',   maps:['odin_tem03'],   rMin:480, rWin:10, drops:['Valkyrian Armor [1]','Valkyrian Manteau [1]','Valkyrian Shoes [1]','Randgris Card']},
+  {id:'rsx',        mid:1623, name:'RSX-0806',            maps:['ein_dun02'],    rMin:125, rWin:10, drops:['Dark Blinder','Yggdrasil Berry','RSX-0806 Card']},
+  {id:'wounded_morocc',mid:1917,name:'Wounded Morocc',    maps:['moc_fild22'],   rMin:720, rWin:60, drops:['Diabolus Robe [1]','Diabolus Armor [1]','Diabolus Boots','Wounded Morocc Card']},
+  // Bio2
+  {id:'egnigem2',   mid:1658, name:'Egnigem Cenia',       maps:['lhz_dun02'],    rMin:120, rWin:10, drops:['Safety Ring','Clip [1]','Egnigem Cenia Card']},
+  // Bio3 slot (shared timer for 6 MVPs)
+  {id:'bio3_slot',  mid:1649, name:'Bio3 Biolab',         maps:['lhz_dun03'],    rMin:120, rWin:30,
+   drops:['Safety Ring','Heavenly Maiden Robe [1]','Critical Ring','Glittering Jacket [1]','Edge','Greaves [1]','Combat Knife','Grimtooth','Mysteltainn','Sabbath','Infiltrator','Bloody Roar [2]'],
+   bioSlot:true, bio3:true, biolab:true},
+  // Bio4 slot (shared timer for 7 MVPs)
+  {id:'bio4_slot',  mid:2228, name:'Bio4 Biolab',         maps:['lhz_dun04'],    rMin:120, rWin:30,
+   drops:['High Weapon Box','Bradium','Carnium'],
+   bioSlot:true, bio4:true, biolab:true},
+];
+
+const BIO3_MVPS = [
+  {id:'hp_magaleta', mid:1649, name:'High Priest Magaleta'},
+  {id:'hw_katrinn',  mid:1651, name:'High Wizard Katrinn'},
+  {id:'lk_seyren',   mid:1646, name:'Lord Knight Seyren'},
+  {id:'sniper',      mid:1650, name:'Sniper Shecil'},
+  {id:'ws_harword',  mid:1648, name:'WS Harword'},
+  {id:'assx_eremes', mid:1647, name:'Assassin Cross Eremes'},
+];
+const BIO4_MVPS = [
+  {id:'b_randel',    mid:2228, name:'Paladin Randel'},
+  {id:'b_flamel',    mid:2229, name:'Creator Flamel'},
+  {id:'b_celia',     mid:2230, name:'Professor Celia'},
+  {id:'b_chen',      mid:2231, name:'Champion Chen'},
+  {id:'b_gertie',    mid:2232, name:'Stalker Gertie'},
+  {id:'b_alphoccio', mid:2233, name:'Clown Alphoccio'},
+  {id:'b_trentini',  mid:2234, name:'Gypsy Trentini'},
+];
+
+/* ════════════════════════════════════════
+   API HELPER
+════════════════════════════════════════ */
+// API_BASE: empty = same origin. Port 8766 = Claude preview proxy, so call backend directly.
+const API_BASE = window.__MVP_API_BASE__ || (window.location.port === '8766' ? 'http://localhost:9500' : '');
+// MVP_BASE: base path for invite links (e.g. '/mvp' in production, '/' in dev)
+const MVP_BASE = window.__MVP_BASE__ || (window.location.pathname.startsWith('/mvp') ? '/mvp' : '');
+
+const API = {
+  async call(method, path, body) {
+    const token = localStorage.getItem('mvp_token');
+    const opts = { method, headers: {'Content-Type':'application/json'} };
+    if (token) opts.headers['X-Session-Token'] = token;
+    if (body !== undefined) opts.body = JSON.stringify(body);
+    try {
+      const r = await fetch(API_BASE + path, opts);
+      return r.json();
+    } catch(e) {
+      return { error: e.message };
+    }
+  },
+  get(p) { return this.call('GET', p); },
+  post(p, b) { return this.call('POST', p, b); },
+  put(p, b) { return this.call('PUT', p, b); },
+  del(p) { return this.call('DELETE', p); },
+};
+
+/* ════════════════════════════════════════
+   STATE
+════════════════════════════════════════ */
+let currentUser  = null;
+let currentGroup = null;
+let groupMembers = [];
+let timerData    = {};
+let kills        = [];
+let unsoldItems  = [];
+let tempTracked  = [];
+let currentFilter = 'all';
+let killModalCtx  = null;
+let sellItemCtx   = null;
+let keepAllActive = false;
+let _pollInterval = null;
+let _prevTimerStates = {};   // key -> last known status type
+let _notifiedKeys    = new Set(); // deathTime-scoped keys already notified
+
+/* ════════════════════════════════════════
+   INIT
+════════════════════════════════════════ */
+async function initApp() {
+  // Check for invite code in URL (e.g. ?invite=XXXX)
+  const _urlInvite = new URLSearchParams(window.location.search).get('invite');
+  if (_urlInvite) window._pendingInvite = _urlInvite.toUpperCase();
+
+  const token = localStorage.getItem('mvp_token');
+  if (!token) {
+    showAuthScreen();
+    // Pre-fill join tab if invite link was shared
+    if (window._pendingInvite) {
+      setTimeout(() => {
+        switchGroupTab && switchGroupTab('join');
+        const el = document.getElementById('group-invite');
+        if (el) el.value = window._pendingInvite;
+        switchAuthTab && switchAuthTab('login');
+      }, 100);
+    }
+    return;
+  }
+  const me = await API.get('/api/auth/me');
+  if (me.error) { localStorage.removeItem('mvp_token'); showAuthScreen(); return; }
+  currentUser = me;
+
+  // Try to auto-join if invite link was shared
+  if (window._pendingInvite) {
+    const jr = await API.post('/api/groups/join', { inviteCode: window._pendingInvite });
+    window._pendingInvite = null;
+    // Clear invite from URL without reload
+    history.replaceState(null, '', window.location.pathname);
+    if (jr && !jr.error) {
+      currentGroup = jr;
+      localStorage.setItem('mvp_group_id', currentGroup.id);
+      await loadGroupData();
+      showMainApp();
+      return;
+    }
+  }
+
+  const groups = await API.get('/api/groups');
+  if (!groups.length || groups.error) { showGroupSetup(); return; }
+  const savedGroupId = localStorage.getItem('mvp_group_id');
+  currentGroup = groups.find(g => g.id === savedGroupId) || groups[0];
+  localStorage.setItem('mvp_group_id', currentGroup.id);
+  await loadGroupData();
+  showMainApp();
+}
+
+async function loadGroupData() {
+  if (!currentGroup) return;
+  const gid = currentGroup.id;
+  const [timers, killsRes, members, prefs] = await Promise.all([
+    API.get(`/api/timers?groupId=${gid}`),
+    API.get(`/api/kills?groupId=${gid}`),
+    API.get(`/api/groups/${gid}/members`),
+    API.get('/api/prefs'),
+  ]);
+  timerData    = (timers && !timers.error)    ? timers    : {};
+  kills        = (killsRes && !killsRes.error) ? (Array.isArray(killsRes) ? killsRes : [killsRes]) : [];
+  groupMembers = (members && !members.error)   ? members   : [];
+  if (prefs && !prefs.error) {
+    if (!currentUser.mvpOrder)    currentUser.mvpOrder    = prefs.mvpOrder    || [];
+    if (!currentUser.trackedMVPs) currentUser.trackedMVPs = prefs.trackedMVPs || [];
+  }
+}
+
+async function saveTimerToServer(tKey, obj) {
+  if (!currentGroup) return;
+  await API.post('/api/timers', { groupId: currentGroup.id, timerKey: tKey, ...obj });
+}
+
+async function saveKillToServer(kill) {
+  if (!currentGroup) return;
+  return API.post('/api/kills', { groupId: currentGroup.id, ...kill });
+}
+
+async function savePrefs() {
+  await API.post('/api/prefs', {
+    trackedMVPs: currentUser.trackedMVPs || [],
+    mvpOrder:    currentUser.mvpOrder    || [],
+  });
+}
+
+function startPolling() {
+  if (_pollInterval) clearInterval(_pollInterval);
+  _pollInterval = setInterval(async () => {
+    if (!currentGroup) return;
+    const [timers, killsRes] = await Promise.all([
+      API.get(`/api/timers?groupId=${currentGroup.id}`),
+      API.get(`/api/kills?groupId=${currentGroup.id}`),
+    ]);
+    if (timers && !timers.error) {
+      timerData = timers;
+      checkWindowNotifications(timers);
+    }
+    if (killsRes && !killsRes.error) kills = Array.isArray(killsRes) ? killsRes : [killsRes];
+  }, 10000);
+}
+
+function checkWindowNotifications(newTimerData) {
+  if (!currentGroup?.discordWebhook) return;
+  MVP_DB.forEach(mvp => {
+    (mvp.maps || []).forEach(map => {
+      const key = timerKey(mvp.id, map);
+      const rec = newTimerData[key];
+      if (!rec) return;
+      const now = Date.now();
+      const minMs = rec.deathTime + mvp.rMin * 60000;
+      const maxMs = minMs + mvp.rWin * 60000;
+      let state = now >= maxMs ? 'available' : now >= minMs ? 'window' : 'pending';
+      const prev = _prevTimerStates[key];
+      const notifyKey = key + '::' + rec.deathTime;
+      // Notify when first entering spawn window
+      if (state === 'window' && prev === 'pending' && !_notifiedKeys.has(notifyKey + '::w')) {
+        _notifiedKeys.add(notifyKey + '::w');
+        autoNotifyDiscord(mvp, map, 'window', rec);
+      }
+      // Notify when window closes (alive) — optional: comment out if too noisy
+      if (state === 'available' && prev === 'window' && !_notifiedKeys.has(notifyKey + '::a')) {
+        _notifiedKeys.add(notifyKey + '::a');
+        autoNotifyDiscord(mvp, map, 'available', rec);
+      }
+      _prevTimerStates[key] = state;
+    });
+  });
+}
+
+async function autoNotifyDiscord(mvp, map, eventType, rec) {
+  if (!currentGroup?.discordWebhook) return;
+  let mvpName = mvp.name;
+  if (mvp.bioSlot && rec?.specificMvpId) {
+    const spec = (mvp.bio3 ? BIO3_MVPS : BIO4_MVPS).find(b => b.id === rec.specificMvpId);
+    if (spec) mvpName += ` · ${spec.name}`;
+  }
+  const winOpen  = rec ? new Date(rec.deathTime + mvp.rMin * 60000).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '?';
+  const winClose = rec ? new Date(rec.deathTime + mvp.rMin * 60000 + mvp.rWin * 60000).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '?';
+  const msg = eventType === 'window'
+    ? `🟡 **${mvpName}** spawn window open on \`${map}\`! Window: **${winOpen} – ${winClose}** @here`
+    : `✅ **${mvpName}** on \`${map}\` is now **ALIVE** (window closed). Hunt it down! @here`;
+  await API.post(`/api/notify/discord?groupId=${currentGroup.id}`, {
+    content: msg,
+    embeds: [{
+      title: mvpName,
+      description: eventType === 'window' ? `⏱ Window open: ${winOpen} – ${winClose}` : '✅ Alive now',
+      color: eventType === 'window' ? 0xf0c040 : 0x57f287,
+      footer: { text: `RO MVP Tracker · ${map}` }
+    }]
+  });
+}
+
+/* ════════════════════════════════════════
+   AUTH
+════════════════════════════════════════ */
+function switchAuthTab(tab) {
+  document.getElementById('auth-login').classList.toggle('hidden', tab !== 'login');
+  document.getElementById('auth-register').classList.toggle('hidden', tab !== 'register');
+  document.querySelectorAll('#auth-screen .auth-tab').forEach((el,i) =>
+    el.classList.toggle('active', ['login','register'][i] === tab));
+  document.getElementById('login-error').classList.add('hidden');
+  document.getElementById('reg-error').classList.add('hidden');
+}
+
+async function doRegister() {
+  const name  = document.getElementById('reg-name').value.trim();
+  const pw    = document.getElementById('reg-pw').value;
+  const pw2   = document.getElementById('reg-pw2').value;
+  const errEl = document.getElementById('reg-error');
+  if (!name || !pw) { showErr(errEl, 'All fields required.'); return; }
+  if (pw.length < 6) { showErr(errEl, 'Password must be at least 6 characters.'); return; }
+  if (pw !== pw2)    { showErr(errEl, 'Passwords do not match.'); return; }
+  const r = await API.post('/api/auth/register', { characterName: name, password: pw });
+  if (r.error) { showErr(errEl, r.error); return; }
+  localStorage.setItem('mvp_token', r.token);
+  currentUser = r.user;
+  showGroupSetup();
+}
+
+async function doLogin() {
+  const name  = document.getElementById('login-id').value.trim();
+  const pw    = document.getElementById('login-pw').value;
+  const errEl = document.getElementById('login-error');
+  const r = await API.post('/api/auth/login', { characterName: name, password: pw });
+  if (r.error) { showErr(errEl, r.error); return; }
+  localStorage.setItem('mvp_token', r.token);
+  currentUser = r.user;
+  const groups = await API.get('/api/groups');
+  if (!groups.length || groups.error) { showGroupSetup(); return; }
+  const savedGroupId = localStorage.getItem('mvp_group_id');
+  currentGroup = groups.find(g => g.id === savedGroupId) || groups[0];
+  localStorage.setItem('mvp_group_id', currentGroup.id);
+  await loadGroupData();
+  showMainApp();
+}
+
+async function doLogout() {
+  if (_pollInterval) clearInterval(_pollInterval);
+  await API.post('/api/auth/logout');
+  localStorage.removeItem('mvp_token');
+  localStorage.removeItem('mvp_group_id');
+  currentUser = null; currentGroup = null;
+  showAuthScreen();
+}
+
+async function loginWithDiscord() {
+  const token = localStorage.getItem('mvp_token');
+  const r = await API.get('/api/auth/discord/init' + (token ? `?session=${token}` : ''));
+  if (r.error) {
+    alert(r.configured === false ? 'Discord login is not configured on this server.' : r.error);
+    return;
+  }
+  const w = window.open(r.url, 'discord_auth', 'width=500,height=700');
+  const handler = async (e) => {
+    if (e.data?.type === 'discord_success') {
+      window.removeEventListener('message', handler);
+      localStorage.setItem('mvp_token', e.data.token);
+      currentUser = e.data.user;
+      const groups = await API.get('/api/groups');
+      if (!groups.length || groups.error) { showGroupSetup(); return; }
+      const savedGroupId = localStorage.getItem('mvp_group_id');
+      currentGroup = groups.find(g => g.id === savedGroupId) || groups[0];
+      localStorage.setItem('mvp_group_id', currentGroup.id);
+      await loadGroupData();
+      showMainApp();
+    } else if (e.data?.type === 'discord_error') {
+      window.removeEventListener('message', handler);
+      alert('Discord login failed: ' + e.data.error);
+    }
+  };
+  window.addEventListener('message', handler);
+}
+
+async function linkDiscord() {
+  const token = localStorage.getItem('mvp_token');
+  if (!token) return;
+  const r = await API.get(`/api/auth/discord/init?session=${token}`);
+  if (r.error) { alert(r.configured === false ? 'Discord not configured on this server.' : r.error); return; }
+  const w = window.open(r.url, 'discord_link', 'width=500,height=700');
+  const handler = async (e) => {
+    if (e.data?.type === 'discord_success') {
+      window.removeEventListener('message', handler);
+      currentUser = e.data.user;
+      showMainApp();
+      alert('Discord account linked!');
+    } else if (e.data?.type === 'discord_error') {
+      window.removeEventListener('message', handler);
+      alert('Discord link failed: ' + e.data.error);
+    }
+  };
+  window.addEventListener('message', handler);
+}
+
+/* ════════════════════════════════════════
+   SCREEN TRANSITIONS
+════════════════════════════════════════ */
+function showAuthScreen() {
+  document.getElementById('auth-screen').classList.remove('hidden');
+  document.getElementById('group-setup').classList.add('hidden');
+  document.getElementById('app').classList.add('hidden');
+}
+
+function showGroupSetup() {
+  document.getElementById('auth-screen').classList.add('hidden');
+  document.getElementById('group-setup').classList.remove('hidden');
+  document.getElementById('app').classList.add('hidden');
+  // Pre-fill invite code if opened via invite link
+  if (window._pendingInvite) {
+    switchGroupTab('join');
+    const el = document.getElementById('group-invite');
+    if (el) el.value = window._pendingInvite;
+    window._pendingInvite = null;
+    history.replaceState(null, '', window.location.pathname);
+  }
+}
+
+function showMainApp() {
+  document.getElementById('auth-screen').classList.add('hidden');
+  document.getElementById('group-setup').classList.add('hidden');
+  document.getElementById('app').classList.remove('hidden');
+  const displayName = currentUser.discordUsername || currentUser.characterName || '?';
+  document.getElementById('user-name').textContent = displayName;
+  const av = document.getElementById('user-avatar');
+  if (currentUser.discordAvatar && currentUser.discordId) {
+    av.innerHTML = `<img src="https://cdn.discordapp.com/avatars/${currentUser.discordId}/${currentUser.discordAvatar}.png?size=32" style="width:22px;height:22px;border-radius:50%;display:block">`;
+  } else {
+    av.textContent = displayName[0].toUpperCase();
+  }
+  // Group badge in top bar
+  let gb = document.getElementById('group-badge');
+  if (!gb) {
+    gb = document.createElement('div');
+    gb.id = 'group-badge';
+    gb.style.cssText = 'font-size:10px;color:var(--text4);padding:3px 8px;background:var(--bg3);border-radius:4px;border:1px solid var(--border3);white-space:nowrap';
+    document.querySelector('.top-bar-right').prepend(gb);
+  }
+  gb.textContent = currentGroup?.name || '';
+  showTab('timers');
+  renderTimers();
+  startPolling();
+}
+
+/* ════════════════════════════════════════
+   GROUP SETUP
+════════════════════════════════════════ */
+function switchGroupTab(tab) {
+  document.getElementById('group-create').classList.toggle('hidden', tab !== 'create');
+  document.getElementById('group-join').classList.toggle('hidden', tab !== 'join');
+  document.querySelectorAll('#group-setup .auth-tab').forEach((el,i) =>
+    el.classList.toggle('active', ['create','join'][i] === tab));
+}
+
+async function createGroup() {
+  const name = document.getElementById('group-name').value.trim();
+  const errEl = document.getElementById('group-create-error');
+  if (!name) { showErr(errEl, 'Group name required.'); return; }
+  const r = await API.post('/api/groups', { name });
+  if (r.error) { showErr(errEl, r.error); return; }
+  currentGroup = r;
+  localStorage.setItem('mvp_group_id', currentGroup.id);
+  await loadGroupData();
+  showMainApp();
+}
+
+async function joinGroup() {
+  const code = document.getElementById('group-invite').value.trim();
+  const errEl = document.getElementById('group-join-error');
+  if (!code) { showErr(errEl, 'Invite code required.'); return; }
+  const r = await API.post('/api/groups/join', { inviteCode: code });
+  if (r.error) { showErr(errEl, r.error); return; }
+  currentGroup = r;
+  localStorage.setItem('mvp_group_id', currentGroup.id);
+  await loadGroupData();
+  showMainApp();
+}
+
+/* ════════════════════════════════════════
+   THEME
+════════════════════════════════════════ */
+function toggleTheme() {
+  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
+  applyTheme(dark ? 'light' : 'dark');
+}
+function applyTheme(t) {
+  document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : '');
+  document.getElementById('theme-icon').textContent  = t === 'dark' ? '☀️' : '🌙';
+  document.getElementById('theme-label').textContent = t === 'dark' ? 'Light' : 'Dark';
+  localStorage.setItem('mvp_theme', t);
+}
+function loadTheme() { applyTheme(localStorage.getItem('mvp_theme') || 'dark'); }
+
+/* ════════════════════════════════════════
+   TABS
+════════════════════════════════════════ */
+function showTab(tab) {
+  ['timers','loot','members','history'].forEach((t,i) => {
+    document.getElementById('tab-'+t).classList.toggle('hidden', t !== tab);
+    document.querySelectorAll('.nav-tab')[i].classList.toggle('active', t === tab);
+  });
+  if (tab === 'loot')    renderLoot();
+  if (tab === 'members') renderMembers();
+  if (tab === 'history') renderHistory();
+}
+
+/* ════════════════════════════════════════
+   TIMER LOGIC
+════════════════════════════════════════ */
+function timerKey(mvpId, map) {
+  const mvp = MVP_DB.find(m => m.id === mvpId);
+  if (mvp?.bio3) return 'bio3::lhz_dun03';
+  if (mvp?.bio4) return 'bio4::lhz_dun04';
+  return mvpId + '::' + map;
+}
+
+function getStatus(mvp, map) {
+  const rec = timerData[timerKey(mvp.id, map)];
+  if (!rec) return { type:'unknown' };
+  const now = Date.now();
+  const minMs = rec.deathTime + mvp.rMin * 60000;
+  const maxMs = minMs + mvp.rWin * 60000;
+  if (now >= maxMs) return { type:'available' };
+  if (now >= minMs) return { type:'window', remaining: maxMs - now };
+  return { type:'pending', toMin: minMs - now, toMax: maxMs - now };
+}
+
+function fmtMs(ms) {
+  if (ms <= 0) return '0:00';
+  const s = Math.floor(ms/1000), h = Math.floor(s/3600), m = Math.floor((s%3600)/60), sec = s%60;
+  if (h > 0) return `${h}h ${String(m).padStart(2,'0')}m ${String(sec).padStart(2,'0')}s`;
+  return `${m}:${String(sec).padStart(2,'0')}`;
+}
+function fmtTime(ts) {
+  return new Date(ts).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+}
+
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderTimers();
+}
+
+function renderTimers() {
+  const q = (document.getElementById('mvp-search')?.value || '').toLowerCase();
+  const grid = document.getElementById('mvp-grid');
+  if (!grid) return;
+  grid.innerHTML = '';
+
+  let items = [];
+  let sourceLabel = 'empty';
+
+  if (currentUser?.mvpOrder?.length) {
+    currentUser.mvpOrder.forEach(key => {
+      const [mvpId, map] = key.split('::');
+      const mvp = MVP_DB.find(m => m.id === mvpId);
+      if (mvp) items.push({ mvp, map });
+    });
+    sourceLabel = 'tracked';
+  } else {
+    const seen = new Set();
+    [...kills].sort((a,b) => b.deathTime - a.deathTime).forEach(k => {
+      const key = k.mvpId + '::' + k.map;
+      if (!seen.has(key)) {
+        seen.add(key);
+        const mvp = MVP_DB.find(m => m.id === k.mvpId);
+        if (mvp) items.push({ mvp, map: k.map });
+      }
+    });
+    sourceLabel = items.length ? 'recent' : 'empty';
+  }
+
+  const banner = document.getElementById('no-tracking-banner');
+  if (banner) {
+    if (sourceLabel === 'recent') {
+      banner.innerHTML = 'Showing MVPs from your recent kills. Use <b>Edit Tracking</b> to build a permanent watchlist.';
+      banner.classList.remove('hidden');
+    } else if (sourceLabel === 'empty') {
+      banner.innerHTML = 'No MVPs to show. Use <b>Edit Tracking</b> to add MVPs to your watchlist.';
+      banner.classList.remove('hidden');
+    } else {
+      banner.classList.add('hidden');
+    }
+  }
+
+  items.forEach(({ mvp, map }) => {
+    if (q && !mvp.name.toLowerCase().includes(q)) return;
+    const st = getStatus(mvp, map);
+    if (currentFilter !== 'all' && st.type !== currentFilter) return;
+
+    const rec = timerData[timerKey(mvp.id, map)];
+
+    // Bio slot: specific MVP info
+    let specificMvpInfo = '';
+    let cardMid = mvp.mid;
+    if (mvp.bioSlot && rec?.specificMvpId) {
+      const bioList = mvp.bio3 ? BIO3_MVPS : BIO4_MVPS;
+      const spec = bioList.find(b => b.id === rec.specificMvpId);
+      if (spec) {
+        specificMvpInfo = `<div style="font-size:10px;color:var(--accent);text-align:center;margin-bottom:3px">· ${spec.name}</div>`;
+        cardMid = spec.mid;
+      }
+    }
+    const imgOpacity = (mvp.bioSlot && !rec?.specificMvpId) ? ' style="opacity:.4"' : '';
+
+    let timerText, timerCls, pillText, pillCls;
+    if (st.type === 'available') {
+      const aliveAt = rec.deathTime + mvp.rMin * 60000 + mvp.rWin * 60000;
+      timerText=`ALIVE since ${fmtTime(aliveAt)}`; timerCls='available'; pillText='Alive'; pillCls='pill-available';
+    } else if (st.type === 'window') {
+      timerText=`WINDOW · ${fmtMs(st.remaining)}`; timerCls='window'; pillText='Window open'; pillCls='pill-window';
+    } else if (st.type === 'pending') {
+      timerText=fmtMs(st.toMax); timerCls='pending'; pillText='On timer'; pillCls='pill-pending';
+    } else {
+      timerText='No data'; timerCls='unknown'; pillText='Unknown'; pillCls='pill-unknown';
+    }
+
+    let killInfoHtml = '';
+    if (rec) {
+      const winOpen  = rec.deathTime + mvp.rMin * 60000;
+      const winClose = winOpen + mvp.rWin * 60000;
+      killInfoHtml = `<div style="font-size:9px;color:var(--text4);text-align:center;line-height:1.7;margin-bottom:2px">
+        Last kill: <b>${fmtTime(rec.deathTime)}</b><br>
+        Window: <b>${fmtTime(winOpen)}</b> – <b>${fmtTime(winClose)}</b>
+      </div>`;
+    }
+
+    const labelBadge = mvp.bioSlot
+      ? ` <span style="font-size:8px;color:var(--warn-col)">[${mvp.bio3?'Bio3':'Bio4'}]</span>`
+      : mvp.special ? ` <span style="font-size:8px;color:var(--accent)">[Special]</span>` : '';
+
+    const discordBtn = currentGroup?.discordWebhook && (st.type === 'window' || st.type === 'available')
+      ? `<button class="btn btn-xs" style="width:100%;margin-top:4px;font-size:10px;background:#5865F2;color:#fff;border:none;border-radius:5px;cursor:pointer" onclick="notifyDiscord('${mvp.id}','${map}')">🔔 Notify Discord</button>`
+      : '';
+
+    const card = document.createElement('div');
+    card.className = `mvp-card status-${st.type}`;
+    card.innerHTML = `
+      <img class="mvp-card-img" src="https://static.divine-pride.net/images/mobs/png/${cardMid}.png" alt="${mvp.name}" onerror="this.style.opacity=.2"${imgOpacity}>
+      <div class="mvp-card-name">${mvp.name}${labelBadge}</div>
+      <div class="mvp-card-map">${map}</div>
+      ${specificMvpInfo}
+      ${killInfoHtml}
+      <div class="mvp-card-timer ${timerCls}">${timerText}</div>
+      <div style="text-align:center"><span class="status-pill ${pillCls}">${pillText}</span></div>
+      <button class="mvp-card-btn" onclick="openKillModal('${mvp.id}','${map}')">⚔ Register Kill</button>
+      ${discordBtn}`;
+    grid.appendChild(card);
+  });
+
+  if (!grid.children.length && sourceLabel !== 'empty') {
+    grid.innerHTML = '<div class="empty-state" style="grid-column:1/-1"><p>No MVPs match this filter.</p></div>';
+  }
+}
+
+/* ════════════════════════════════════════
+   DISCORD NOTIFY
+════════════════════════════════════════ */
+async function notifyDiscord(mvpId, map) {
+  const mvp = MVP_DB.find(m => m.id === mvpId);
+  if (!mvp || !currentGroup?.id) return;
+  const rec = timerData[timerKey(mvpId, map)];
+  const st  = getStatus(mvp, map);
+  let desc = st.type === 'available' ? '✅ **ALIVE NOW** — go go go!'
+           : st.type === 'window'    ? `⚠️ **WINDOW OPEN** — ${fmtMs(st.remaining)} remaining`
+           : '';
+  let mvpName = mvp.name;
+  if (mvp.bioSlot && rec?.specificMvpId) {
+    const spec = (mvp.bio3 ? BIO3_MVPS : BIO4_MVPS).find(b => b.id === rec.specificMvpId);
+    if (spec) mvpName += ` · ${spec.name}`;
+  }
+  const winOpen  = rec ? fmtTime(rec.deathTime + mvp.rMin * 60000) : '?';
+  const winClose = rec ? fmtTime(rec.deathTime + mvp.rMin * 60000 + mvp.rWin * 60000) : '?';
+  const r = await API.post(`/api/notify/discord?groupId=${currentGroup.id}`, {
+    content: `@here **${mvpName}** on \`${map}\` — ${desc}`,
+    embeds: [{
+      title: mvpName,
+      description: `Map: \`${map}\`\nWindow: **${winOpen} – ${winClose}**\n${desc}`,
+      color: st.type === 'available' ? 0x2a9d2a : 0xe67e22,
+    }]
+  });
+  if (r.error) { alert('Failed to send notification: ' + r.error); return; }
+  alert('Discord notification sent!');
+}
+
+/* ════════════════════════════════════════
+   TRACKING EDITOR
+════════════════════════════════════════ */
+function openTrackingEditor() {
+  tempTracked = [...(currentUser?.mvpOrder || [])];
+  renderTrackingEditor();
+  document.getElementById('tracking-modal').classList.remove('hidden');
+}
+
+function renderTrackingEditor() {
+  const q = (document.getElementById('tracking-search')?.value || '').toLowerCase();
+  const trackedEl = document.getElementById('tracked-list');
+  document.getElementById('tracked-count').textContent = `(${tempTracked.length})`;
+  if (!tempTracked.length) {
+    trackedEl.innerHTML = '<p style="font-size:12px;color:var(--text4)">None yet — add MVPs from the right column.</p>';
+  } else {
+    trackedEl.innerHTML = tempTracked.map((key, i) => {
+      const [mvpId, map] = key.split('::');
+      const mvp = MVP_DB.find(m => m.id === mvpId);
+      if (!mvp) return '';
+      return `<div class="tracking-item" style="cursor:default">
+        <img src="https://static.divine-pride.net/images/mobs/png/${mvp.mid}.png" onerror="this.style.opacity=.2">
+        <div style="flex:1;min-width:0">
+          <div class="tracking-item-name">${mvp.name}</div>
+          <div class="tracking-item-map">${map}</div>
+        </div>
+        <div class="tracking-item-actions">
+          <button class="track-btn track-up" onclick="trackMoveUp(${i})" ${i===0?'disabled':''}>↑</button>
+          <button class="track-btn track-down" onclick="trackMoveDown(${i})" ${i===tempTracked.length-1?'disabled':''}>↓</button>
+          <button class="track-btn track-remove" onclick="trackRemove(${i})">✕</button>
+        </div>
+      </div>`;
+    }).join('');
+  }
+
+  const untrackedEl = document.getElementById('untracked-list');
+  const rows = [];
+  MVP_DB.forEach(mvp => {
+    mvp.maps.forEach(map => {
+      const key = timerKey(mvp.id, map);
+      if (tempTracked.includes(key)) return;
+      if (q && !mvp.name.toLowerCase().includes(q) && !map.toLowerCase().includes(q)) return;
+      rows.push(`<div class="tracking-item">
+        <img src="https://static.divine-pride.net/images/mobs/png/${mvp.mid}.png" onerror="this.style.opacity=.2">
+        <div style="flex:1;min-width:0">
+          <div class="tracking-item-name">${mvp.name}</div>
+          <div class="tracking-item-map">${map}</div>
+        </div>
+        <button class="track-btn track-add" onclick="trackAdd('${key}')">+ Add</button>
+      </div>`);
+    });
+  });
+  untrackedEl.innerHTML = rows.join('') || '<p style="font-size:12px;color:var(--text4)">All MVPs added!</p>';
+}
+
+function trackAdd(key) { if (!tempTracked.includes(key)) tempTracked.push(key); renderTrackingEditor(); }
+function trackRemove(i) { tempTracked.splice(i, 1); renderTrackingEditor(); }
+function trackMoveUp(i) { if (i > 0) { [tempTracked[i-1],tempTracked[i]]=[tempTracked[i],tempTracked[i-1]]; renderTrackingEditor(); } }
+function trackMoveDown(i) { if (i < tempTracked.length-1) { [tempTracked[i+1],tempTracked[i]]=[tempTracked[i],tempTracked[i+1]]; renderTrackingEditor(); } }
+
+async function saveTracking() {
+  if (!currentUser) return;
+  currentUser.trackedMVPs = [...tempTracked];
+  currentUser.mvpOrder    = [...tempTracked];
+  await savePrefs();
+  closeModal('tracking-modal');
+  renderTimers();
+}
+
+/* ════════════════════════════════════════
+   KILL MODAL
+════════════════════════════════════════ */
+function openKillModal(mvpId, map) {
+  const mvp = MVP_DB.find(m => m.id === mvpId);
+  if (!mvp) return;
+  killModalCtx = { mvpId, map };
+
+  keepAllActive = false;
+  const keepBtn = document.getElementById('keep-all-btn');
+  if (keepBtn) { keepBtn.classList.remove('toggled'); keepBtn.textContent = '✓ All kept by me'; }
+  document.getElementById('km-coord-x').value = '';
+  document.getElementById('km-coord-y').value = '';
+  document.getElementById('km-map-marker').style.display = 'none';
+  const preview = document.getElementById('navi-preview');
+  preview.textContent = 'enter X / Y for /navi';
+  preview.classList.add('empty');
+  const kboCb = document.getElementById('km-kbo');
+  kboCb.checked = false;
+  document.getElementById('km-kbo-row').classList.remove('active');
+  document.getElementById('km-party-group').classList.remove('hidden');
+  document.getElementById('km-drops-group').classList.remove('hidden');
+
+  document.getElementById('kill-modal-title').textContent = `Register Kill — ${mvp.name}`;
+  document.getElementById('km-img').src = `https://static.divine-pride.net/images/mobs/png/${mvp.mid}.png`;
+  document.getElementById('km-name').textContent = mvp.name;
+  document.getElementById('km-map-text').textContent = map +
+    (mvp.bio3 ? ' · Bio3 (shared timer, 6 possible MVPs)' : '') +
+    (mvp.bio4 ? ' · Bio4 (shared timer, 7 possible MVPs)' : '') +
+    (mvp.special ? ' · Special-spawn MVP' : '');
+
+  // Bio slot specific MVP dropdown
+  const specificGroup = document.getElementById('km-specific-mvp-group');
+  const specificSel   = document.getElementById('km-specific-mvp');
+  if (mvp.bioSlot) {
+    const bioList = mvp.bio3 ? BIO3_MVPS : BIO4_MVPS;
+    specificSel.innerHTML = '<option value="">— Unknown / not sure —</option>' +
+      bioList.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+    const rec = timerData[timerKey(mvp.id, map)];
+    if (rec?.specificMvpId) specificSel.value = rec.specificMvpId;
+    specificGroup.classList.remove('hidden');
+  } else {
+    specificGroup.classList.add('hidden');
+  }
+
+  const now = new Date(); now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+  document.getElementById('kill-time').value = now.toISOString().slice(0,16);
+  updateTimeAgo();
+
+  const mapSel = document.getElementById('km-map-sel');
+  mapSel.innerHTML = mvp.maps.map(m => `<option value="${m}" ${m===map?'selected':''}>${m}</option>`).join('');
+  document.getElementById('km-map-group').classList.toggle('hidden', mvp.maps.length < 2);
+  updateMapPreview();
+
+  const killTimeEl = document.getElementById('kill-time');
+  killTimeEl._scrollHandler = (e) => {
+    e.preventDefault();
+    const val = killTimeEl.value;
+    if (!val) return;
+    const [dp, tp] = val.split('T');
+    const [yr, mo, dy] = dp.split('-').map(Number);
+    const [hr, mn] = tp.split(':').map(Number);
+    const dt = new Date(yr, mo - 1, dy, hr, mn);
+    dt.setMinutes(dt.getMinutes() - Math.sign(e.deltaY));
+    const p = n => String(n).padStart(2, '0');
+    killTimeEl.value = `${dt.getFullYear()}-${p(dt.getMonth()+1)}-${p(dt.getDate())}T${p(dt.getHours())}:${p(dt.getMinutes())}`;
+    updateTimeAgo();
+  };
+  killTimeEl.addEventListener('wheel', killTimeEl._scrollHandler, { passive: false });
+
+  if (killModalCtx._agoTimer) clearInterval(killModalCtx._agoTimer);
+  killModalCtx._agoTimer = setInterval(updateTimeAgo, 10000);
+
+  document.getElementById('km-party-chips').innerHTML = groupMembers.length
+    ? groupMembers.map(u => `<div class="member-chip ${u.id===currentUser?.id?'selected':''}" data-id="${u.id}" onclick="this.classList.toggle('selected')">${u.characterName}</div>`).join('')
+    : '<p style="font-size:11px;color:var(--text4)">No group members yet.</p>';
+  document.getElementById('km-party-hint').textContent = 'Click to toggle party members present.';
+
+  document.getElementById('km-drops').innerHTML = mvp.drops.map((d, i) => `
+    <div class="drop-row">
+      <input type="checkbox" class="drop-check" id="dc${i}">
+      <span class="drop-item-name">${d}</span>
+      <select class="drop-taken-sel">
+        <option value="">— who kept it —</option>
+        ${groupMembers.map(u=>`<option value="${u.id}">${u.characterName}</option>`).join('')}
+        <option value="__sell__">🏷 Sell (shared pool)</option>
+      </select>
+    </div>`).join('');
+
+  document.getElementById('kill-modal').classList.remove('hidden');
+}
+
+function toggleKeepAllByMe() {
+  if (!currentUser) return;
+  const btn = document.getElementById('keep-all-btn');
+  if (keepAllActive) {
+    document.querySelectorAll('#km-drops .drop-check').forEach(c => c.checked = false);
+    document.querySelectorAll('#km-drops .drop-taken-sel').forEach(s => s.value = '');
+    keepAllActive = false;
+    if (btn) { btn.classList.remove('toggled'); btn.textContent = '✓ All kept by me'; }
+  } else {
+    document.querySelectorAll('#km-drops .drop-check').forEach(c => c.checked = true);
+    document.querySelectorAll('#km-drops .drop-taken-sel').forEach(s => s.value = currentUser.id);
+    keepAllActive = true;
+    if (btn) { btn.classList.add('toggled'); btn.textContent = '↩ Undo (all kept by me)'; }
+  }
+}
+
+function updateNaviPreview() {
+  const map = document.getElementById('km-map-sel')?.value || killModalCtx?.map || '';
+  const x = document.getElementById('km-coord-x').value;
+  const y = document.getElementById('km-coord-y').value;
+  const preview = document.getElementById('navi-preview');
+  if (x && y && map) {
+    preview.textContent = `/navi ${map} ${x}/${y}`;
+    preview.classList.remove('empty');
+  } else {
+    preview.textContent = 'enter X / Y for /navi';
+    preview.classList.add('empty');
+  }
+}
+
+function copyNaviCmd() {
+  const preview = document.getElementById('navi-preview');
+  if (preview.classList.contains('empty')) return;
+  navigator.clipboard?.writeText(preview.textContent).then(() => {
+    const btn = document.getElementById('navi-copy-btn');
+    const orig = btn.textContent;
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = orig, 1500);
+  });
+}
+
+function addCustomDrop() {
+  const container = document.getElementById('km-drops');
+  const row = document.createElement('div');
+  row.className = 'drop-row';
+  row.innerHTML = `
+    <input type="checkbox" class="drop-check" checked>
+    <input type="text" class="form-input" style="flex:1;padding:4px 8px;font-size:12px" placeholder="Item name…">
+    <select class="drop-taken-sel">
+      <option value="">— who kept it —</option>
+      ${groupMembers.map(u=>`<option value="${u.id}" ${u.id===currentUser?.id?'selected':''}>${u.characterName}</option>`).join('')}
+      <option value="__sell__">🏷 Sell (shared pool)</option>
+    </select>`;
+  container.appendChild(row);
+}
+
+function closeKillModal() {
+  document.getElementById('kill-modal').classList.add('hidden');
+  const killTimeEl = document.getElementById('kill-time');
+  if (killTimeEl._scrollHandler) {
+    killTimeEl.removeEventListener('wheel', killTimeEl._scrollHandler);
+    killTimeEl._scrollHandler = null;
+  }
+  if (killModalCtx?._agoTimer) clearInterval(killModalCtx._agoTimer);
+  killModalCtx = null;
+}
+
+function updateTimeAgo() {
+  const el = document.getElementById('km-time-ago');
+  if (!el) return;
+  const val = document.getElementById('kill-time')?.value;
+  if (!val) { el.textContent = ''; return; }
+  const diff = Date.now() - new Date(val).getTime();
+  if (isNaN(diff)) { el.textContent = ''; return; }
+  if (diff < 0) { el.textContent = 'in the future'; return; }
+  const s = Math.floor(diff / 1000);
+  if (s < 60)         el.textContent = `${s}s ago`;
+  else if (s < 3600)  el.textContent = `${Math.floor(s/60)}m ago`;
+  else if (s < 86400) el.textContent = `${Math.floor(s/3600)}h ${Math.floor((s%3600)/60)}m ago`;
+  else                el.textContent = `${Math.floor(s/86400)}d ago`;
+}
+
+function toggleKilledByOthers() {
+  const active = document.getElementById('km-kbo').checked;
+  document.getElementById('km-kbo-row').classList.toggle('active', active);
+  document.getElementById('km-party-group').classList.toggle('hidden', active);
+  document.getElementById('km-drops-group').classList.toggle('hidden', active);
+}
+
+function updateMapPreview() {
+  const map = document.getElementById('km-map-sel')?.value || killModalCtx?.map || '';
+  if (!map) return;
+  const img = document.getElementById('km-map-pick-img');
+  const wrap = document.getElementById('km-map-pick');
+  const tip = document.querySelector('.map-pick-tip');
+  img.style.opacity = '0.3';
+  if (tip) tip.textContent = 'Loading map…';
+  wrap.style.cursor = 'wait';
+  img.onload = () => {
+    img.style.opacity = '1';
+    wrap.style.cursor = 'crosshair';
+    if (tip) tip.textContent = `Click to mark death location · Map: ${img.naturalWidth}×${img.naturalHeight} cells`;
+  };
+  img.onerror = () => {
+    img.style.opacity = '0.15';
+    wrap.style.cursor = 'default';
+    if (tip) tip.textContent = 'Map image not available';
+  };
+  img.src = `https://www.divine-pride.net/img/map/raw/${map}`;
+  document.getElementById('km-map-marker').style.display = 'none';
+  document.getElementById('km-coord-x').value = '';
+  document.getElementById('km-coord-y').value = '';
+  updateNaviPreview();
+}
+
+function handleMapClick(e) {
+  const wrap = document.getElementById('km-map-pick');
+  const img  = document.getElementById('km-map-pick-img');
+  if (!img.naturalWidth || !img.naturalHeight) return;
+  const marker = document.getElementById('km-map-marker');
+  const rect = wrap.getBoundingClientRect();
+  const dispW = img.width  || rect.width;
+  const dispH = img.height || rect.height;
+  const scaleX = dispW / img.naturalWidth;
+  const scaleY = dispH / img.naturalHeight;
+  const scale  = Math.min(scaleX, scaleY);
+  const rendW  = img.naturalWidth  * scale;
+  const rendH  = img.naturalHeight * scale;
+  const offX   = (rect.width  - rendW) / 2;
+  const offY   = (rect.height - rendH) / 2;
+  const px = e.clientX - rect.left - offX;
+  const py = e.clientY - rect.top  - offY;
+  if (px < 0 || py < 0 || px > rendW || py > rendH) return;
+  const x = Math.round((px / rendW) * img.naturalWidth);
+  const y = Math.round((1 - py / rendH) * img.naturalHeight);
+  document.getElementById('km-coord-x').value = x;
+  document.getElementById('km-coord-y').value = y;
+  marker.style.left = (offX + px / rendW * rendW) / rect.width  * 100 + '%';
+  marker.style.top  = (offY + py / rendH * rendH) / rect.height * 100 + '%';
+  marker.style.display = 'block';
+  updateNaviPreview();
+}
+
+function updateMarkerFromInputs() {
+  const img = document.getElementById('km-map-pick-img');
+  if (!img.naturalWidth || !img.naturalHeight) return;
+  const marker = document.getElementById('km-map-marker');
+  const wrap   = document.getElementById('km-map-pick');
+  const x = parseFloat(document.getElementById('km-coord-x').value);
+  const y = parseFloat(document.getElementById('km-coord-y').value);
+  if (isNaN(x) || isNaN(y)) { marker.style.display = 'none'; return; }
+  const rect  = wrap.getBoundingClientRect();
+  const scale  = Math.min(rect.width / img.naturalWidth, rect.height / img.naturalHeight);
+  const rendW  = img.naturalWidth  * scale;
+  const rendH  = img.naturalHeight * scale;
+  const offX   = (rect.width  - rendW) / 2;
+  const offY   = (rect.height - rendH) / 2;
+  marker.style.left = (offX + (x / img.naturalWidth)  * rendW) / rect.width  * 100 + '%';
+  marker.style.top  = (offY + (1 - y / img.naturalHeight) * rendH) / rect.height * 100 + '%';
+  marker.style.display = 'block';
+}
+
+async function registerKill() {
+  if (!killModalCtx || !currentUser) return;
+  const mvp = MVP_DB.find(m => m.id === killModalCtx.mvpId);
+  const map = document.getElementById('km-map-sel').value || killModalCtx.map;
+  const deathTime = new Date(document.getElementById('kill-time').value).getTime();
+  const coordX = parseInt(document.getElementById('km-coord-x').value) || null;
+  const coordY = parseInt(document.getElementById('km-coord-y').value) || null;
+  const killedByOthers = document.getElementById('km-kbo').checked;
+  const specificMvpId = mvp.bioSlot ? (document.getElementById('km-specific-mvp')?.value || null) : null;
+
+  if (isNaN(deathTime)) { alert('Please set a valid death time.'); return; }
+
+  let party = [], drops = [];
+
+  if (!killedByOthers) {
+    party = Array.from(document.querySelectorAll('#km-party-chips .member-chip.selected')).map(el => el.dataset.id);
+    let hasUnassigned = false;
+    document.querySelectorAll('#km-drops .drop-row').forEach(row => {
+      const chk = row.querySelector('.drop-check');
+      if (!chk?.checked) return;
+      const nameEl = row.querySelector('.drop-item-name') || row.querySelector('input[type=text]');
+      const name = (nameEl?.textContent || nameEl?.value || '').trim();
+      if (!name) return;
+      const takenBy = row.querySelector('.drop-taken-sel')?.value || '';
+      if (!takenBy) {
+        hasUnassigned = true;
+        row.querySelector('.drop-taken-sel').style.outline = '2px solid var(--risky-col)';
+      } else {
+        row.querySelector('.drop-taken-sel').style.outline = '';
+        drops.push({ name, takenBy });
+      }
+    });
+    if (hasUnassigned) { alert('Please assign every checked item to a party member or the shared sell pool.'); return; }
+  }
+
+  const tKey = timerKey(mvp.id, map);
+  timerData[tKey] = { timerKey: tKey, mvpId: mvp.id, map, deathTime, specificMvpId, killedByOthers };
+  await saveTimerToServer(tKey, { mvpId: mvp.id, map, deathTime, specificMvpId, killedByOthers, party });
+  await saveKillToServer({ mvpId: mvp.id, mvpName: mvp.name, map, deathTime, coordX, coordY, party, drops, killedByOthers, specificMvpId });
+
+  // Refresh kills from server
+  const killsRes = await API.get(`/api/kills?groupId=${currentGroup.id}`);
+  if (killsRes && !killsRes.error) kills = Array.isArray(killsRes) ? killsRes : [killsRes];
+
+  closeKillModal();
+  renderTimers();
+}
+
+/* ════════════════════════════════════════
+   LOOT & PAYMENTS
+════════════════════════════════════════ */
+function memberName(id) {
+  return groupMembers.find(u => u.id === id)?.characterName || '?';
+}
+
+function renderLoot() {
+  const lootContainer    = document.getElementById('loot-list');
+  const paymentContainer = document.getElementById('payment-list');
+  const recentKills = [...kills].sort((a,b) => b.deathTime - a.deathTime);
+
+  if (!recentKills.length) {
+    lootContainer.innerHTML = '<div class="empty-state"><p>No kills yet.</p></div>';
+  } else {
+    lootContainer.innerHTML = recentKills.map(kill => {
+      const mvp = MVP_DB.find(m => m.id === kill.mvpId);
+      const killDate = new Date(kill.deathTime).toLocaleString();
+      const naviStr = (kill.coordX && kill.coordY)
+        ? `<span class="kill-navi" onclick="navigator.clipboard?.writeText('/navi ${kill.map} ${kill.coordX}/${kill.coordY}')" title="Click to copy">/navi ${kill.map} ${kill.coordX}/${kill.coordY}</span>`
+        : '';
+      let dropRows = '';
+      if (kill.drops?.length) {
+        dropRows = kill.drops.map(d => {
+          const keeper = d.takenBy && d.takenBy !== '__sell__' ? memberName(d.takenBy) : null;
+          const statusHtml = d.takenBy === '__sell__'
+            ? `<span class="loot-item-status loot-status-sell">For Sale</span>`
+            : keeper ? `<span class="loot-item-status loot-status-kept">Kept · ${keeper}</span>`
+            : '';
+          if (!statusHtml) return '';
+          return `<div class="loot-item-row"><span class="loot-item-name">${d.name}</span>${statusHtml}</div>`;
+        }).join('');
+      } else {
+        dropRows = `<div class="loot-item-row"><span style="font-size:11px;color:var(--text4)">No items recorded.</span></div>`;
+      }
+      return `<div class="loot-kill-group">
+        <div class="loot-kill-hdr">
+          <img src="https://static.divine-pride.net/images/mobs/png/${mvp?.mid}.png" style="width:22px;height:22px;object-fit:contain" onerror="this.style.opacity=.2">
+          <span><b>${kill.mvpName}</b> <span class="kill-map">${kill.map}</span></span>
+          <span class="kill-date">${killDate}</span>${naviStr}
+        </div>${dropRows}
+      </div>`;
+    }).join('');
+  }
+
+  paymentContainer.innerHTML = '<div class="empty-state"><p>Payment tracking coming soon.</p></div>';
+}
+
+/* ════════════════════════════════════════
+   MEMBERS / GROUP
+════════════════════════════════════════ */
+function renderMembers() {
+  document.getElementById('group-name-display').textContent = currentGroup?.name || '';
+  document.getElementById('members-list').innerHTML = groupMembers.map(u => {
+    const isSelf = u.id === currentUser?.id;
+    const hasDiscordAvatar = u.discordAvatar && u.discordId;
+    const avatar = hasDiscordAvatar
+      ? `<img src="https://cdn.discordapp.com/avatars/${u.discordId}/${u.discordAvatar}.png?size=32" style="width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0">`
+      : `<div class="user-avatar-lg">${(u.characterName||'?')[0].toUpperCase()}</div>`;
+    return `<li class="user-item">
+      ${avatar}
+      <div class="user-item-info">
+        <div class="user-item-name">
+          ${u.characterName}
+          ${u.discordUsername ? `<span style="font-size:9px;color:#5865F2;font-weight:700;padding:1px 5px;background:#e8eaff;border-radius:3px">@${u.discordUsername}</span>` : ''}
+          ${isSelf ? '<span style="font-size:9px;color:var(--text4)">(you)</span>' : ''}
+        </div>
+      </div>
+    </li>`;
+  }).join('') || '<li style="color:var(--text4);font-size:12px;padding:12px 0">No members in this group yet.</li>';
+}
+
+function showInviteCode() {
+  const code = currentGroup?.inviteCode || '?';
+  const link = `${window.location.origin}${MVP_BASE}/?invite=${code}`;
+  document.getElementById('invite-code-display').textContent = code;
+  document.getElementById('invite-link-input').value = link;
+  const discordSection = document.getElementById('invite-discord-section');
+  discordSection.classList.toggle('hidden', !currentGroup?.discordWebhook);
+  document.getElementById('invite-copy-btn').textContent = '📋 Copy';
+  document.getElementById('invite-modal').classList.remove('hidden');
+}
+
+function copyInviteLink() {
+  const link = document.getElementById('invite-link-input').value;
+  navigator.clipboard.writeText(link).then(() => {
+    const btn = document.getElementById('invite-copy-btn');
+    btn.textContent = '✓ Copied!';
+    setTimeout(() => btn.textContent = '📋 Copy', 2000);
+  }).catch(() => {
+    document.getElementById('invite-link-input').select();
+    document.execCommand('copy');
+  });
+}
+
+async function sendInviteToDiscord() {
+  if (!currentGroup?.discordWebhook) return;
+  const code = currentGroup?.inviteCode || '?';
+  const link = `${window.location.origin}${MVP_BASE}/?invite=${code}`;
+  const r = await API.post(`/api/notify/discord?groupId=${currentGroup.id}`, {
+    content: `🎮 **Join our MVP tracking group!**\n\nClick the link or use code \`${code}\` on the join screen:\n${link}`,
+    embeds: [{
+      title: `Join ${currentGroup.name}`,
+      description: `Use invite code **${code}** or click below to join the MVP tracker group.`,
+      color: 0x5865F2,
+      url: link,
+      footer: { text: 'RO MVP Tracker' }
+    }]
+  });
+  if (r.error) { alert('Failed to send: ' + r.error); return; }
+  alert('Invite sent to Discord!');
+  closeModal('invite-modal');
+}
+
+async function showWebhookSetting() {
+  const current = currentGroup?.discordWebhook || '';
+  const url = prompt('Enter your Discord webhook URL (leave blank to remove):', current);
+  if (url === null) return;
+  const r = await API.put(`/api/groups/${currentGroup.id}/webhook`, { webhookUrl: url || null });
+  if (r.error) { alert('Error: ' + r.error); return; }
+  currentGroup.discordWebhook = url || null;
+  alert('Webhook saved!');
+}
+
+async function switchGroup() {
+  const groups = await API.get('/api/groups');
+  if (!groups || groups.error) { alert('Could not load groups.'); return; }
+  if (groups.length <= 1) {
+    if (confirm('You only have one group. Create or join another?')) showGroupSetup();
+    return;
+  }
+  const options = groups.map((g,i) => `${i+1}. ${g.name}`).join('\n');
+  const choice = prompt(`Select group number:\n${options}`);
+  const idx = parseInt(choice) - 1;
+  if (isNaN(idx) || idx < 0 || idx >= groups.length) return;
+  currentGroup = groups[idx];
+  localStorage.setItem('mvp_group_id', currentGroup.id);
+  await loadGroupData();
+  showMainApp();
+}
+
+/* ════════════════════════════════════════
+   HISTORY
+════════════════════════════════════════ */
+function renderHistory() {
+  const container = document.getElementById('history-list');
+  if (!kills.length) {
+    container.innerHTML = '<div class="empty-state"><p>No kills recorded yet.</p></div>'; return;
+  }
+  container.innerHTML = [...kills].sort((a,b)=>b.deathTime-a.deathTime).map(kill => {
+    const mvp = MVP_DB.find(m=>m.id===kill.mvpId);
+    const partyNames = (kill.party||[]).map(id=>memberName(id)).join(', ');
+    const drops = (kill.drops||[]).map(d => {
+      const who = d.takenBy==='__sell__' ? '🏷 Sell' : memberName(d.takenBy);
+      return `<span class="drop-tag">${d.name} → ${who}</span>`;
+    }).join('');
+    const naviStr = (kill.coordX && kill.coordY)
+      ? `<span class="drop-tag" style="cursor:pointer;color:var(--accent)" onclick="navigator.clipboard?.writeText('/navi ${kill.map} ${kill.coordX}/${kill.coordY}')" title="Click to copy">/navi ${kill.map} ${kill.coordX}/${kill.coordY}</span>`
+      : '';
+    let mvpLabel = kill.mvpName;
+    if (kill.specificMvpId) {
+      const spec = [...BIO3_MVPS,...BIO4_MVPS].find(b=>b.id===kill.specificMvpId);
+      if (spec) mvpLabel += ` · ${spec.name}`;
+    }
+    return `<div class="history-card">
+      <div class="history-top">
+        <img src="https://static.divine-pride.net/images/mobs/png/${mvp?.mid}.png" style="width:36px;height:36px;object-fit:contain" onerror="this.style.opacity=.2">
+        <div style="flex:1">
+          <b>${mvpLabel}</b> <span style="color:var(--text4);font-size:10px">on ${kill.map}</span>
+          <div style="font-size:10px;color:var(--text4)">${new Date(kill.deathTime).toLocaleString()}</div>
+        </div>
+        <div style="font-size:11px;color:var(--text3);text-align:right">Party: <b>${partyNames||'—'}</b></div>
+      </div>
+      ${drops||naviStr ? `<div>${drops}${naviStr}</div>` : ''}
+    </div>`;
+  }).join('');
+}
+
+async function clearHistory() {
+  if (!confirm('Clear all kill history?')) return;
+  kills = [];
+  renderHistory();
+}
+
+/* ════════════════════════════════════════
+   HELPERS
+════════════════════════════════════════ */
+function fz(n) {
+  if (!n) return '0 z';
+  if (n>=1e6) return (n/1e6).toFixed(2).replace(/\.?0+$/,'')+'M z';
+  if (n>=1e3) return (n/1e3).toFixed(1).replace(/\.0$/,'')+'k z';
+  return n.toLocaleString()+' z';
+}
+function closeModal(id) { document.getElementById(id)?.classList.add('hidden'); }
+function showErr(el, msg) { el.textContent = msg; el.classList.remove('hidden'); }
+
+function setFilter(f, el) {
+  currentFilter = f;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  el.classList.add('active');
+  renderTimers();
+}
+
+/* ════════════════════════════════════════
+   BOOT
+════════════════════════════════════════ */
+loadTheme();
+initApp();
+setInterval(renderTimers, 1000);
+</script>
+</body>
+</html>

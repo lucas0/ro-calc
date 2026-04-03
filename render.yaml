@@ -1,0 +1,24 @@
+services:
+  - type: web
+    name: ro-calc
+    runtime: node
+    plan: free
+    buildCommand: npm install
+    startCommand: npm start
+    disk:
+      name: data
+      mountPath: /opt/render/project/src/mvp-tracker/data
+      sizeGB: 1
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: PORT
+        value: 10000
+      - key: BASE_URL
+        fromValue: https://ro-calc.com
+      - key: DISCORD_CLIENT_ID
+        sync: false   # set in Render dashboard
+      - key: DISCORD_CLIENT_SECRET
+        sync: false   # set in Render dashboard
+      - key: DISCORD_REDIRECT_URI
+        value: https://ro-calc.com/api/auth/discord/callback
