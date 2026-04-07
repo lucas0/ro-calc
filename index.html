@@ -123,6 +123,50 @@ h2{font-size:18px;font-weight:600;margin-bottom:4px;color:var(--text)}
 h3{font-size:14px;font-weight:600;margin-bottom:10px;color:var(--text2)}
 .section{margin-bottom:24px}
 
+/* ══ Top tool nav ══ */
+.tool-nav {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  background: var(--bg3);
+  border-bottom: 1px solid var(--border);
+  padding: 0 20px;
+  height: 36px;
+  position: sticky;
+  top: 0;
+  z-index: 300;
+}
+.tool-nav-brand {
+  font-size: 13px;
+  font-weight: 800;
+  color: var(--text2);
+  margin-right: 24px;
+  letter-spacing: 0.3px;
+  white-space: nowrap;
+}
+.tool-nav-links {
+  display: flex;
+  align-items: stretch;
+  height: 100%;
+  gap: 2px;
+}
+.tool-nav-item {
+  display: flex;
+  align-items: center;
+  padding: 0 16px;
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text4);
+  text-decoration: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
+  transition: color .15s, border-color .15s;
+  white-space: nowrap;
+  user-select: none;
+}
+.tool-nav-item:hover { color: var(--text); }
+.tool-nav-item.active { color: var(--text); border-bottom-color: var(--accent, #6c63ff); }
+
 /* ══ Bookmark tabs (right edge) ══ */
 .bookmark-strip {
   position: fixed;
@@ -339,12 +383,20 @@ tr:last-child td{border-bottom:none}
 </head>
 <body>
 
+<!-- ══ Top tool nav ══ -->
+<div class="tool-nav">
+  <span class="tool-nav-brand">⚔️ RO Tools</span>
+  <div class="tool-nav-links">
+    <span class="tool-nav-item active">🔧 Refine Calculator</span>
+    <a class="tool-nav-item" href="/mvp">⏱ MVP Tracker</a>
+  </div>
+</div>
+
 <!-- ══ Bookmark tabs ══ -->
 <div class="bookmark-strip">
   <button class="bm-tab active" id="bm-simple" onclick="setView('simple')">Simple</button>
   <button class="bm-tab" id="bm-advanced" onclick="setView('advanced')">Advanced</button>
   <button class="bm-tab" id="bm-profit" onclick="setView('profit')">Profit / Loss</button>
-  <a class="bm-tab" href="/mvp" style="text-decoration:none;color:inherit">⚔️ MVP Tracker</a>
 </div>
 
 <!-- ══ Global top bar ══ -->
