@@ -1,6 +1,7 @@
 # Secrets and local config
 mvp-tracker/config.json
 mvp-tracker/data/
+bot_config.json
 
 # Logs
 backend.log
@@ -16,6 +17,19 @@ watch-*.ps1
 debug-*.ps1
 restart-*.ps1
 force-*.ps1
+
+# Python cache
+__pycache__/
+*.pyc
+
+# Bot runtime output
+bot_out*.txt
+bot_err*.txt
+pycheck*.txt
+
+# OG image build tools (keep og-image.png, not the generator)
+_make_og.py
+_og-image-template.html
 
 # Claude Code
 .claude/

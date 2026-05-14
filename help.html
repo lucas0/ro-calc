@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>How to use — RO Tools</title>
+<meta name="description" content="Step-by-step guide to the Refine Calculator and MVP Tracker, including Discord bot setup, loot splits, and payment tracking.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ro-calc.com/help.html">
+<meta property="og:title" content="How to use — RO Tools">
+<meta property="og:description" content="Step-by-step guide to the Refine Calculator and MVP Tracker, including Discord bot setup, loot splits, and payment tracking.">
+<meta property="og:image" content="https://ro-calc.com/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="How to use — RO Tools">
+<meta name="twitter:description" content="Step-by-step guide to the RO Tools Refine Calculator and MVP Tracker.">
+<meta name="twitter:image" content="https://ro-calc.com/og-image.png">
+<link rel="icon" type="image/x-icon" href="favicon.ico">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+<style>
+:root {
+  --bg: #ffffff; --bg2: #f9f9f7; --bg3: #f5f5f3;
+  --border: #e4e4e0; --border2: #e8e8e4;
+  --text: #222222; --text2: #444444; --text3: #666666; --text4: #888888;
+  --code-bg: #ebebeb;
+  --accent: #5a7de8;
+  --accent-soft: #eef4ff;
+  --warn-bg: #fff7e6; --warn-br: #f5c842; --warn-text: #8a6a14;
+  --tip-bg: #eaf7ec; --tip-br: #7dcea0; --tip-text: #1f6638;
+}
+[data-theme="dark"] {
+  --bg: #15171f; --bg2: #1b1e29; --bg3: #20243a;
+  --border: #2a2e44; --border2: #1f2330;
+  --text: #e8eaf6; --text2: #c6cadd; --text3: #9aa0bd; --text4: #6e7488;
+  --code-bg: #23273a;
+  --accent: #79c0ff;
+  --accent-soft: rgba(121,192,255,0.12);
+  --warn-bg: rgba(245,200,66,0.08); --warn-br: #b8911a; --warn-text: #e0c054;
+  --tip-bg: rgba(125,206,160,0.08); --tip-br: #4a8a64; --tip-text: #7dcea0;
+}
+* { box-sizing: border-box; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font: 15px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+}
+.help-wrap {
+  max-width: 880px;
+  margin: 0 auto;
+  padding: 28px 22px 80px;
+}
+h1 { font-size: 26px; margin: 18px 0 4px; }
+h1 .sub { font-size: 14px; font-weight: 400; color: var(--text3); }
+h2 {
+  font-size: 19px;
+  margin: 32px 0 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--border);
+  display: flex; align-items: center; gap: 8px;
+}
+h2 .emoji { font-size: 20px; }
+h3 { font-size: 16px; margin: 18px 0 6px; }
+p, ul, ol { margin: 8px 0; color: var(--text2); }
+ul, ol { padding-left: 22px; }
+li { margin: 3px 0; }
+code, kbd, .mono {
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  background: var(--code-bg);
+  padding: 1px 5px;
+  border-radius: 4px;
+  font-size: 92%;
+}
+kbd {
+  border: 1px solid var(--border);
+  box-shadow: 0 1px 0 var(--border);
+  padding: 1px 6px;
+}
+pre {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 10px 12px;
+  overflow-x: auto;
+  font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  font-size: 13px;
+  margin: 8px 0;
+}
+.callout {
+  border-left: 3px solid var(--accent);
+  background: var(--accent-soft);
+  padding: 10px 14px;
+  margin: 12px 0;
+  border-radius: 6px;
+  color: var(--text);
+}
+.callout.warn { border-color: var(--warn-br); background: var(--warn-bg); color: var(--warn-text); }
+.callout.tip  { border-color: var(--tip-br);  background: var(--tip-bg);  color: var(--tip-text); }
+.callout.warn strong, .callout.tip strong { color: inherit; }
+table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: 10px 0;
+}
+th, td {
+  padding: 8px 10px;
+  border-bottom: 1px solid var(--border);
+  text-align: left;
+  vertical-align: top;
+  font-size: 14px;
+}
+th { font-weight: 600; color: var(--text2); background: var(--bg2); }
+.toc {
+  background: var(--bg2);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 12px 18px;
+  margin: 18px 0 24px;
+}
+.toc h3 { margin-top: 0; }
+.toc ul { list-style: none; padding-left: 0; columns: 2; column-gap: 24px; }
+.toc a { color: var(--accent); text-decoration: none; }
+.toc a:hover { text-decoration: underline; }
+.lead {
+  font-size: 16px;
+  color: var(--text2);
+  border-left: 3px solid var(--accent);
+  padding-left: 14px;
+  margin: 14px 0 18px;
+}
+.step {
+  display: flex; gap: 12px;
+  margin: 10px 0;
+}
+.step .step-num {
+  flex: 0 0 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: var(--accent);
+  color: #fff;
+  display: flex; align-items: center; justify-content: center;
+  font-weight: 700; font-size: 13px;
+}
+.step .step-body { flex: 1; }
+.step .step-body strong { color: var(--text); }
+.shortcut-grid {
+  display: grid;
+  grid-template-columns: 160px 1fr;
+  gap: 6px 16px;
+  align-items: baseline;
+  margin: 8px 0;
+}
+.shortcut-grid .label { font-weight: 600; color: var(--text2); }
+.shortcut-grid .desc { color: var(--text3); font-size: 14px; }
+</style>
+</head>
+<body>
+<script src="topbar.js"></script>
+<div class="help-wrap">
+  <h1>How to use RO Tools <span class="sub">— Refine Calculator + MVP Tracker</span></h1>
+  <p class="lead">
+    A two-in-one Ragnarok Online toolkit: a refining-success calculator on the front page,
+    and a multi-player MVP timer / loot / payment tracker at <code>/mvp</code> with optional Discord integration.
+    This page explains how to use everything. Use the top bar to switch tools or toggle theme.
+  </p>
+
+  <div class="toc">
+    <h3>On this page</h3>
+    <ul>
+      <li><a href="#calc">Refine Calculator</a></li>
+      <li><a href="#mvp">MVP Tracker</a></li>
+      <li><a href="#discord">Discord bot</a></li>
+      <li><a href="#backend">Backend &amp; setup</a></li>
+      <li><a href="#troubleshooting">Troubleshooting</a></li>
+      <li><a href="#data">Data &amp; backup</a></li>
+    </ul>
+  </div>
+
+  <!-- ============ REFINE CALCULATOR ============ -->
+  <h2 id="calc"><span class="emoji">🔧</span> Refine Calculator</h2>
+  <p>Compute the best path to +N on any piece of equipment given your supplies (ores, blessings, protection). Output: success probability, expected cost, and a recommended sequence.</p>
+
+  <h3>Quick start</h3>
+  <div class="step"><div class="step-num">1</div><div class="step-body">
+    <strong>Pick server type</strong> in the top bar (Type dropdown):
+    <ul>
+      <li><strong>Pre-Renewal</strong> — classic mechanics, no Blessings, no Enriched Bradium.</li>
+      <li><strong>Renewal</strong> — modern official; HD ores, Blessings, Enriched.</li>
+      <li><strong>Hercules</strong> — common private-server tweaks.</li>
+    </ul>
+    The choice is shared with the MVP Tracker and persists across sessions.
+  </div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-body">
+    <strong>Set the equipment.</strong> Pick the item slot (Weapon / Armour / Headgear / Garment / Footwear / Shield / Accessory) and current refine level.
+  </div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-body">
+    <strong>Set the target refine.</strong> The calculator shows the chance for each successive step plus the recommended ore / protection combo.
+  </div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-body">
+    <strong>Add costs.</strong> Type in prices (e.g. <code>500k</code>, <code>5m</code>) for each ore and the calculator estimates total expected zeny to reach target. The cheaper-path bar shows where you save most.
+  </div></div>
+
+  <div class="callout tip">
+    <strong>Tip — shorthand input.</strong>
+    Anywhere you see a zeny field you can type <code>5k</code> (5,000) / <code>5m</code> (5,000,000) / <code>5b</code> (5,000,000,000). Decimals are fine: <code>1.5m</code>.
+  </div>
+
+  <h3>Reading the result</h3>
+  <table>
+    <tr><th>Cell</th><th>Meaning</th></tr>
+    <tr><td><strong>Safe</strong> (green)</td><td>You're below the break threshold; failure refunds your protection / does no damage.</td></tr>
+    <tr><td><strong>Risky</strong> (red)</td><td>Failure breaks the item without protection.</td></tr>
+    <tr><td><strong>Start / Target</strong></td><td>Your current and target refine levels; the calculator highlights the recommended drop-back level if you fail.</td></tr>
+    <tr><td><strong>Profit</strong> bars</td><td>Per-attempt expected zeny relative to selling at +N. Positive = worth refining yourself, negative = buy the +N item from market.</td></tr>
+  </table>
+
+  <!-- ============ MVP TRACKER ============ -->
+  <h2 id="mvp"><span class="emoji">⏱</span> MVP Tracker</h2>
+  <p>Coordinate MVP hunting with a group: who killed what, when does it respawn, who's holding which drops, who owes who.</p>
+
+  <h3>Sign in</h3>
+  <div class="step"><div class="step-num">1</div><div class="step-body">
+    Click <strong>🔑 Sign In</strong> on the top bar. You'll be asked to authorise with Discord. Your Discord username is used as the in-tracker identity.
+  </div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-body">
+    On first sign-in, set your <strong>character name</strong> — it shows up in payment splits and loot rows.
+  </div></div>
+
+  <h3>Groups</h3>
+  <p>A <em>group</em> is a party that hunts together. All kills, loot and payments are scoped to a group.</p>
+  <ul>
+    <li><strong>Create</strong> a group from the Groups tab; it gets an invite code.</li>
+    <li><strong>Join</strong> a group by pasting that code.</li>
+    <li>You can be in multiple groups; switch from the Groups tab.</li>
+    <li>Want to use the tracker solo? Make a group with just yourself.</li>
+  </ul>
+
+  <h3>Registering a kill</h3>
+  <div class="step"><div class="step-num">1</div><div class="step-body">
+    Open the MVP card for the boss you killed and tap <strong>+ Register kill</strong>.
+  </div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-body">
+    Set the <strong>kill time</strong> (defaults to now). For known MVPs the next respawn window is computed automatically; for the Bio-3 / Bio-4 series you can override the respawn time via the <strong>Custom Respawn Time</strong> button.
+  </div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-body">
+    Pick the <strong>party members</strong> present. Tick "Killed by others" if loot doesn't belong to the group (still tracks the spawn for timer purposes).
+  </div></div>
+  <div class="step"><div class="step-num">4</div><div class="step-body">
+    <strong>Drops:</strong> the modal pre-fills the boss's drop list ranked by drop rate. For each row, either confirm it dropped or tap <strong>"didn't drop"</strong>. To add an off-list item, type its ID — the name is resolved from the items DB (ratemyserver first, divine-pride fallback) and cached.
+  </div></div>
+  <div class="step"><div class="step-num">5</div><div class="step-body">
+    Assign each drop to a holder (whoever picks it up). You can change this later from the Loot tab.
+  </div></div>
+
+  <div class="callout tip">
+    <strong>Item ID shortcut.</strong> If a drop name shows as <code>Item #12345</code>, the backend is offline. Restart it (see <a href="#backend">Backend &amp; setup</a>) and re-enter the ID — the name will be cached for next time.
+  </div>
+
+  <h3>Loot tab — sell, split, settle</h3>
+  <ol>
+    <li>Each drop row shows a status chip: <strong>Sold</strong> / <strong>For Sale</strong> / <strong>Kept</strong>.</li>
+    <li>The <strong>💰 Mark Sold</strong> button is only visible to the player holding the item. Tap it, enter the sale price (with shorthand <code>5m</code>, <code>500k</code>), confirm.</li>
+    <li>The Payments tab automatically computes who owes whom based on sold items + party composition at the time of each kill.</li>
+    <li>The <strong>↩ Undo</strong> button (next to the kill header) is for the original registerer only; it reverses a mis-registered kill including its loot rows.</li>
+  </ol>
+
+  <h3>Payments tab</h3>
+  <p>Three things at a glance:</p>
+  <ul>
+    <li><strong>Estimated value</strong> of unsold items currently being held or listed for sale.</li>
+    <li><strong>Zeny held per player</strong> — how much each member has collected from sold items and needs to pay out (or is owed).</li>
+    <li><strong>Settlement list</strong> — "Player A → Player B: X z" rows. The math is already simplified, no chain transfers.</li>
+  </ul>
+
+  <!-- ============ DISCORD BOT ============ -->
+  <h2 id="discord"><span class="emoji">🤖</span> Discord bot</h2>
+  <p>The bot watches a Discord channel and posts MVP spawn notifications to it; you can also register kills from Discord screenshots.</p>
+
+  <h3>One-time setup</h3>
+  <div class="step"><div class="step-num">1</div><div class="step-body">
+    Invite the bot to your Discord server. The OAuth link is in <code>bot_config.json</code>'s app page on the Discord Developer Portal — required scopes are <code>bot</code> and <code>applications.commands</code>, permission set <strong>Send Messages</strong> + <strong>Embed Links</strong> + <strong>Read Message History</strong>.
+  </div></div>
+  <div class="step"><div class="step-num">2</div><div class="step-body">
+    In the channel you want notifications in, run <code>/link</code> from the bot. The command links that Discord channel ID to your tracker group (only group admins can run it).
+  </div></div>
+  <div class="step"><div class="step-num">3</div><div class="step-body">
+    Optional: set a <strong>mention role</strong> with <code>/mention &lt;@role&gt;</code> — that role is pinged on every spawn notification so people get a phone alert. You can mute the channel for everything except role mentions.
+  </div></div>
+
+  <h3>What the bot does automatically</h3>
+  <ul>
+    <li>Every 60 seconds the backend checks each linked group for MVPs spawning within the next minute and posts a rich embed: MVP name, map, thumbnail, <code>/navi</code> warp command.</li>
+    <li>Spawn notifications include a 🔔 button so members can subscribe to private DM reminders for that specific MVP.</li>
+    <li>The bot tolerates clock skew — respawn windows are computed server-side, not from the Discord message timestamp.</li>
+  </ul>
+
+  <h3>Manual / slash commands</h3>
+  <div class="shortcut-grid">
+    <div class="label"><code>/link</code></div>          <div class="desc">Link this channel to your tracker group (admin only).</div>
+    <div class="label"><code>/unlink</code></div>        <div class="desc">Remove the link.</div>
+    <div class="label"><code>/mention @role</code></div> <div class="desc">Set the role pinged on spawn alerts.</div>
+    <div class="label"><code>/navi &lt;MVP&gt;</code></div>     <div class="desc">Reply with the navi macro for that MVP map / coords.</div>
+    <div class="label"><code>🔔 Notify Discord</code></div><div class="desc">Button on every MVP card in the tracker — posts a "spawn imminent" embed on demand.</div>
+  </div>
+
+  <div class="callout warn">
+    <strong>Security — rotate your tokens.</strong> <code>bot_config.json</code> holds the bot token + bot_secret in plaintext.
+    It's <em>not</em> in <code>.gitignore</code> yet, so if the GitHub repo is public the secrets are exposed. Steps:
+    <ol>
+      <li>Discord Developer Portal → your bot → <strong>Reset Token</strong>.</li>
+      <li>Regenerate <code>bot_secret</code> (any 32-byte hex string).</li>
+      <li>Move both to <code>bot_config.local.json</code> (loaded at runtime, gitignored).</li>
+      <li>Commit a <code>bot_config.example.json</code> with placeholders.</li>
+    </ol>
+  </div>
+
+  <!-- ============ BACKEND ============ -->
+  <h2 id="backend"><span class="emoji">⚙️</span> Backend &amp; setup</h2>
+  <p>The MVP Tracker needs the local PowerShell backend on port 9500. The Refine Calculator works fully offline.</p>
+
+  <h3>Start the backend</h3>
+  <ol>
+    <li>Right-click <strong>Start</strong> → <em>Terminal (Admin)</em> (must be Administrator to bind port 9500).</li>
+    <li>Run:
+      <pre>cd B:\Coding\ro-calc
+.\serve-backend.ps1</pre>
+    </li>
+    <li>Wait for <em>"MVP Tracker backend running on http://localhost:9500"</em>.</li>
+    <li>Open <a href="http://localhost:9500/mvp">http://localhost:9500/mvp</a>.</li>
+  </ol>
+
+  <h3>Restart after backend updates</h3>
+  <pre>powershell -ExecutionPolicy Bypass -File "B:\Coding\ro-calc\restart-backend.ps1"</pre>
+  <p>Or close the terminal window and start fresh. To verify it's up, visit <a href="http://localhost:9500/api/auth/me">http://localhost:9500/api/auth/me</a> — should return JSON.</p>
+
+  <!-- ============ TROUBLESHOOTING ============ -->
+  <h2 id="troubleshooting"><span class="emoji">🛟</span> Troubleshooting</h2>
+  <table>
+    <tr><th>Symptom</th><th>Fix</th></tr>
+    <tr>
+      <td>"Access is denied" on backend start</td>
+      <td>Run PowerShell as Administrator.</td>
+    </tr>
+    <tr>
+      <td>Port 9500 already in use</td>
+      <td>Another instance is running.
+        <code>netstat -ano | findstr :9500</code> to find the PID, then
+        <code>taskkill /F /PID &lt;PID&gt;</code> (from Command Prompt as Admin).</td>
+    </tr>
+    <tr>
+      <td>App can't connect to backend</td>
+      <td>Visit <code>http://localhost:9500/api/auth/me</code>. If it returns JSON the backend is up; if not, restart it.</td>
+    </tr>
+    <tr>
+      <td>"Item #12345" instead of a name</td>
+      <td>Item-name lookup needs the backend running. Restart it and re-enter the item ID — name is cached after first resolution.</td>
+    </tr>
+    <tr>
+      <td>Undo kill says "Error: Not found"</td>
+      <td>The DELETE endpoint was added recently. Restart the backend to pick it up.</td>
+    </tr>
+    <tr>
+      <td>Bot doesn't post spawn notifications</td>
+      <td>Check the channel ID is set with <code>/link</code> and that the bot has Send / Embed permissions. Backend must be running.</td>
+    </tr>
+  </table>
+
+  <!-- ============ DATA / BACKUP ============ -->
+  <h2 id="data"><span class="emoji">💾</span> Data &amp; backup</h2>
+  <p>All persistent state lives in <code>B:\Coding\ro-calc\mvp-tracker\data\</code>:</p>
+  <ul>
+    <li><code>users.json</code>, <code>sessions.json</code> — auth.</li>
+    <li><code>groups.json</code> — groups + members.</li>
+    <li><code>kills_{groupId}.json</code> — registered kills per group.</li>
+    <li><code>items.json</code> — shared item DB (names + last sold prices).</li>
+    <li><code>group_config_{groupId}.json</code> — per-group settings (mention role, hidden drops, etc).</li>
+  </ul>
+  <p>To back up:</p>
+  <pre>Copy-Item "B:\Coding\ro-calc\mvp-tracker\data" `
+  "B:\Backups\ro-data-$(Get-Date -Format yyyyMMdd)" -Recurse</pre>
+  <p>Restoring is just the reverse — copy the data folder back. Backend must be stopped while you swap files.</p>
+
+  <div class="callout">
+    <strong>Found a bug or missing feature?</strong> Click the 💬 icon in the top bar to send feedback,
+    or reach out on the project's Discord. Pending items live in <code>TODO.md</code> in the repo.
+  </div>
+</div>
+</body>
+</html>

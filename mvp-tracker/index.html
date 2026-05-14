@@ -3,7 +3,19 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>RO MVP Tracker</title>
+<title>RO Tools — MVP Tracker</title>
+<meta name="description" content="Group MVP timer with Discord bot, loot splits, and payment tracking. Real-time respawn notifications for Ragnarok Online.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ro-calc.com/mvp">
+<meta property="og:title" content="RO Tools — MVP Tracker">
+<meta property="og:description" content="Group MVP timer with Discord bot, loot splits, and payment tracking. Real-time respawn notifications for Ragnarok Online.">
+<meta property="og:image" content="https://ro-calc.com/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="RO Tools — MVP Tracker">
+<meta name="twitter:description" content="Group MVP timer with Discord bot, loot splits, and payment tracking for Ragnarok Online.">
+<meta name="twitter:image" content="https://ro-calc.com/og-image.png">
+<link rel="icon" type="image/png" sizes="32x32" href="/mvp/favicon-oca.png">
+<link rel="icon" type="image/png" href="/mvp/favicon-oca.png">
 <style>
 :root {
   --bg:#f0f2f5;--bg2:#fff;--bg3:#e8eaed;
@@ -26,29 +38,60 @@
 }
 *{box-sizing:border-box;margin:0;padding:0}
 body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
-.tool-nav{display:flex;align-items:center;background:var(--bg3);border-bottom:1px solid var(--border);padding:0 20px;height:36px;position:sticky;top:0;z-index:300}
-.tool-nav-brand{font-size:13px;font-weight:800;color:var(--text2);margin-right:24px;white-space:nowrap}
-.tool-nav-links{display:flex;align-items:stretch;height:100%;gap:2px}
-.tool-nav-item{display:flex;align-items:center;padding:0 16px;font-size:12px;font-weight:600;color:var(--text4);text-decoration:none;border-bottom:2px solid transparent;cursor:pointer;transition:color .15s,border-color .15s;white-space:nowrap}
-.tool-nav-item:hover{color:var(--text)}
-.tool-nav-item.active{color:var(--text);border-bottom-color:var(--accent)}
-.top-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0 20px;height:54px;display:flex;align-items:center;justify-content:space-between;position:sticky;top:36px;z-index:200;gap:12px}
-.top-bar h1{font-size:17px;font-weight:700;white-space:nowrap}
-.top-bar-right{display:flex;align-items:center;gap:8px;flex-shrink:0}
+/* ── tool-nav + tnr-* provided by /topbar.js ── */
+/* ── group switcher dropdown (theme-aware, shown in secondary bar) ── */
+.tnr-group-sw{position:relative}
+.tnr-group-dd{position:absolute;top:calc(100% + 4px);right:0;background:var(--bg2);border:1px solid var(--border3);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.18);min-width:180px;z-index:500;overflow:hidden;display:none}
+.tnr-group-dd.open{display:block}
+.tnr-group-dd .group-dropdown-header{padding:7px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text4);border-bottom:1px solid var(--border)}
+.tnr-group-dd .group-dd-item{display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12px;font-weight:600;color:var(--text);cursor:pointer;transition:background .1s}
+.tnr-group-dd .group-dd-item:hover{background:var(--bg3)}
+.tnr-group-dd .group-dd-item.active{color:var(--accent)}
+.tnr-group-dd .group-dd-item .gdi-dot{width:6px;height:6px;border-radius:50%;background:var(--border3);flex-shrink:0}
+.tnr-group-dd .group-dd-item.active .gdi-dot{background:var(--accent)}
+.tnr-group-dd .group-dd-divider{height:1px;background:var(--border);margin:2px 0}
+.tnr-group-dd .group-dd-action{display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12px;font-weight:600;color:var(--accent);cursor:pointer;transition:background .1s}
+.tnr-group-dd .group-dd-action:hover{background:var(--bg3)}
+/* group switcher button inside secondary bar */
+.top-bar .tnr-group-sw .tnr-btn{background:var(--bg3);border:1px solid var(--border3);color:var(--text);font-size:12px;padding:5px 10px;border-radius:6px}
+.top-bar .tnr-group-sw .tnr-btn:hover{background:var(--border3)}
+/* ── secondary bar (merged top-bar + tabs) ── */
+.top-bar{background:var(--bg2);border-bottom:1px solid var(--border);padding:0;height:44px;display:flex;align-items:stretch;justify-content:space-between;position:sticky;top:42px;z-index:200}
+.top-bar-right{display:flex;align-items:center;gap:8px;padding:0 14px;flex-shrink:0;border-left:1px solid var(--border)}
 .user-badge{display:flex;align-items:center;gap:7px;padding:5px 11px;border-radius:6px;background:var(--bg3);border:1px solid var(--border3);font-size:12px;font-weight:600;color:var(--text)}
+.group-switcher{position:relative}
+.group-switcher-btn{display:flex;align-items:center;gap:6px;padding:5px 10px;border-radius:6px;background:var(--bg3);border:1px solid var(--border3);font-size:12px;font-weight:600;color:var(--text);cursor:pointer;white-space:nowrap;max-width:160px}
+.group-switcher-btn:hover{background:var(--input-bg);border-color:var(--accent)}
+.group-switcher-btn .gs-name{overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.group-switcher-btn .gs-caret{font-size:9px;opacity:.6;flex-shrink:0}
+.group-switcher-btn .gs-solo{font-size:9px;padding:1px 5px;background:var(--accent);color:#fff;border-radius:3px;flex-shrink:0}
+.group-dropdown{position:absolute;top:calc(100% + 4px);right:0;background:var(--bg2);border:1px solid var(--border3);border-radius:8px;box-shadow:0 6px 20px rgba(0,0,0,.18);min-width:180px;z-index:500;overflow:hidden;display:none}
+.group-dropdown.open{display:block}
+.group-dropdown-header{padding:7px 12px;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text4);border-bottom:1px solid var(--border)}
+.group-dd-item{display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12px;font-weight:600;color:var(--text);cursor:pointer;transition:background .1s}
+.group-dd-item:hover{background:var(--bg3)}
+.group-dd-item.active{color:var(--accent)}
+.group-dd-item .gdi-dot{width:7px;height:7px;border-radius:50%;background:var(--border3);flex-shrink:0}
+.group-dd-item.active .gdi-dot{background:var(--accent)}
+.group-dd-item .gdi-solo{font-size:9px;padding:1px 5px;background:var(--accent);color:#fff;border-radius:3px}
+.group-dd-divider{height:1px;background:var(--border);margin:2px 0}
+.group-dd-action{display:flex;align-items:center;gap:8px;padding:9px 12px;font-size:12px;font-weight:600;color:var(--accent);cursor:pointer;transition:background .1s}
+.group-dd-action:hover{background:var(--bg3)}
 .user-badge .avatar{width:22px;height:22px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:10px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}
 .theme-toggle{display:flex;align-items:center;gap:5px;cursor:pointer;padding:5px 9px;border-radius:6px;border:1px solid var(--border3);font-size:12px;font-weight:600;color:var(--text3);background:var(--bg2)}
 .theme-toggle:hover{background:var(--bg3)}
-.nav-tabs{display:flex;gap:2px;padding:0 20px;background:var(--bg2);border-bottom:1px solid var(--border)}
-.nav-tab{padding:10px 15px;font-size:12px;font-weight:600;color:var(--text4);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap}
+.nav-tabs{display:flex;align-items:stretch;gap:0;height:100%;padding:0 4px}
+.nav-tab{display:flex;align-items:center;padding:0 14px;font-size:12px;font-weight:600;color:var(--text4);border:none;background:none;cursor:pointer;border-bottom:2px solid transparent;transition:all .15s;white-space:nowrap;margin-bottom:-1px}
 .nav-tab.active{color:var(--accent);border-bottom-color:var(--accent)}
 .nav-tab:hover:not(.active){color:var(--text)}
 .main{max-width:1400px;margin:0 auto;padding:20px}
 .mvp-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(180px,1fr));gap:11px}
-.mvp-card{background:var(--card-bg);border:1.5px solid var(--border3);border-radius:10px;padding:13px 11px 11px;transition:transform .15s,box-shadow .15s;position:relative}
+.mvp-card{background:var(--card-bg);border:1.5px solid var(--border3);border-radius:10px;padding:13px 11px 11px;transition:transform .15s,box-shadow .15s;position:relative;display:flex;flex-direction:column}
 .mvp-card:hover{transform:translateY(-2px);box-shadow:0 4px 14px rgba(0,0,0,.12)}
 .mvp-card.status-available{border-color:var(--safe-col)}
 .mvp-card.status-window{border-color:var(--warn-col)}
+.mvp-card.status-pending{border-color:var(--accent)}
+.mvp-card.status-unknown{border-color:var(--border3)}
 .mvp-card-img{width:58px;height:58px;object-fit:contain;display:block;margin:0 auto 7px}
 .mvp-card-name{font-size:12px;font-weight:700;text-align:center;margin-bottom:2px}
 .mvp-card-map{font-size:10px;color:var(--text4);text-align:center;margin-bottom:7px}
@@ -62,7 +105,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .pill-window{background:var(--warn-bg);color:var(--warn-col)}
 .pill-pending{background:var(--bg3);color:var(--text4)}
 .pill-unknown{background:var(--bg3);color:var(--text4)}
-.mvp-card-btn{width:100%;margin-top:7px;padding:6px;background:var(--accent);border:none;border-radius:6px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;transition:background .15s}
+.mvp-card-btn{width:100%;margin-top:auto;padding:6px;background:var(--accent);border:none;border-radius:6px;color:#fff;font-size:11px;font-weight:700;cursor:pointer;transition:background .15s}
 .mvp-card-btn:hover{background:var(--accent-hover)}
 .mvp-card-btn:disabled{background:var(--bg3);color:var(--text4);cursor:default}
 .filters{display:flex;gap:7px;margin-bottom:15px;align-items:center;flex-wrap:wrap}
@@ -71,7 +114,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .search-input{padding:5px 12px;border:1px solid var(--border3);border-radius:20px;background:var(--input-bg);color:var(--text);font-size:12px;outline:none;width:160px}
 .search-input:focus{border-color:var(--accent)}
 .filter-spacer{flex:1}
-.auth-screen{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:var(--bg)}
+.auth-screen{min-height:calc(100vh - 42px);display:flex;align-items:center;justify-content:center;padding:20px;background:var(--bg)}
 .auth-box{background:var(--bg2);border:1px solid var(--border);border-radius:14px;padding:32px;width:100%;max-width:400px;box-shadow:0 8px 32px rgba(0,0,0,.12)}
 .auth-box h2{font-size:20px;font-weight:700;margin-bottom:6px}
 .auth-box p{font-size:13px;color:var(--text4);margin-bottom:24px}
@@ -98,14 +141,24 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .member-chip{display:flex;align-items:center;gap:5px;padding:5px 10px;border:2px solid var(--border3);border-radius:20px;cursor:pointer;font-size:12px;font-weight:600;color:var(--text3);transition:all .15s;user-select:none}
 .member-chip.selected{border-color:var(--accent);background:var(--accent);color:#fff}
 .member-chip:hover:not(.selected){border-color:var(--accent);color:var(--accent)}
+.member-chip.kbo-chip{border-style:dashed;color:var(--text4)}
+.member-chip.kbo-chip.selected{border-color:var(--warn-col);background:var(--warn-col);color:#fff}
+.member-chip.kbo-chip:hover:not(.selected){border-color:var(--warn-col);color:var(--warn-col)}
 .drop-rows-header{display:flex;align-items:center;gap:7px;padding:3px 0 6px;border-bottom:2px solid var(--border);margin-bottom:2px}
-.drop-hdr-check{width:15px;flex-shrink:0}
 .drop-hdr-item{flex:1;font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text4)}
-.drop-hdr-keeper{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text4);min-width:130px;text-align:right;padding-right:2px}
-.drop-row{display:flex;align-items:center;gap:7px;padding:6px 0;border-bottom:1px solid var(--border3)}
+.drop-hdr-keeper{font-size:9px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text4);min-width:140px;text-align:right;padding-right:2px}
+.drop-row{display:flex;align-items:center;gap:8px;padding:6px 2px;border-bottom:1px solid var(--border3)}
 .drop-row:last-child{border-bottom:none}
+/* Remove (✕) buttons hidden unless edit-mode is active */
+.drop-remove-btn{display:none!important}
+#km-drops-group.drop-edit-active .drop-remove-btn{display:inline-flex!important;align-items:center}
+/* Toggle button active state */
+#km-edit-drops-btn.edit-active{background:var(--accent);color:#fff;border-color:var(--accent)}
 .drop-check{width:15px;height:15px;cursor:pointer;flex-shrink:0;accent-color:var(--accent)}
 .drop-item-name{flex:1;font-size:12px}
+.item-icon{width:24px;height:24px;object-fit:contain;flex-shrink:0;image-rendering:pixelated}
+.item-icon-sm{width:20px;height:20px;object-fit:contain;flex-shrink:0;image-rendering:pixelated}
+.loot-item-name{flex:1;font-size:12px;display:flex;align-items:center;gap:6px}
 .drop-taken-sel{font-size:11px;padding:3px 7px;border-radius:5px;border:1px solid var(--input-border);background:var(--input-bg);color:var(--text);outline:none;max-width:130px}
 .coord-group{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
 .coord-input{width:72px;padding:7px 8px;border:1px solid var(--input-border);border-radius:6px;background:var(--input-bg);color:var(--text);font-size:13px;outline:none;text-align:center;transition:border .15s}
@@ -117,11 +170,6 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 #kill-time{font-size:22px!important;padding:6px 4px!important;font-weight:700;font-variant-numeric:tabular-nums;cursor:text;background:transparent;border:none!important;outline:none!important;box-shadow:none!important;width:100%;color:var(--text)}
 .time-ago-label{font-size:15px;color:var(--accent);margin-top:8px;font-weight:700;min-height:22px;text-align:center;letter-spacing:.2px}
 .kill-time-hint{font-size:10px;color:var(--text4);margin-top:5px;text-align:center}
-.kbo-row{display:flex;align-items:center;gap:9px;padding:9px 12px;background:var(--bg3);border-radius:8px;margin-bottom:13px;cursor:pointer;border:2px solid transparent;transition:border .15s}
-.kbo-row.active{border-color:var(--accent)}
-.kbo-row input[type=checkbox]{width:16px;height:16px;cursor:pointer;accent-color:var(--accent);flex-shrink:0}
-.kbo-row label{font-size:12px;font-weight:600;cursor:pointer;flex:1;user-select:none}
-.kbo-hint{font-size:10px;color:var(--text4);margin-top:2px}
 .map-pick-wrap{position:relative;cursor:crosshair;border-radius:8px;overflow:hidden;border:2px solid var(--border3);display:block;width:100%;margin-top:8px;transition:border .15s}
 .map-pick-wrap:hover{border-color:var(--accent)}
 .map-pick-img{display:block;width:100%;height:auto;max-height:200px;object-fit:contain;background:var(--bg3);pointer-events:none;user-select:none}
@@ -158,26 +206,81 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .track-up:hover,.track-down:hover{background:var(--border3)}
 .section-hdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:13px}
 .section-hdr h2{font-size:14px;font-weight:700}
-.loot-split{display:grid;grid-template-columns:1fr 1fr;gap:20px;align-items:start}
-@media(max-width:900px){.loot-split{grid-template-columns:1fr}}
-.loot-section-hdr{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;color:var(--text4);padding-bottom:7px;border-bottom:2px solid var(--border);margin-bottom:12px}
 .loot-kill-group{margin-bottom:14px;background:var(--card-bg);border:1px solid var(--border3);border-radius:9px;overflow:hidden}
 .loot-kill-hdr{display:flex;align-items:center;gap:8px;font-size:12px;font-weight:700;padding:8px 10px;background:var(--bg3);border-bottom:1px solid var(--border3)}
 .loot-kill-hdr .kill-map{font-size:10px;font-weight:400;color:var(--text4)}
 .loot-kill-hdr .kill-date{font-size:10px;font-weight:400;color:var(--text4);margin-left:auto}
 .loot-kill-hdr .kill-navi{font-family:monospace;font-size:10px;color:var(--accent);background:var(--bg2);padding:2px 6px;border-radius:4px;cursor:pointer;border:1px solid var(--border3);white-space:nowrap}
-.loot-item-row{display:flex;align-items:center;gap:7px;padding:7px 10px;border-bottom:1px solid var(--border3)}
+.loot-item-row{display:flex;align-items:center;gap:7px;padding:7px 10px;border-bottom:1px solid var(--border3);border-left:3px solid transparent}
 .loot-item-row:last-child{border-bottom:none}
-.loot-item-name{flex:1;font-size:12px}
-.loot-item-status{font-size:10px;padding:2px 6px;border-radius:4px;white-space:nowrap}
-.loot-status-kept{background:var(--bg3);color:var(--text4)}
+.loot-item-row.row-kept{border-left-color:var(--accent);background:color-mix(in srgb,var(--accent) 6%,transparent)}
+.loot-item-row.row-selling{border-left-color:var(--warn-col);background:color-mix(in srgb,var(--warn-col) 8%,transparent)}
+.loot-item-row.row-sold{border-left-color:var(--safe-col);background:color-mix(in srgb,var(--safe-col) 8%,transparent)}
+.loot-item-status{font-size:10px;padding:2px 7px;border-radius:4px;white-space:nowrap;font-weight:600}
+.loot-status-kept{background:color-mix(in srgb,var(--accent) 15%,transparent);color:var(--accent)}
 .loot-status-sell{background:var(--warn-bg);color:var(--warn-col)}
 .loot-status-sold{background:var(--safe-bg);color:var(--safe-col)}
+/* "Fully sold" collapsible section in all-players view */
+.loot-done-details{margin-bottom:10px}
+.loot-done-details summary{display:flex;align-items:center;gap:7px;padding:7px 12px;background:var(--bg3);border:1px solid var(--border3);border-radius:8px;font-size:11px;font-weight:600;color:var(--text3);cursor:pointer;list-style:none;user-select:none}
+.loot-done-details summary::-webkit-details-marker{display:none}
+.loot-done-details summary .done-caret{transition:transform .15s;flex-shrink:0}
+.loot-done-details[open] summary .done-caret{transform:rotate(90deg)}
+.loot-done-details[open] summary{border-radius:8px 8px 0 0;border-bottom-color:transparent}
+.loot-done-details .done-body{border:1px solid var(--border3);border-top:none;border-radius:0 0 8px 8px;overflow:hidden;margin-bottom:4px}
+/* Count badge on grouped player items */
+.item-count-badge{display:inline-flex;align-items:center;justify-content:center;min-width:18px;height:18px;padding:0 4px;background:var(--accent);color:#fff;border-radius:9px;font-size:10px;font-weight:700;margin-left:4px;flex-shrink:0}
 .payment-card{background:var(--card-bg);border:1px solid var(--border3);border-radius:9px;padding:12px 14px;margin-bottom:9px}
 .payment-card-hdr{display:flex;justify-content:space-between;align-items:center;margin-bottom:5px}
 .payment-card-member{font-size:13px;font-weight:700}
 .payment-card-total{font-size:18px;font-weight:700;color:var(--safe-col)}
+/* ── Settlement table ── */
+.pay-settlement{background:var(--card-bg);border:1px solid var(--border3);border-radius:9px;overflow:hidden;margin-top:14px}
+.pay-settlement-hdr{display:flex;align-items:center;padding:9px 12px;background:var(--bg3);border-bottom:1px solid var(--border3);font-size:12px;font-weight:700}
+.pay-transfer-row{display:flex;align-items:center;gap:7px;padding:8px 12px;border-top:1px solid var(--border3);font-size:12px}
+.pay-transfer-row:first-of-type{border-top:none}
+.pay-transfer-from{font-weight:700;color:#e05;white-space:nowrap}
+.pay-transfer-arrow{color:var(--text4);flex-shrink:0}
+.pay-transfer-to{font-weight:700;color:var(--safe-col);white-space:nowrap}
+.pay-transfer-amount{flex:1;text-align:right;font-weight:700;color:var(--text)}
+.pay-transfer-paid-btn{font-size:10px;padding:2px 9px;color:var(--safe-col);border-color:var(--safe-col);background:none;flex-shrink:0}
+.pay-transfer-paid-btn:hover{background:color-mix(in srgb,var(--safe-col) 12%,transparent)}
+/* ── Collapsible Per MVP kill cards ── */
+.kill-details-card>summary{list-style:none;cursor:pointer;display:flex;align-items:center}
+.kill-details-card>summary::-webkit-details-marker{display:none}
+.kill-collapse-caret{margin-left:6px;transition:transform .15s;flex-shrink:0;font-size:10px;color:var(--text4)}
+.kill-details-card[open]>.loot-kill-hdr .kill-collapse-caret{transform:rotate(180deg)}
 .payment-item{font-size:10px;color:var(--text4);padding:1px 0;line-height:1.5}
+/* ── 3-column filter layout ── */
+.tab-3col{display:flex;gap:14px;align-items:flex-start}
+.filter-sidebar{width:148px;flex-shrink:0;display:flex;flex-direction:column;gap:3px;position:sticky;top:90px}
+.filter-main{flex:1;min-width:0}
+.sidebar-hdr{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.6px;color:var(--text4);padding:8px 2px 4px}
+.sidebar-hdr:first-child{padding-top:2px}
+.sidebar-btn{display:block;width:100%;text-align:left;padding:6px 9px;font-size:11px;font-weight:600;background:var(--bg3);border:1.5px solid var(--border3);border-radius:7px;color:var(--text2);cursor:pointer;transition:all .12s;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.sidebar-btn:hover:not(.active){background:var(--input-bg);border-color:var(--accent)}
+.sidebar-btn.active{background:color-mix(in srgb,var(--accent) 14%,transparent);border-color:var(--accent);color:var(--accent)}
+.sb-count{float:right;font-size:10px;font-weight:700;opacity:.55;margin-left:4px}
+/* ── Big stat cards (Payments) ── */
+.stat-row{display:flex;gap:12px;margin-bottom:16px}
+.stat-card{flex:1;border-radius:12px;padding:15px 18px;border:2px solid}
+.stat-card-yellow{border-color:#c8860a;background:color-mix(in srgb,#c8860a 9%,var(--card-bg))}
+.stat-card-green{border-color:var(--safe-col);background:color-mix(in srgb,var(--safe-col) 9%,var(--card-bg))}
+.stat-card .stat-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.5px;opacity:.8}
+.stat-card .stat-val{font-size:26px;font-weight:700;font-variant-numeric:tabular-nums;margin-top:3px;line-height:1.1}
+.stat-card .stat-sub{font-size:10px;opacity:.65;margin-top:4px}
+@media(max-width:700px){.tab-3col{flex-direction:column}.filter-sidebar{width:100%;flex-direction:row;flex-wrap:wrap;position:static}.stat-row{flex-direction:column}}
+/* ── Payment mode toggle ── */
+.pay-mode-toggle{display:flex;background:var(--bg3);border-radius:9px;padding:3px;margin-bottom:16px;border:1px solid var(--border3);gap:2px}
+.pay-mode-btn{flex:1;padding:6px 10px;border:none;border-radius:7px;font-size:11px;font-weight:700;cursor:pointer;background:transparent;color:var(--text4);transition:all .15s;line-height:1.3;text-align:center}
+.pay-mode-btn.active{background:var(--bg2);color:var(--accent);box-shadow:0 1px 5px rgba(0,0,0,.14)}
+/* ── Balance display ── */
+.balance-card{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;border-radius:7px;margin:4px 10px 8px}
+.balance-pos{background:color-mix(in srgb,var(--safe-col) 12%,transparent);border:1px solid color-mix(in srgb,var(--safe-col) 30%,transparent)}
+.balance-neg{background:color-mix(in srgb,#e05 10%,transparent);border:1px solid color-mix(in srgb,#e05 25%,transparent)}
+.balance-zero{background:var(--bg3);border:1px solid var(--border3)}
+.balance-label{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;opacity:.8}
+.balance-val{font-size:16px;font-weight:700;font-variant-numeric:tabular-nums}
 .user-list{list-style:none}
 .user-item{display:flex;align-items:center;gap:10px;padding:9px 0;border-bottom:1px solid var(--border3)}
 .user-avatar-lg{width:34px;height:34px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:700;color:#fff;flex-shrink:0}
@@ -193,6 +296,18 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 .info-banner.warn{background:var(--warn-bg);color:var(--warn-col);border:1px solid var(--warn-col)}
 .info-banner.info{background:var(--bg3);color:var(--text3);border:1px solid var(--border3)}
 .hidden{display:none!important}
+.server-sel-wrap{display:flex;align-items:center;gap:5px}
+.server-sel-lbl{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:.4px;color:var(--text4);white-space:nowrap}
+.server-sel{font-size:12px;font-weight:600;color:var(--text);background:var(--bg2);border:1px solid var(--border3);border-radius:6px;padding:4px 8px;cursor:pointer;outline:none}
+.server-sel:focus{border-color:var(--accent)}
+.server-id-input{font-size:12px;font-weight:600;color:var(--text);background:var(--input-bg);border:1px solid var(--input-border);border-radius:6px;padding:4px 8px;outline:none;width:80px}
+.server-id-input:focus{border-color:var(--accent)}
+.admin-badge{font-size:9px;padding:1px 5px;background:#e74c3c;color:#fff;border-radius:3px;font-weight:700;vertical-align:middle}
+.role-badge{font-size:9px;padding:1px 5px;border-radius:3px;font-weight:700;vertical-align:middle}
+.role-badge.admin{background:#e74c3c;color:#fff}
+.role-badge.member{background:var(--bg3);color:var(--text4)}
+.edit-kill-btn{padding:2px 7px;border-radius:4px;font-size:10px;font-weight:700;cursor:pointer;border:1px solid var(--border3);background:var(--bg3);color:var(--text3);transition:all .1s}
+.edit-kill-btn:hover{background:var(--accent);color:#fff;border-color:var(--accent)}
 @media(max-width:768px){
   .main{padding:13px}.mvp-grid{grid-template-columns:repeat(auto-fill,minmax(150px,1fr))}
   .tracking-grid{grid-template-columns:1fr}
@@ -200,6 +315,145 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 </style>
 </head>
 <body>
+
+<!-- TOOL NAV -->
+<script>
+(function(){
+'use strict';
+var API_BASE=(location.port==='8766'||location.port==='8080')?'http://localhost:9500':'';
+var CSS='.tool-nav{display:flex;align-items:center;background:#1a1d2e;border-bottom:2px solid #5a7de8;padding:0 20px;height:42px;position:sticky;top:0;z-index:300;gap:0;box-shadow:0 2px 8px rgba(0,0,0,.18)}'
++'.tool-nav-brand{font-size:14px;font-weight:800;color:#fff;padding-right:20px;border-right:1px solid rgba(255,255,255,.15);letter-spacing:.4px;white-space:nowrap;user-select:none;text-decoration:none;flex-shrink:0}'
++'.tool-nav-links{display:flex;align-items:stretch;height:100%;padding-left:8px;gap:2px}'
++'.tool-nav-item{display:flex;align-items:center;padding:0 14px;font-size:12px;font-weight:600;color:rgba(255,255,255,.5);text-decoration:none;border-bottom:2px solid transparent;cursor:pointer;transition:color .15s,background .15s;white-space:nowrap;user-select:none;border-radius:4px 4px 0 0;margin-bottom:-2px}'
++'.tool-nav-item:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.08)}'
++'.tool-nav-item.active{color:#fff;background:rgba(90,125,232,.2);border-bottom-color:#5a7de8}'
++'.tnr-coffee{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:5px;padding:5px 13px;background:#FFDD00;border:none;border-radius:20px;color:#000;text-decoration:none;font-size:11px;font-weight:800;white-space:nowrap;cursor:pointer;z-index:1;transition:background .15s,transform .15s}'
++'.tnr-coffee:hover{background:#FFC700;transform:translateX(-50%) scale(1.04)}'
++'.tool-nav-right{display:flex;align-items:center;gap:6px;margin-left:auto;padding-left:12px;flex-shrink:0}'
++'.tnr-divider{width:1px;height:18px;background:rgba(255,255,255,.15);flex-shrink:0}'
++'.tnr-sel-wrap{display:flex;align-items:center;gap:5px}'
++'.tnr-sel-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:rgba(255,255,255,.5);white-space:nowrap}'
++'.tnr-sel{font-size:12px;font-weight:600;color:#fff;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:5px;padding:4px 8px;cursor:pointer;outline:none}'
++'.tnr-sel option{background:#1a1d2e;color:#fff}'
++'.tnr-user{display:flex;align-items:center;gap:6px;padding:4px 9px;border-radius:5px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);font-size:11px;font-weight:600;color:rgba(255,255,255,.75);flex-shrink:0}'
++'.tnr-avatar{width:20px;height:20px;border-radius:50%;background:#5a7de8;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}'
++'.tnr-icon-btn{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);font-size:13px;color:rgba(255,255,255,.7);cursor:pointer;transition:background .15s;text-decoration:none;flex-shrink:0;user-select:none;padding:0}'
++'.tnr-icon-btn:hover{background:rgba(255,255,255,.18);color:#fff}'
++'.tnr-signout{background:rgba(200,40,40,.7);border-color:rgba(200,40,40,.4);color:#fff}'
++'.tnr-signout:hover{background:rgba(220,50,50,.95)}'
++'.tnr-tip{position:relative}'
++'.tnr-tip[data-tip]::after{content:attr(data-tip);position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);background:rgba(15,17,30,.93);color:#e8eaf6;font-size:10px;font-weight:600;white-space:nowrap;padding:4px 8px;border-radius:4px;pointer-events:none;opacity:0;transition:opacity .15s;z-index:2000;letter-spacing:.2px}'
++'.tnr-tip[data-tip]:hover::after{opacity:1}'
++'#tnr-auth-slot{display:flex;align-items:center;gap:6px}';
+
+function isMvp(){return location.pathname==='/mvp'||location.pathname.startsWith('/mvp/')||location.pathname.includes('mvp-tracker');}
+function getStoredType(){return localStorage.getItem('ro_server_type')||localStorage.getItem('roCalcServerMode')||localStorage.getItem('mvp_server_type')||'pre-re';}
+function getStoredTheme(){return localStorage.getItem('theme')||localStorage.getItem('mvp_theme')||localStorage.getItem('ro-calc-theme')||'light';}
+
+function injectCSS(){if(document.getElementById('topbar-css'))return;var s=document.createElement('style');s.id='topbar-css';s.textContent=CSS;document.head.insertBefore(s,document.head.firstChild);}
+
+function applyThemeInternal(t){
+  document.documentElement.setAttribute('data-theme',t==='dark'?'dark':'light');
+  var btn=document.getElementById('tnr-theme-btn');if(btn)btn.textContent=t==='dark'?'☀️':'🌙';
+}
+
+function setTypeInternal(val){
+  localStorage.setItem('ro_server_type',val);
+  document.dispatchEvent(new CustomEvent('topbar:servertype',{detail:val}));
+}
+
+function buildNav(){
+  var mvp=isMvp();
+  var t=getStoredType();
+  var nav=document.createElement('div');
+  nav.className='tool-nav';nav.id='tool-nav';
+  nav.style.cssText='position:sticky!important;top:0!important;z-index:300!important';
+  nav.innerHTML=
+    '<a class="tool-nav-brand" href="/">⚔️ RO Tools</a>'+
+    '<div class="tool-nav-links">'+
+      '<a class="tool-nav-item'+(mvp?'':' active')+'" href="/">🔧 Refine Calculator</a>'+
+      '<a class="tool-nav-item'+(mvp?' active':'')+'" href="/mvp">⏱ MVP Tracker</a>'+
+    '</div>'+
+    '<a href="https://buymeacoffee.com/lucazedo" target="_blank" class="tnr-coffee tnr-tip" data-tip="Support the project" style="position:absolute!important;left:50%!important;transform:translateX(-50%)!important">☕ Buy me a coffee</a>'+
+    '<div class="tool-nav-right" id="tnr-right">'+
+      '<div class="tnr-sel-wrap">'+
+        '<span class="tnr-sel-lbl">Type</span>'+
+        '<select id="tnr-type-sel" class="tnr-sel">'+
+          '<option value="pre-re"'+(t==='pre-re'?' selected':'')+'>Pre-Renewal</option>'+
+          '<option value="hercules"'+(t==='hercules'?' selected':'')+'>Hercules</option>'+
+          '<option value="re"'+(t==='re'?' selected':'')+'>Renewal</option>'+
+        '</select>'+
+      '</div>'+
+      '<div class="tnr-divider"></div>'+
+      '<div id="tnr-auth-slot"></div>'+
+      '<div class="tnr-divider" id="tnr-post-auth-div"></div>'+
+      '<a href="https://forms.gle/Y5v2BzeCTe7XeErUA" target="_blank" class="tnr-icon-btn tnr-tip" data-tip="Send Feedback">💬</a>'+
+      '<div class="tnr-icon-btn tnr-tip" id="tnr-theme-btn" data-tip="Toggle Theme" onclick="TopBar.toggleTheme()">🌙</div>'+
+    '</div>';
+  nav.querySelector('#tnr-type-sel').addEventListener('change',function(){setTypeInternal(this.value);});
+  return nav;
+}
+
+function renderUser(user){
+  var slot=document.getElementById('tnr-auth-slot');
+  var pd=document.getElementById('tnr-post-auth-div');
+  if(!slot)return;
+  var name=user.discordUsername||user.characterName||'?';
+  var av=name[0].toUpperCase();
+  if(user.discordAvatar&&user.discordId)av='<img src="https://cdn.discordapp.com/avatars/'+user.discordId+'/'+user.discordAvatar+'.png?size=32" style="width:20px;height:20px;border-radius:50%;object-fit:cover;display:block">';
+  slot.innerHTML='<div class="tnr-user tnr-tip" data-tip="'+name+'"><div class="tnr-avatar">'+av+'</div><span>'+name+'</span></div>'
+    +'<button class="tnr-icon-btn tnr-signout tnr-tip" data-tip="Sign Out" onclick="TopBar.logout()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>';
+  if(pd)pd.style.display='';
+}
+
+function renderSignIn(){
+  var slot=document.getElementById('tnr-auth-slot');
+  var pd=document.getElementById('tnr-post-auth-div');
+  if(!slot)return;
+  slot.innerHTML='<a href="/mvp" class="tnr-icon-btn tnr-tip" data-tip="Sign In" style="width:auto;padding:0 9px;font-size:11px;font-weight:600;color:rgba(255,255,255,.8)">🔑 Sign In</a>';
+  if(pd)pd.style.display='';
+}
+
+async function checkAuth(){
+  var token=localStorage.getItem('mvp_token');
+  if(!token){renderSignIn();document.dispatchEvent(new CustomEvent('topbar:auth',{detail:null}));return;}
+  try{
+    var r=await fetch(API_BASE+'/api/auth/me',{headers:{'X-Session-Token':token}});
+    if(r.ok){var u=await r.json();renderUser(u);document.dispatchEvent(new CustomEvent('topbar:auth',{detail:u}));return;}
+  }catch(e){}
+  localStorage.removeItem('mvp_token');renderSignIn();document.dispatchEvent(new CustomEvent('topbar:auth',{detail:null}));
+}
+
+window.TopBar={
+  apiBase:API_BASE,
+  getServerType:function(){return getStoredType();},
+  setServerType:function(val){var s=document.getElementById('tnr-type-sel');if(s)s.value=val;setTypeInternal(val);},
+  showUser:function(user){renderUser(user);},
+  showSignIn:function(){renderSignIn();},
+  toggleTheme:function(){
+    var cur=document.documentElement.getAttribute('data-theme')||'light';
+    var next=cur==='dark'?'light':'dark';
+    localStorage.setItem('theme',next);
+    applyThemeInternal(next);
+    document.dispatchEvent(new CustomEvent('topbar:theme',{detail:next}));
+  },
+  logout:async function(){
+    var token=localStorage.getItem('mvp_token');
+    if(token){try{await fetch(API_BASE+'/api/auth/logout',{method:'POST',headers:{'X-Session-Token':token}});}catch(e){}localStorage.removeItem('mvp_token');}
+    renderSignIn();document.dispatchEvent(new CustomEvent('topbar:logout',{}));
+  }
+};
+
+function init(){
+  injectCSS();
+  var nav=buildNav();
+  document.body.insertBefore(nav,document.body.firstChild);
+  applyThemeInternal(getStoredTheme());
+  checkAuth();
+}
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);}else{init();}
+})();
+</script>
 
 <!-- AUTH SCREEN -->
 <div id="auth-screen" class="auth-screen hidden">
@@ -255,6 +509,42 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
   </div>
 </div>
 
+<!-- QUICK CREATE GROUP MODAL -->
+<div id="quick-create-modal" class="modal-overlay hidden">
+  <div class="modal modal-sm">
+    <div class="modal-header"><h3>Create New Group</h3><button class="modal-close" onclick="closeQuickModals()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Group Name</label>
+        <input type="text" class="form-input" id="quick-group-name" placeholder="e.g. Valhalla Guild" onkeydown="if(event.key==='Enter')quickCreateGroup()">
+      </div>
+      <div id="quick-create-error" class="form-error hidden"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeQuickModals()">Cancel</button>
+      <button class="btn btn-primary" onclick="quickCreateGroup()">Create</button>
+    </div>
+  </div>
+</div>
+
+<!-- QUICK JOIN GROUP MODAL -->
+<div id="quick-join-modal" class="modal-overlay hidden">
+  <div class="modal modal-sm">
+    <div class="modal-header"><h3>Join a Group</h3><button class="modal-close" onclick="closeQuickModals()">✕</button></div>
+    <div class="modal-body">
+      <div class="form-group">
+        <label class="form-label">Invite Code</label>
+        <input type="text" class="form-input" id="quick-invite-code" placeholder="Enter invite code" style="font-size:18px;letter-spacing:3px;text-align:center;font-family:monospace" onkeydown="if(event.key==='Enter')quickJoinGroup()">
+      </div>
+      <div id="quick-join-error" class="form-error hidden"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeQuickModals()">Cancel</button>
+      <button class="btn btn-primary" onclick="quickJoinGroup()">Join</button>
+    </div>
+  </div>
+</div>
+
 <!-- GROUP SETUP SCREEN -->
 <div id="group-setup" class="auth-screen hidden">
   <div class="auth-box">
@@ -285,33 +575,29 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
 <!-- APP -->
 <div id="app" class="hidden">
-  <div class="tool-nav">
-    <span class="tool-nav-brand">⚔️ RO Tools</span>
-    <div class="tool-nav-links">
-      <a class="tool-nav-item" href="/">🔧 Refine Calculator</a>
-      <span class="tool-nav-item active">⏱ MVP Tracker</span>
-    </div>
-  </div>
+  <!-- Secondary bar: nav tabs (left) + group switcher + server config (right) -->
   <div class="top-bar">
-    <h1>⚔️ RO MVP Tracker</h1>
-    <div class="top-bar-right">
-      <div class="user-badge" id="user-badge">
-        <div class="avatar" id="user-avatar">?</div>
-        <span id="user-name">—</span>
-      </div>
-      <button class="btn btn-secondary btn-sm" onclick="doLogout()">Sign Out</button>
-      <div class="theme-toggle" onclick="toggleTheme()">
-        <span id="theme-icon">☀️</span>
-        <span id="theme-label">Light</span>
-      </div>
+    <div class="nav-tabs">
+      <button class="nav-tab active" onclick="showTab('timers')">⏱ Timers</button>
+      <button class="nav-tab" onclick="showTab('loot')">💰 Loot</button>
+      <button class="nav-tab" onclick="showTab('payments')">💸 Payments</button>
+      <button class="nav-tab" onclick="showTab('members')">👥 Group</button>
+      <button class="nav-tab" onclick="showTab('history')">📋 Log</button>
     </div>
-  </div>
-
-  <div class="nav-tabs">
-    <button class="nav-tab active" onclick="showTab('timers')">⏱ Timers</button>
-    <button class="nav-tab" onclick="showTab('loot')">💰 Loot &amp; Payments</button>
-    <button class="nav-tab" onclick="showTab('members')">👥 Group</button>
-    <button class="nav-tab" onclick="showTab('history')">📋 History</button>
+    <div class="top-bar-right">
+      <div class="tnr-group-sw" id="tnr-group-sw">
+        <div class="tnr-btn" onclick="toggleTnrGroupDd(event)" id="tnr-group-btn">
+          <span id="tnr-group-name">—</span><span style="font-size:9px;opacity:.5">▼</span>
+        </div>
+        <div class="tnr-group-dd" id="tnr-group-dd">
+          <div class="group-dropdown-header">My Groups</div>
+          <div id="tnr-dd-list"></div>
+          <div class="group-dd-divider"></div>
+          <div class="group-dd-action" onclick="openNewGroupModal()">＋ New group</div>
+          <div class="group-dd-action" onclick="openJoinGroupModal()">🔗 Join group</div>
+        </div>
+      </div>
+      </div>
   </div>
 
   <div class="main">
@@ -333,15 +619,19 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
     <!-- LOOT -->
     <div id="tab-loot" class="hidden">
-      <div class="loot-split">
-        <div>
-          <div class="loot-section-hdr">🎁 Loot</div>
-          <div id="loot-list"></div>
-        </div>
-        <div>
-          <div class="loot-section-hdr">💸 Payments</div>
-          <div id="payment-list"></div>
-        </div>
+      <div class="tab-3col">
+        <div class="filter-sidebar" id="loot-left-sidebar"></div>
+        <div class="filter-main"   id="loot-main"></div>
+        <div class="filter-sidebar" id="loot-right-sidebar"></div>
+      </div>
+    </div>
+
+    <!-- PAYMENTS -->
+    <div id="tab-payments" class="hidden">
+      <div class="tab-3col">
+        <div class="filter-sidebar" id="pay-left-sidebar"></div>
+        <div class="filter-main"   id="pay-main"></div>
+        <div class="filter-sidebar" id="pay-right-sidebar"></div>
       </div>
     </div>
 
@@ -357,15 +647,120 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         </div>
       </div>
       <ul class="user-list" id="members-list"></ul>
+      <div id="blocked-members-section" class="hidden" style="margin-top:18px">
+        <div style="font-size:11px;font-weight:700;color:#e05;margin-bottom:8px;letter-spacing:.04em;text-transform:uppercase">🚫 Blocked Members</div>
+        <ul class="user-list" id="blocked-members-list"></ul>
+      </div>
     </div>
 
     <!-- HISTORY -->
     <div id="tab-history" class="hidden">
       <div class="section-hdr">
-        <h2>Kill History</h2>
-        <button class="btn btn-danger btn-sm" onclick="clearHistory()">Clear All</button>
+        <h2>Activity Log</h2>
+        <button id="log-clear-btn" class="btn btn-danger btn-sm" style="display:none" onclick="clearHistory()">🧹 Clear View</button>
       </div>
       <div id="history-list"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Server Config Modal -->
+<div class="modal-overlay hidden" id="server-config-modal">
+  <div class="modal modal-lg">
+    <div class="modal-header">
+      <h3>⚙ Server Config — <span id="scm-server-label"></span></h3>
+      <button class="modal-close" onclick="closeModal('server-config-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <p class="form-hint" style="margin-bottom:14px">Override respawn times and loot for each MVP on this server. Changes apply to future kills.</p>
+      <input type="text" class="search-input" style="width:100%;border-radius:7px;margin-bottom:12px" id="scm-search" placeholder="Search MVP…" oninput="renderServerConfigList()">
+      <div id="scm-list"></div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('server-config-modal')">Close</button>
+      <button class="btn btn-primary" onclick="saveServerConfig()">Save Changes</button>
+    </div>
+  </div>
+</div>
+
+<!-- Edit Kill Modal -->
+<div class="modal-overlay hidden" id="edit-kill-modal">
+  <div class="modal">
+    <div class="modal-header">
+      <h3 id="ekm-title">Edit Kill</h3>
+      <button class="modal-close" onclick="closeModal('edit-kill-modal')">×</button>
+    </div>
+    <div class="modal-body">
+      <!-- MVP header -->
+      <div style="display:flex;align-items:center;gap:13px;margin-bottom:16px;padding:10px 13px;background:var(--bg3);border-radius:8px">
+        <img id="ekm-img" src="" style="width:50px;height:50px;object-fit:contain" onerror="this.style.opacity=.2">
+        <div>
+          <div id="ekm-name" style="font-size:14px;font-weight:700"></div>
+          <div id="ekm-map-text" style="font-size:11px;color:var(--text4);margin-top:2px"></div>
+        </div>
+      </div>
+
+      <!-- Bio slot specific MVP selector -->
+      <div class="form-group hidden" id="ekm-specific-mvp-group">
+        <label class="form-label">Which MVP appeared?</label>
+        <select class="form-select" id="ekm-specific-mvp" onchange="updateEkmBioMvpDrops()">
+          <option value="">— Unknown / not sure —</option>
+        </select>
+        <p class="form-hint">Select the specific MVP that spawned in this biolab floor.</p>
+      </div>
+
+      <!-- Death time -->
+      <div class="form-group">
+        <label class="form-label">Death Time</label>
+        <div class="kill-time-wrap">
+          <input type="datetime-local" class="form-input" id="ekm-time" oninput="updateEkmTimeAgo()">
+          <div class="time-ago-label" id="ekm-time-ago"></div>
+        </div>
+      </div>
+
+      <!-- Map selector (hidden when single map) -->
+      <div class="form-group hidden" id="ekm-map-group">
+        <label class="form-label">Map</label>
+        <select class="form-select" id="ekm-map-sel"></select>
+      </div>
+
+      <!-- Coordinates -->
+      <div class="form-group">
+        <label class="form-label">Death Location <span style="font-weight:400;text-transform:none;color:var(--text4)">(optional)</span></label>
+        <div class="coord-group">
+          <input type="number" class="coord-input" id="ekm-coord-x" placeholder="X">
+          <span style="color:var(--text4);font-size:13px">/</span>
+          <input type="number" class="coord-input" id="ekm-coord-y" placeholder="Y">
+        </div>
+      </div>
+
+      <!-- Party chips -->
+      <div class="form-group">
+        <label class="form-label">Party Members Present</label>
+        <div id="ekm-party-chips" class="member-chips" style="gap:6px;flex-wrap:wrap"></div>
+        <p class="form-hint" style="margin-top:5px">Click to toggle who was in the party for this kill.</p>
+      </div>
+
+      <!-- Drop rows -->
+      <div class="form-group" id="ekm-drops-group">
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+          <label class="form-label" style="margin:0">Items Dropped</label>
+          <button class="btn btn-secondary btn-sm" onclick="ekmAddCustomDrop()" style="font-size:10px;padding:2px 8px">+ Custom item</button>
+        </div>
+        <div class="drop-rows-header">
+          <span class="drop-hdr-item">Item</span>
+          <span class="drop-hdr-keeper">Who kept it?</span>
+        </div>
+        <div id="ekm-drops"></div>
+        <div id="ekm-quick-assign" style="margin-top:8px">
+          <div style="font-size:11px;color:var(--text4);margin-bottom:4px">All kept by:</div>
+          <div id="ekm-quick-assign-btns" class="member-chips" style="gap:5px"></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-footer">
+      <button class="btn btn-secondary" onclick="closeModal('edit-kill-modal')">Cancel</button>
+      <button class="btn btn-primary" onclick="saveEditedKill()">Save Changes</button>
     </div>
   </div>
 </div>
@@ -388,7 +783,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
 
       <div class="form-group hidden" id="km-specific-mvp-group">
         <label class="form-label">Which MVP appeared?</label>
-        <select class="form-select" id="km-specific-mvp">
+        <select class="form-select" id="km-specific-mvp" onchange="updateBioMvpSelection()">
           <option value="">— Unknown / not sure —</option>
         </select>
         <p class="form-hint">Select the specific MVP that spawned in this biolab floor.</p>
@@ -401,6 +796,20 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
           <div class="time-ago-label" id="km-time-ago"></div>
         </div>
         <div class="kill-time-hint">Scroll ↕ on the field to adjust by ±1 minute</div>
+        <button class="btn btn-secondary btn-sm" style="margin-top:7px" onclick="toggleCustomRespawn()" id="km-custom-respawn-btn">⏱ Custom Respawn Time</button>
+        <div id="km-custom-respawn" class="hidden" style="margin-top:8px;padding:9px 12px;background:var(--bg3);border-radius:8px;display:flex;gap:12px;align-items:center;flex-wrap:wrap">
+          <div style="display:flex;align-items:center;gap:5px">
+            <label style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text4)">Min Respawn</label>
+            <input type="number" class="coord-input" id="km-custom-rmin" style="width:65px" min="1" placeholder="min">
+            <span style="font-size:10px;color:var(--text4)">min</span>
+          </div>
+          <div style="display:flex;align-items:center;gap:5px">
+            <label style="font-size:10px;font-weight:700;text-transform:uppercase;color:var(--text4)">Window</label>
+            <input type="number" class="coord-input" id="km-custom-rwin" style="width:65px" min="0" placeholder="min">
+            <span style="font-size:10px;color:var(--text4)">min</span>
+          </div>
+          <button class="btn btn-primary btn-sm" onclick="saveCustomRespawn()">Save</button>
+        </div>
       </div>
 
       <div class="form-group hidden" id="km-map-group">
@@ -408,13 +817,7 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
         <select class="form-select" id="km-map-sel" onchange="updateNaviPreview(); updateMapPreview()"></select>
       </div>
 
-      <label class="kbo-row" id="km-kbo-row">
-        <input type="checkbox" id="km-kbo" onchange="toggleKilledByOthers()">
-        <div>
-          <span style="font-size:12px;font-weight:600">Killed by others</span>
-          <div class="kbo-hint">Starts the timer without requiring loot split</div>
-        </div>
-      </label>
+      <input type="checkbox" id="km-kbo" style="display:none">
 
       <div class="form-group" id="km-location-group">
         <label class="form-label">Death Location <span style="font-weight:400;text-transform:none;color:var(--text4)">(optional — click map or type)</span></label>
@@ -439,16 +842,22 @@ body{font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;backgrou
       </div>
 
       <div class="form-group" id="km-drops-group">
-        <label class="form-label">Items Dropped</label>
+        <div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:5px">
+          <label class="form-label" style="margin:0">Items Dropped</label>
+          <button class="btn btn-secondary btn-sm" id="km-edit-drops-btn" onclick="toggleDropEditMode()" style="font-size:10px;padding:2px 8px">✏️ +/− Items</button>
+        </div>
         <div class="drop-rows-header">
-          <span class="drop-hdr-check"></span>
           <span class="drop-hdr-item">Item</span>
           <span class="drop-hdr-keeper">Who kept it?</span>
         </div>
         <div id="km-drops"></div>
-        <div style="display:flex;gap:7px;margin-top:8px;flex-wrap:wrap">
-          <button class="btn btn-secondary btn-sm" onclick="addCustomDrop()">+ Custom item</button>
-          <button class="btn btn-warn btn-sm" id="keep-all-btn" onclick="toggleKeepAllByMe()">✓ All kept by me</button>
+        <div id="km-drop-edit-panel" style="display:none;gap:7px;margin-top:6px;flex-wrap:wrap;align-items:center">
+          <input type="text" id="km-add-item-input" class="form-input" style="flex:1;min-width:120px;padding:5px 9px;font-size:12px" placeholder="Item ID or name…" onkeydown="if(event.key==='Enter'){addItemToKillModal();event.preventDefault()}">
+          <button class="btn btn-secondary btn-sm" onclick="addItemToKillModal()">+ Add</button>
+        </div>
+        <div id="km-quick-assign" style="margin-top:8px">
+          <div style="font-size:11px;color:var(--text4);margin-bottom:4px">All kept by:</div>
+          <div id="km-quick-assign-btns" class="member-chips" style="gap:5px"></div>
         </div>
       </div>
     </div>
@@ -602,22 +1011,141 @@ const MVP_DB = [
 ];
 
 const BIO3_MVPS = [
-  {id:'hp_magaleta', mid:1649, name:'High Priest Magaleta'},
-  {id:'hw_katrinn',  mid:1651, name:'High Wizard Katrinn'},
-  {id:'lk_seyren',   mid:1646, name:'Lord Knight Seyren'},
-  {id:'sniper',      mid:1650, name:'Sniper Shecil'},
-  {id:'ws_harword',  mid:1648, name:'WS Harword'},
-  {id:'assx_eremes', mid:1647, name:'Assassin Cross Eremes'},
+  // Drop IDs verified from https://my.uaro.kiev.ua/monster_new/view/?id=
+  // Order: common boxes first, equipment, card last (highest→lowest drop rate)
+  {id:'lk_seyren',   mid:1646, name:'Lord Knight Seyren',    drops:[617,603,732,1132,2342,2412,1470,1469,1166,1415,4357]},
+  {id:'assx_eremes', mid:1647, name:'Assassin Cross Eremes', drops:[617,603,732,1234,1230,2319,1233,1232,1265,13002,4359]},
+  {id:'ws_harword',  mid:1648, name:'WS Harword',            drops:[617,603,732,1138,1140,2318,1365,1364,1369,1368,4361]},
+  {id:'hp_magaleta', mid:1649, name:'High Priest Magaleta',  drops:[617,603,732,1814,2615,2513,1557,1527,1528,1560,4363]},
+  {id:'sniper',      mid:1650, name:'Sniper Shecil',         drops:[617,603,1228,1236,1234,1237,1720,1724,1723,4367]},
+  {id:'hw_katrinn',  mid:1651, name:'High Wizard Katrinn',   drops:[617,603,732,1241,1242,2616,2343,2513,1618,2319,4365]},
 ];
 const BIO4_MVPS = [
-  {id:'b_randel',    mid:2228, name:'Paladin Randel'},
-  {id:'b_flamel',    mid:2229, name:'Creator Flamel'},
-  {id:'b_celia',     mid:2230, name:'Professor Celia'},
-  {id:'b_chen',      mid:2231, name:'Champion Chen'},
-  {id:'b_gertie',    mid:2232, name:'Stalker Gertie'},
-  {id:'b_alphoccio', mid:2233, name:'Clown Alphoccio'},
-  {id:'b_trentini',  mid:2234, name:'Gypsy Trentini'},
+  // Drop IDs from https://db.irowiki.org/db/monster-info/{id}/ (real bio4 MVP IDs are 2235-2241)
+  // Order by confirmed drop rates: 50% > 30% > 20% > 0.02%
+  {id:'b_randel',    mid:2235, name:'Paladin Randall',  drops:[12623,12616,12246,617,6471,604,6224,2160,13062,4565]},
+  {id:'b_flamel',    mid:2236, name:'Creator Flamel',   drops:[12623,12616,12246,617,6471,604,6223,1393,1392,1387,4563]},
+  {id:'b_celia',     mid:2237, name:'Professor Celia',  drops:[12623,12616,12246,617,6471,604,6224,2854,4561]},
+  {id:'b_chen',      mid:2238, name:'Champion Chen',    drops:[12623,12616,12246,617,6471,604,6223,1285,1813,4562]},
+  {id:'b_gertie',    mid:2239, name:'Stalker Gertie',   drops:[12623,12616,12246,617,6471,604,6224,13070,13069,4564]},
+  {id:'b_alphoccio', mid:2240, name:'Clown Alphoccio',  drops:[12623,12616,12246,617,6471,604,6223,18103,4560]},
+  {id:'b_trentini',  mid:2241, name:'Gypsy Trentini',  drops:[12623,12616,12246,617,6471,604,6224,1985,18103,4566]},
 ];
+
+/* ════════════════════════════════════════
+   ITEM DATABASE  (item ID → name)
+   Populated with known items. Grows as users add items via the kill modal.
+   IDs sourced from divine-pride.net — verify class-specific IDs for your server.
+════════════════════════════════════════ */
+const ITEM_DB = {
+  // ── Consumables ──
+  501:  'Red Potion',           505: 'White Potion',
+  506:  'Blue Potion',          607: 'Yggdrasil Seed',
+  608:  'Condensed White Potion',
+  // ── Boxes (verified: uaRO server) ──
+  617:  'Old Purple Box',       603: 'Old Blue Box',
+  604:  'Dead Branch',          7049:'Old Blue Box (7049)',
+  7142: 'Old Violet Box',       732: '3carat Diamond',
+  12323:'High Weapon Box',
+  // ── Upgrade Materials ──
+  984:  'Oridecon',             985: 'Elunium',
+  756:  'Phracon',              757: 'Emveretarcon',
+  7444: 'Enriched Elunium',     7445:'Enriched Oridecon',
+  // ── Ore / Crafting ──
+  7227: 'Bradium',              7228:'Carnium',
+  // ── Popular Accessories ──
+  2640: "Orleans's Server",     2639:"Orleans's Glove",
+  2411: 'Proxy Skin Fragment',  2629:'Nile Rose',
+  2615: 'Safety Ring',          2616: 'Critical Ring',
+  2513: 'Heavenly Maiden Robe', 2318: "Lord's Clothes",
+  2319: 'Glittering Jacket',    2342: 'Legion Plate Armor',
+  2343: 'Robe of Cast',         2412: 'Greaves',
+  // ── Bio3 Lord Knight Seyren (1646) ──
+  1132: 'Edge',                 1470: 'Brionac',
+  1469: "Longinus's Spear",     1166: 'Dragon Slayer',
+  1415: 'Brocca',               4357: 'Lord Knight Card',
+  // ── Bio3 Assassin Cross Eremes (1647) ──
+  1234: 'Moonlight Dagger',     1230: 'Ice Pick',
+  1233: 'Exorciser',            1232: 'Assassin Dagger',
+  1265: 'Bloody Roar',          13002:'Ginnungagap',
+  4359: 'Assassin Cross Card',
+  // ── Bio3 Whitesmith Harword (1648) ──
+  1138: 'Mysteltainn',          1140: 'Byeollungum',
+  1365: 'Sabbath',              1364: 'Great Axe',
+  1369: 'Guillotine',           1368: 'Tomahawk',
+  4361: 'Whitesmith Card',
+  // ── Bio3 High Priest Magaleta (1649) ──
+  1814: 'Berserk',              1557: 'Book of Apocalypse',
+  1527: 'Quadrille',            1528: 'Grand Cross',
+  1560: "Sage's Diary",         4363: 'High Priest Card',
+  // ── Bio3 Sniper Shecil (1650) ──
+  1236: 'Sucsamad',             1237: 'Grimtooth',
+  1720: 'Rudra Bow',            1724: 'Dragon Wing',
+  4367: 'Sniper Card',          1723: 'Luna Bow',
+  1228: 'Combat Knife',
+  // ── Bio3 High Wizard Katrinn (1651) ──
+  1241: 'Cursed Dagger',        1242: 'Dagger of Counter',
+  1618: "Survivor's Rod",       4365: 'High Wizard Card',
+  // ── Bio4 shared drops (iRO wiki, monsters 2235-2241) ──
+  12623:'High Weapon Box',      12616:'S Grade Coin Bag',
+  6471: 'Ghost Chill',          12246:'Mystical Card Album',
+  6224: 'Bradium',              6223: 'Carnium',
+  // ── Bio4 Paladin Randall (2235) ──
+  2160: 'Giant Shield [1]',     13062:'Ancient Dagger',
+  4565: 'Paladin Card',
+  // ── Bio4 Creator Flamel (2236) ──
+  1393: 'End Sektura [1]',      1392: 'Ygnus Stale [1]',
+  1387: 'Giant Axe [1]',        4563: 'Creator Card',
+  // ── Bio4 Professor Celia (2237) ──
+  2854: 'Alchemy Glove [1]',    4561: 'Professor Card',
+  // ── Bio4 Champion Chen (2238) ──
+  1285: 'Chakram [2]',          1813: 'Kaiser Knuckle',
+  4562: 'Champion Card',
+  // ── Bio4 Stalker Gertie (2239) ──
+  13070:'Scarletto Nail',       13069:'Aztoe Nail',
+  4564: 'Stalker Card',
+  // ── Bio4 Clown Alphoccio (2240) / Gypsy Trentini (2241) ──
+  18103:'Mystic Bow',           4560: 'Clown Card',
+  1985: 'Rosevine',             4566: 'Gypsy Card',
+};
+
+/* Resolve a drop entry (numeric ID or legacy name string) to a display name.
+   Priority: persistent itemDb → serverConfig.itemDb → built-in ITEM_DB */
+function resolveItemName(item) {
+  const n = parseInt(item);
+  if (!isNaN(n) && String(item).trim() === String(n)) {
+    return (itemDb[n] && itemDb[n].name)
+        || (serverConfig.itemDb && serverConfig.itemDb[n])
+        || (serverConfig.itemDb && serverConfig.itemDb[String(n)])
+        || ITEM_DB[n]
+        || `Item #${n}`;
+  }
+  return String(item);
+}
+
+/* Returns the divine-pride item image URL for a numeric item ID */
+function itemImageUrl(itemId) {
+  if (!itemId || isNaN(parseInt(itemId))) return null;
+  return `https://static.divine-pride.net/images/items/item/${itemId}.png`;
+}
+
+/* Load the shared item DB from the backend (GET /api/items) */
+async function loadItemDb() {
+  const r = await API.get('/api/items');
+  if (r && !r.error) {
+    // Keys come back as strings from JSON; convert to numbers
+    itemDb = {};
+    Object.entries(r).forEach(([k, v]) => { itemDb[parseInt(k)] = v; });
+  }
+}
+
+/* Persist one or more item entries to the backend (merge, not replace) */
+function saveItemDb(updates) {
+  // updates: { [numericId]: { name, lastSoldPrice?, lastSoldAt? } }
+  const payload = {};
+  Object.entries(updates).forEach(([k, v]) => { payload[parseInt(k)] = v; });
+  API.put('/api/items', payload);
+}
 
 /* ════════════════════════════════════════
    API HELPER
@@ -651,6 +1179,7 @@ const API = {
 ════════════════════════════════════════ */
 let currentUser  = null;
 let currentGroup = null;
+let allGroups    = [];
 let groupMembers = [];
 let timerData    = {};
 let kills        = [];
@@ -658,24 +1187,331 @@ let unsoldItems  = [];
 let tempTracked  = [];
 let currentFilter = 'all';
 let killModalCtx  = null;
+// Persistent item database: { [itemId]: { name, lastSoldPrice, lastSoldAt } }
+// Loaded from /api/items on startup; updated on each sale. Shared across all groups.
+let itemDb = {};
+let editKillCtx   = null;
 let sellItemCtx   = null;
-let keepAllActive = false;
+
+// ── filter state for Loot & Payments tabs ──
+let lootWeekFilter = null;   // null = all weeks
+let lootViewMode   = null;   // null = 'all-loot' flat list | '__per_mvp__' = kill cards | playerId = player view
+let payWeekFilter  = null;
+let payPlayerFilter = null;
+let payMode = localStorage.getItem('pay_mode') || 'variable'; // 'variable' | 'fixed'
+
+/* ════════════════════════════════════════
+   WEEK / FILTER HELPERS
+════════════════════════════════════════ */
+function getWeekKey(ts) {
+  // Returns ISO date string of the Monday of the week containing ts
+  const d = new Date(ts);
+  const day = d.getDay(); // 0=Sun
+  const mon = new Date(d);
+  mon.setDate(d.getDate() - (day === 0 ? 6 : day - 1));
+  mon.setHours(0, 0, 0, 0);
+  return mon.toISOString().slice(0, 10);
+}
+function weekLabel(key) {
+  const mon = new Date(key + 'T12:00:00');
+  const sun = new Date(mon);
+  sun.setDate(mon.getDate() + 6);
+  const fmt = d => d.toLocaleDateString([], { month: 'short', day: 'numeric' });
+  return `${fmt(mon)} – ${fmt(sun)}`;
+}
+function getKillWeeks(killList) {
+  const map = new Map();
+  killList.forEach(k => {
+    const key = getWeekKey(k.deathTime);
+    map.set(key, (map.get(key) || 0) + 1);
+  });
+  return [...map.entries()].sort((a, b) => b[0].localeCompare(a[0])).map(([key, count]) => ({ key, count }));
+}
+function filterKillsByWeek(weekKey) {
+  const sorted = [...kills].sort((a, b) => b.deathTime - a.deathTime);
+  return weekKey ? sorted.filter(k => getWeekKey(k.deathTime) === weekKey) : sorted;
+}
+function buildWeekSidebar(weeks, selected, setFn) {
+  return `
+    <div class="sidebar-hdr">📅 Week</div>
+    <button class="sidebar-btn${!selected ? ' active' : ''}" onclick="${setFn}(null)">All weeks</button>
+    ${weeks.map(w => `<button class="sidebar-btn${selected === w.key ? ' active' : ''}" onclick="${setFn}('${w.key}')">
+      ${weekLabel(w.key)}<span class="sb-count">${w.count}</span>
+    </button>`).join('')}`;
+}
+function buildPlayerSidebar(selected, setFn) {
+  if (!groupMembers.length) return '';
+  return `
+    <div class="sidebar-hdr">👤 Player</div>
+    <button class="sidebar-btn${!selected ? ' active' : ''}" onclick="${setFn}(null)">All players</button>
+    ${groupMembers.map(u => `<button class="sidebar-btn${selected === u.id ? ' active' : ''}" onclick="${setFn}('${u.id}')">
+      ${u.characterName}
+    </button>`).join('')}`;
+}
+function buildLootSidebar(viewMode) {
+  const isAllLoot = !viewMode;
+  const isPerMvp  = viewMode === '__per_mvp__';
+  const viewSection = `
+    <div class="sidebar-hdr">👁 View</div>
+    <button class="sidebar-btn${isAllLoot ? ' active' : ''}" onclick="setLootView(null)">📦 All Loot</button>
+    <button class="sidebar-btn${isPerMvp  ? ' active' : ''}" onclick="setLootView('__per_mvp__')">⚔️ Per MVP</button>`;
+  const playerSection = groupMembers.length ? `
+    <div class="sidebar-hdr" style="margin-top:6px">👤 Player</div>
+    ${groupMembers.map(u => `<button class="sidebar-btn${viewMode === u.id ? ' active' : ''}" onclick="setLootView('${u.id}')">${u.characterName}</button>`).join('')}` : '';
+  return viewSection + playerSection;
+}
+function setLootWeek(key) { lootWeekFilter = key; renderLoot(); }
+function setLootView(v)   { lootViewMode   = v;   renderLoot(); }
+function setPayWeek(key)    { payWeekFilter    = key; renderPayments(); }
+function setPayPlayer(id)   { payPlayerFilter  = id;  renderPayments(); }
+function setPayMode(m)      { payMode = m; localStorage.setItem('pay_mode', m); renderPayments(); }
+
+// Ensure party is always an array (backend may serialize a single-member party as a string)
+function normalizeKill(k) {
+  if (k.party !== undefined && k.party !== null && !Array.isArray(k.party)) {
+    k.party = [k.party];
+  }
+  return k;
+}
+
+// Returns unique participant IDs for a kill (party + registeredBy)
+function getKillParticipants(kill) {
+  const party = Array.isArray(kill.party) ? kill.party : (kill.party ? [kill.party] : []);
+  return [...new Set([...party, kill.registeredBy].filter(Boolean))];
+}
+
+function formatZeny(z) {
+  if (!z) return '';
+  return z >= 1e6
+    ? `${(z/1e6).toFixed(z%1e6===0?0:2)}m`
+    : z >= 1e3
+      ? `${Math.round(z/1e3)}k`
+      : z.toString();
+}
+
+function openSellModal(killId, dropIndex) {
+  let kill = kills.find(k => k.id === killId);
+  if (!kill || !kill.drops?.[dropIndex]) return;
+  let d = kill.drops[dropIndex];
+
+  // FIFO: if this item has a known itemId and the player holds the same item
+  // in an older kill (unsold), redirect to that oldest instance first.
+  if (d.itemId && d.takenBy && d.takenBy !== '__sell__' && d.status !== 'sold') {
+    const sorted = [...kills].sort((a, b) => a.deathTime - b.deathTime); // oldest first
+    for (const k of sorted) {
+      const idx = (k.drops || []).findIndex(
+        dr => dr.itemId === d.itemId && dr.takenBy === d.takenBy && dr.status !== 'sold'
+      );
+      if (idx >= 0) {
+        killId    = k.id;
+        dropIndex = idx;
+        kill      = k;
+        d         = k.drops[idx];
+        break;
+      }
+    }
+  }
+
+  sellItemCtx = { killId, dropIndex };
+  const mvp = MVP_DB.find(m => m.id === kill.mvpId);
+  document.getElementById('sell-modal-info').innerHTML =
+    `<b>${d.name}</b> — killed <b>${kill.mvpName || mvp?.name || kill.mvpId}</b> on ${new Date(kill.deathTime).toLocaleDateString()}`;
+
+  // Pre-fill: use existing soldFor, then fall back to last known price from itemDb
+  const prefill = d.soldFor || (d.itemId ? itemDb[d.itemId]?.lastSoldPrice : null);
+  document.getElementById('sell-price').value = formatZeny(prefill);
+  document.getElementById('sell-modal').classList.remove('hidden');
+  setTimeout(() => document.getElementById('sell-price').select(), 80);
+}
+
+async function confirmSell() {
+  if (!sellItemCtx) return;
+  const raw = document.getElementById('sell-price').value.trim().toLowerCase();
+  let price = 0;
+  if (raw) {
+    if (raw.endsWith('m'))      price = Math.round(parseFloat(raw) * 1e6);
+    else if (raw.endsWith('k')) price = Math.round(parseFloat(raw) * 1e3);
+    else                        price = parseInt(raw.replace(/,/g,'')) || 0;
+  }
+  if (!raw || !price) { alert('Enter the sale price (e.g. 5m, 500k or 5000000).'); return; }
+
+  const kill = kills.find(k => k.id === sellItemCtx.killId);
+  if (!kill) return;
+  const drops = (kill.drops || []).map((d, i) =>
+    i === sellItemCtx.dropIndex
+      ? { ...d, soldFor: price || null, status: price ? 'sold' : 'selling', soldAt: price ? new Date().toISOString() : null }
+      : d
+  );
+
+  const r = await API.put(`/api/kills/${sellItemCtx.killId}?groupId=${currentGroup.id}`, {
+    deathTime: kill.deathTime, coordX: kill.coordX, coordY: kill.coordY,
+    party: kill.party, killedByOthers: kill.killedByOthers, specificMvpId: kill.specificMvpId,
+    drops
+  });
+  if (r.error) { alert('Error: ' + r.error); return; }
+
+  const idx = kills.findIndex(k => k.id === sellItemCtx.killId);
+  if (idx >= 0) kills[idx].drops = drops;
+
+  // Persist last sold price to item DB
+  const soldDrop = drops[sellItemCtx.dropIndex];
+  if (soldDrop && soldDrop.itemId) {
+    const entry = itemDb[soldDrop.itemId] || {};
+    const updated = { ...entry, name: soldDrop.name, lastSoldPrice: price, lastSoldAt: new Date().toISOString() };
+    itemDb[soldDrop.itemId] = updated;
+    saveItemDb({ [soldDrop.itemId]: updated });
+  }
+
+  closeModal('sell-modal');
+  sellItemCtx = null;
+  renderLoot();
+  // Also refresh Payments if it's the active tab
+  if (!document.getElementById('tab-payments')?.classList.contains('hidden')) renderPayments();
+}
+
+let kmDropEditMode  = false;
 let _pollInterval = null;
-let _prevTimerStates = {};   // key -> last known status type
-let _notifiedKeys    = new Set(); // deathTime-scoped keys already notified
+let _prevTimerStates = {};
+let _notifiedKeys    = new Set();
+let currentServerType = (window.TopBar ? TopBar.getServerType() : null) ||
+                        localStorage.getItem('ro_server_type') ||
+                        localStorage.getItem('mvp_server_type') || 'pre-re';
+let serverConfig = { mvpOverrides: {} }; // loaded per group from API
+let _scmDraft = {}; // draft edits in server config modal
+
+/* ════════════════════════════════════════
+   SERVER CONFIG
+════════════════════════════════════════ */
+function getEffectiveMvp(mvp) {
+  const ov = serverConfig.mvpOverrides && serverConfig.mvpOverrides[mvp.id];
+  if (!ov) return mvp;
+  return Object.assign({}, mvp, {
+    rMin:  ov.rMin  != null ? ov.rMin  : mvp.rMin,
+    rWin:  ov.rWin  != null ? ov.rWin  : mvp.rWin,
+    drops: ov.drops != null ? ov.drops : mvp.drops,
+  });
+}
+
+async function loadServerConfig() {
+  if (!currentGroup) return;
+  const r = await API.get(`/api/server-config/group/${currentGroup.id}`);
+  if (r && !r.error) {
+    serverConfig = r;
+    if (!serverConfig.mvpOverrides) serverConfig.mvpOverrides = {};
+  } else {
+    serverConfig = { groupId: currentGroup.id, mvpOverrides: {} };
+  }
+}
+
+// Server type is now managed by the shared topbar; listen for changes
+document.addEventListener('topbar:servertype', function(e) {
+  currentServerType = e.detail;
+  renderTimers();
+});
+
+/* ── Group Config Modal ── */
+function openServerConfigModal() {
+  _scmDraft = JSON.parse(JSON.stringify(serverConfig.mvpOverrides || {}));
+  document.getElementById('scm-server-label').textContent = currentGroup ? currentGroup.name : '—';
+  document.getElementById('scm-search').value = '';
+  renderServerConfigList();
+  document.getElementById('server-config-modal').classList.remove('hidden');
+}
+
+function renderServerConfigList() {
+  const q = document.getElementById('scm-search').value.toLowerCase();
+  const container = document.getElementById('scm-list');
+  const rows = [];
+  // unique MVPs (skip bio egnigem2 duplicate)
+  const seen = new Set();
+  MVP_DB.forEach(mvp => {
+    if (seen.has(mvp.id)) return;
+    seen.add(mvp.id);
+    if (q && !mvp.name.toLowerCase().includes(q)) return;
+    const ov = _scmDraft[mvp.id] || {};
+    const drops = ov.drops != null ? ov.drops : mvp.drops;
+    const dropsStr = drops.join(', ');
+    rows.push(`<div style="background:var(--card-bg);border:1px solid var(--border3);border-radius:8px;padding:11px 13px;margin-bottom:8px">
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:8px">
+        <img src="https://static.divine-pride.net/images/mobs/png/${mvp.mid}.png" style="width:32px;height:32px;object-fit:contain" onerror="this.style.opacity=.2">
+        <b style="flex:1;font-size:13px">${mvp.name}</b>
+        <span style="font-size:10px;color:var(--text4)">${mvp.maps.join(', ')}</span>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:8px">
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Min Respawn (min)</label>
+          <input type="number" class="form-input" style="font-size:13px" value="${ov.rMin != null ? ov.rMin : mvp.rMin}" min="1" oninput="scmSet('${mvp.id}','rMin',+this.value)">
+        </div>
+        <div class="form-group" style="margin:0">
+          <label class="form-label">Window (min)</label>
+          <input type="number" class="form-input" style="font-size:13px" value="${ov.rWin != null ? ov.rWin : mvp.rWin}" min="0" oninput="scmSet('${mvp.id}','rWin',+this.value)">
+        </div>
+      </div>
+      <div class="form-group" style="margin:0">
+        <label class="form-label">Loot (item names, comma-separated — add item IDs to fetch names)</label>
+        <div style="display:flex;gap:6px">
+          <input type="text" class="form-input" style="font-size:12px;flex:1" id="scm-drops-${mvp.id}" value="${dropsStr.replace(/"/g,'&quot;')}" placeholder="Item Name, Another Item, …" onchange="scmSet('${mvp.id}','drops',this.value.split(',').map(s=>s.trim()).filter(Boolean))">
+          <button class="btn btn-secondary btn-sm" onclick="scmAddItemById('${mvp.id}')">+ By ID</button>
+        </div>
+        <p class="form-hint">Leave unchanged to use default loot.</p>
+      </div>
+      <div style="margin-top:6px;text-align:right">
+        <button class="btn btn-xs btn-secondary" onclick="scmReset('${mvp.id}')">↺ Reset to default</button>
+      </div>
+    </div>`);
+  });
+  container.innerHTML = rows.join('') || '<p style="color:var(--text4);font-size:13px">No MVPs match.</p>';
+}
+
+function scmSet(mvpId, field, val) {
+  if (!_scmDraft[mvpId]) _scmDraft[mvpId] = {};
+  _scmDraft[mvpId][field] = val;
+}
+function scmReset(mvpId) {
+  delete _scmDraft[mvpId];
+  renderServerConfigList();
+}
+async function scmAddItemById(mvpId) {
+  const idStr = prompt('Enter item ID (number):');
+  if (!idStr) return;
+  const itemId = parseInt(idStr);
+  if (isNaN(itemId)) { alert('Invalid item ID'); return; }
+  // Try to fetch item name from divine-pride
+  let name = `Item #${itemId}`;
+  try {
+    const r = await fetch(`https://www.divine-pride.net/api/database/Item/${itemId}?apiKey=`);
+    if (r.ok) {
+      const d = await r.json();
+      if (d.name) name = d.name;
+    }
+  } catch(e) {}
+  const mvp = MVP_DB.find(m => m.id === mvpId);
+  const ov = _scmDraft[mvpId] || {};
+  const existing = ov.drops != null ? [...ov.drops] : [...(mvp?.drops || [])];
+  if (!existing.includes(name)) existing.push(name);
+  scmSet(mvpId, 'drops', existing);
+  // update input directly
+  const el = document.getElementById(`scm-drops-${mvpId}`);
+  if (el) el.value = existing.join(', ');
+}
+
+async function saveServerConfig() {
+  serverConfig.mvpOverrides = _scmDraft;
+  if (currentGroup) await API.post(`/api/server-config/group/${currentGroup.id}`, serverConfig);
+  closeModal('server-config-modal');
+  renderTimers();
+}
 
 /* ════════════════════════════════════════
    INIT
 ════════════════════════════════════════ */
 async function initApp() {
-  // Check for invite code in URL (e.g. ?invite=XXXX)
   const _urlInvite = new URLSearchParams(window.location.search).get('invite');
   if (_urlInvite) window._pendingInvite = _urlInvite.toUpperCase();
 
   const token = localStorage.getItem('mvp_token');
   if (!token) {
     showAuthScreen();
-    // Pre-fill join tab if invite link was shared
     if (window._pendingInvite) {
       setTimeout(() => {
         switchGroupTab && switchGroupTab('join');
@@ -690,11 +1526,11 @@ async function initApp() {
   if (me.error) { localStorage.removeItem('mvp_token'); showAuthScreen(); return; }
   currentUser = me;
 
-  // Try to auto-join if invite link was shared
+  await Promise.all([loadServerConfig(), loadItemDb()]);
+
   if (window._pendingInvite) {
     const jr = await API.post('/api/groups/join', { inviteCode: window._pendingInvite });
     window._pendingInvite = null;
-    // Clear invite from URL without reload
     history.replaceState(null, '', window.location.pathname);
     if (jr && !jr.error) {
       currentGroup = jr;
@@ -717,15 +1553,21 @@ async function initApp() {
 async function loadGroupData() {
   if (!currentGroup) return;
   const gid = currentGroup.id;
-  const [timers, killsRes, members, prefs] = await Promise.all([
+  const [timers, killsRes, members, prefs, grpInfo] = await Promise.all([
     API.get(`/api/timers?groupId=${gid}`),
     API.get(`/api/kills?groupId=${gid}`),
     API.get(`/api/groups/${gid}/members`),
     API.get('/api/prefs'),
+    API.get(`/api/groups/${gid}`),
   ]);
   timerData    = (timers && !timers.error)    ? timers    : {};
-  kills        = (killsRes && !killsRes.error) ? (Array.isArray(killsRes) ? killsRes : [killsRes]) : [];
+  const rawKills = (killsRes && !killsRes.error) ? (Array.isArray(killsRes) ? killsRes : [killsRes]) : [];
+  kills = rawKills.filter(k => !k._deleted).map(normalizeKill);
   groupMembers = (members && !members.error)   ? members   : [];
+  if (grpInfo && !grpInfo.error) {
+    // sync admins into currentGroup
+    if (grpInfo.admins) currentGroup.admins = grpInfo.admins;
+  }
   if (prefs && !prefs.error) {
     if (!currentUser.mvpOrder)    currentUser.mvpOrder    = prefs.mvpOrder    || [];
     if (!currentUser.trackedMVPs) currentUser.trackedMVPs = prefs.trackedMVPs || [];
@@ -761,7 +1603,10 @@ function startPolling() {
       timerData = timers;
       checkWindowNotifications(timers);
     }
-    if (killsRes && !killsRes.error) kills = Array.isArray(killsRes) ? killsRes : [killsRes];
+    if (killsRes && !killsRes.error) {
+      const raw = Array.isArray(killsRes) ? killsRes : [killsRes];
+      kills = raw.filter(k => !k._deleted).map(normalizeKill);
+    }
   }, 10000);
 }
 
@@ -793,27 +1638,44 @@ function checkWindowNotifications(newTimerData) {
   });
 }
 
+function buildSpawnEmbed(mvp, map, eventType, rec) {
+  const eff = (mvp && typeof getEffectiveMvp === 'function') ? getEffectiveMvp(mvp) : mvp || {};
+  let mvpName = rec?.mvpName || mvp?.name || 'MVP';
+  let mid     = rec?.mid     || mvp?.mid;
+  if (!rec?.mvpName && mvp?.bioSlot && rec?.specificMvpId) {
+    const spec = [...(BIO3_MVPS||[]),...(BIO4_MVPS||[])].find(b => b.id === rec.specificMvpId);
+    if (spec) { mvpName = spec.name; mid = spec.mid; }
+  }
+  const rMin = rec?.rMin ?? eff.rMin ?? 0;
+  const rWin = rec?.rWin ?? eff.rWin ?? 0;
+  const winOpenMs  = (rec?.deathTime || 0) + rMin * 60000;
+  const winCloseMs = winOpenMs + rWin * 60000;
+  const fmt = ms => new Date(ms).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  const winOpen  = rec ? fmt(winOpenMs)  : '?';
+  const winClose = rec ? fmt(winCloseMs) : '?';
+  const coords   = (rec?.coordX && rec?.coordY) ? `${rec.coordX}/${rec.coordY}` : '0/0';
+
+  const isWindow = eventType === 'window';
+  const lines = [
+    `**Window:** ${winOpen} – ${winClose}`,
+    `\`/navi ${map} ${coords}\``,
+  ];
+  return {
+    content: isWindow ? `@here **${mvpName}** spawn window is open on \`${map}\`!` : `@here **${mvpName}** on \`${map}\` is **ALIVE** — hunt it down!`,
+    embeds: [{
+      title: isWindow ? `🟡 ${mvpName} — Spawn Window` : `✅ ${mvpName} — Alive Now!`,
+      description: lines.join('\n'),
+      color: isWindow ? 0xf0c040 : 0x57f287,
+      thumbnail: mid ? { url: `https://static.divine-pride.net/images/mobs/png/${mid}.png` } : undefined,
+      footer: { text: `RO MVP Tracker · ${map}` },
+      timestamp: new Date().toISOString()
+    }]
+  };
+}
+
 async function autoNotifyDiscord(mvp, map, eventType, rec) {
   if (!currentGroup?.discordWebhook) return;
-  let mvpName = mvp.name;
-  if (mvp.bioSlot && rec?.specificMvpId) {
-    const spec = (mvp.bio3 ? BIO3_MVPS : BIO4_MVPS).find(b => b.id === rec.specificMvpId);
-    if (spec) mvpName += ` · ${spec.name}`;
-  }
-  const winOpen  = rec ? new Date(rec.deathTime + mvp.rMin * 60000).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '?';
-  const winClose = rec ? new Date(rec.deathTime + mvp.rMin * 60000 + mvp.rWin * 60000).toLocaleTimeString([],{hour:'2-digit',minute:'2-digit'}) : '?';
-  const msg = eventType === 'window'
-    ? `🟡 **${mvpName}** spawn window open on \`${map}\`! Window: **${winOpen} – ${winClose}** @here`
-    : `✅ **${mvpName}** on \`${map}\` is now **ALIVE** (window closed). Hunt it down! @here`;
-  await API.post(`/api/notify/discord?groupId=${currentGroup.id}`, {
-    content: msg,
-    embeds: [{
-      title: mvpName,
-      description: eventType === 'window' ? `⏱ Window open: ${winOpen} – ${winClose}` : '✅ Alive now',
-      color: eventType === 'window' ? 0xf0c040 : 0x57f287,
-      footer: { text: `RO MVP Tracker · ${map}` }
-    }]
-  });
+  await API.post(`/api/notify/discord?groupId=${currentGroup.id}`, buildSpawnEmbed(mvp, map, eventType, rec));
 }
 
 /* ════════════════════════════════════════
@@ -840,7 +1702,7 @@ async function doRegister() {
   if (r.error) { showErr(errEl, r.error); return; }
   localStorage.setItem('mvp_token', r.token);
   currentUser = r.user;
-  showGroupSetup();
+  await initGroups();
 }
 
 async function doLogin() {
@@ -851,21 +1713,39 @@ async function doLogin() {
   if (r.error) { showErr(errEl, r.error); return; }
   localStorage.setItem('mvp_token', r.token);
   currentUser = r.user;
-  const groups = await API.get('/api/groups');
-  if (!groups.length || groups.error) { showGroupSetup(); return; }
+  await initGroups();
+}
+
+async function initGroups() {
+  let groups = await API.get('/api/groups');
+  if (groups.error) groups = [];
+  // Auto-create Solo group if user has none
+  if (!groups.length) {
+    const solo = await API.post('/api/groups', { name: 'Solo', solo: true });
+    if (!solo.error) groups = [solo];
+    else { showGroupSetup(); return; }
+  }
+  // Ensure a Solo group always exists
+  if (!groups.find(g => g.solo)) {
+    const solo = await API.post('/api/groups', { name: 'Solo', solo: true });
+    if (!solo.error) groups.unshift(solo);
+  }
+  allGroups = groups;
+  allGroups.sort((a, b) => (b.solo ? 1 : 0) - (a.solo ? 1 : 0));
   const savedGroupId = localStorage.getItem('mvp_group_id');
-  currentGroup = groups.find(g => g.id === savedGroupId) || groups[0];
+  currentGroup = allGroups.find(g => g.id === savedGroupId) || allGroups[0];
   localStorage.setItem('mvp_group_id', currentGroup.id);
+  await loadServerConfig();
   await loadGroupData();
   showMainApp();
 }
 
 async function doLogout() {
   if (_pollInterval) clearInterval(_pollInterval);
-  await API.post('/api/auth/logout');
-  localStorage.removeItem('mvp_token');
   localStorage.removeItem('mvp_group_id');
   currentUser = null; currentGroup = null;
+  if (window.TopBar) { TopBar.setToolSlot(''); await TopBar.logout(); }
+  else { await API.post('/api/auth/logout'); localStorage.removeItem('mvp_token'); }
   showAuthScreen();
 }
 
@@ -882,13 +1762,7 @@ async function loginWithDiscord() {
       window.removeEventListener('message', handler);
       localStorage.setItem('mvp_token', e.data.token);
       currentUser = e.data.user;
-      const groups = await API.get('/api/groups');
-      if (!groups.length || groups.error) { showGroupSetup(); return; }
-      const savedGroupId = localStorage.getItem('mvp_group_id');
-      currentGroup = groups.find(g => g.id === savedGroupId) || groups[0];
-      localStorage.setItem('mvp_group_id', currentGroup.id);
-      await loadGroupData();
-      showMainApp();
+      await initGroups();
     } else if (e.data?.type === 'discord_error') {
       window.removeEventListener('message', handler);
       alert('Discord login failed: ' + e.data.error);
@@ -940,28 +1814,140 @@ function showGroupSetup() {
   }
 }
 
-function showMainApp() {
+async function showMainApp() {
   document.getElementById('auth-screen').classList.add('hidden');
   document.getElementById('group-setup').classList.add('hidden');
   document.getElementById('app').classList.remove('hidden');
-  const displayName = currentUser.discordUsername || currentUser.characterName || '?';
-  document.getElementById('user-name').textContent = displayName;
-  const av = document.getElementById('user-avatar');
-  if (currentUser.discordAvatar && currentUser.discordId) {
-    av.innerHTML = `<img src="https://cdn.discordapp.com/avatars/${currentUser.discordId}/${currentUser.discordAvatar}.png?size=32" style="width:22px;height:22px;border-radius:50%;display:block">`;
-  } else {
-    av.textContent = displayName[0].toUpperCase();
-  }
-  // Group badge in top bar
-  let gb = document.getElementById('group-badge');
-  if (!gb) {
-    gb = document.createElement('div');
-    gb.id = 'group-badge';
-    gb.style.cssText = 'font-size:10px;color:var(--text4);padding:3px 8px;background:var(--bg3);border-radius:4px;border:1px solid var(--border3);white-space:nowrap';
-    document.querySelector('.top-bar-right').prepend(gb);
-  }
-  gb.textContent = currentGroup?.name || '';
+
+  // Update shared topbar user display (TYPE selector is always in topbar)
+  if (window.TopBar) TopBar.showUser(currentUser);
+
+  // Load all groups and render switchers
+  const groups = await API.get('/api/groups');
+  allGroups = (groups && !groups.error) ? groups : [];
+  renderGroupSwitcher();
+  renderTnrGroupSwitcher();
   showTab('timers');
+  renderTimers();
+  startPolling();
+}
+
+function renderTnrGroupSwitcher() {
+  const nameEl = document.getElementById('tnr-group-name');
+  const listEl = document.getElementById('tnr-dd-list');
+  if (!nameEl || !listEl) return;
+  nameEl.textContent = currentGroup ? (currentGroup.solo ? '🔒 Solo' : '👥 ' + currentGroup.name) : '—';
+  listEl.innerHTML = allGroups.map(g => {
+    const active = g.id === currentGroup?.id;
+    const label = g.solo ? '🔒 Solo' : g.name;
+    return `<div class="group-dd-item ${active ? 'active' : ''}" onclick="switchGroup('${g.id}')">
+      <div class="gdi-dot"></div>
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis">${label}</span>
+      ${g.solo ? '<span style="font-size:9px;padding:1px 5px;background:#5a7de8;color:#fff;border-radius:3px">Solo</span>' : ''}
+    </div>`;
+  }).join('');
+}
+
+function toggleTnrGroupDd(e) {
+  e.stopPropagation();
+  document.getElementById('tnr-group-dd').classList.toggle('open');
+}
+document.addEventListener('click', () => {
+  document.getElementById('tnr-group-dd')?.classList.remove('open');
+});
+
+function renderGroupSwitcher() {
+  const nameEl = document.getElementById('group-switcher-name');
+  const listEl = document.getElementById('group-dd-list');
+  if (!nameEl || !listEl) return;
+  const isSolo = currentGroup?.solo;
+  nameEl.innerHTML = currentGroup
+    ? (isSolo ? '🔒 Solo' : '👥 ' + currentGroup.name)
+    : '—';
+  listEl.innerHTML = allGroups.map(g => {
+    const active = g.id === currentGroup?.id;
+    const tag = g.solo ? `<span class="gdi-solo">Solo</span>` : '';
+    const label = g.solo ? '🔒 Solo' : g.name;
+    return `<div class="group-dd-item ${active?'active':''}" onclick="switchGroup('${g.id}')">
+      <div class="gdi-dot"></div>
+      <span style="flex:1;overflow:hidden;text-overflow:ellipsis">${label}</span>
+      ${tag}
+    </div>`;
+  }).join('');
+}
+
+function toggleGroupDropdown(e) {
+  e.stopPropagation();
+  document.getElementById('group-dropdown').classList.toggle('open');
+}
+document.addEventListener('click', () => {
+  document.getElementById('group-dropdown')?.classList.remove('open');
+});
+
+async function switchGroup(groupId) {
+  document.getElementById('group-dropdown')?.classList.remove('open');
+  document.getElementById('tnr-group-dd')?.classList.remove('open');
+  if (groupId === currentGroup?.id) return;
+  currentGroup = allGroups.find(g => g.id === groupId);
+  localStorage.setItem('mvp_group_id', currentGroup.id);
+  timerData = {}; kills = []; groupMembers = [];
+  renderTimers();
+  await loadGroupData();
+  renderGroupSwitcher();
+  renderTnrGroupSwitcher();
+  renderTimers();
+  startPolling();
+}
+
+function openNewGroupModal() {
+  document.getElementById('group-dropdown').classList.remove('open');
+  document.getElementById('quick-group-name').value = '';
+  document.getElementById('quick-create-error').classList.add('hidden');
+  document.getElementById('quick-create-modal').classList.remove('hidden');
+  setTimeout(() => document.getElementById('quick-group-name').focus(), 50);
+}
+function openJoinGroupModal() {
+  document.getElementById('group-dropdown').classList.remove('open');
+  document.getElementById('quick-invite-code').value = '';
+  document.getElementById('quick-join-error').classList.add('hidden');
+  document.getElementById('quick-join-modal').classList.remove('hidden');
+  setTimeout(() => document.getElementById('quick-invite-code').focus(), 50);
+}
+function closeQuickModals() {
+  document.getElementById('quick-create-modal').classList.add('hidden');
+  document.getElementById('quick-join-modal').classList.add('hidden');
+}
+async function quickCreateGroup() {
+  const name = document.getElementById('quick-group-name').value.trim();
+  const errEl = document.getElementById('quick-create-error');
+  if (!name) { showErr(errEl, 'Group name required.'); return; }
+  const r = await API.post('/api/groups', { name });
+  if (r.error) { showErr(errEl, r.error); return; }
+  allGroups.push(r);
+  currentGroup = r;
+  localStorage.setItem('mvp_group_id', r.id);
+  closeQuickModals();
+  timerData = {}; kills = []; groupMembers = [];
+  await loadGroupData();
+  renderGroupSwitcher();
+  renderTnrGroupSwitcher();
+  renderTimers();
+  startPolling();
+}
+async function quickJoinGroup() {
+  const code = document.getElementById('quick-invite-code').value.trim();
+  const errEl = document.getElementById('quick-join-error');
+  if (!code) { showErr(errEl, 'Invite code required.'); return; }
+  const r = await API.post('/api/groups/join', { inviteCode: code });
+  if (r.error) { showErr(errEl, r.error); return; }
+  if (!allGroups.find(g => g.id === r.id)) allGroups.push(r);
+  currentGroup = r;
+  localStorage.setItem('mvp_group_id', r.id);
+  closeQuickModals();
+  timerData = {}; kills = []; groupMembers = [];
+  await loadGroupData();
+  renderGroupSwitcher();
+  renderTnrGroupSwitcher();
   renderTimers();
   startPolling();
 }
@@ -982,10 +1968,8 @@ async function createGroup() {
   if (!name) { showErr(errEl, 'Group name required.'); return; }
   const r = await API.post('/api/groups', { name });
   if (r.error) { showErr(errEl, r.error); return; }
-  currentGroup = r;
-  localStorage.setItem('mvp_group_id', currentGroup.id);
-  await loadGroupData();
-  showMainApp();
+  localStorage.setItem('mvp_group_id', r.id);
+  await initGroups();
 }
 
 async function joinGroup() {
@@ -1003,29 +1987,22 @@ async function joinGroup() {
 /* ════════════════════════════════════════
    THEME
 ════════════════════════════════════════ */
-function toggleTheme() {
-  const dark = document.documentElement.getAttribute('data-theme') === 'dark';
-  applyTheme(dark ? 'light' : 'dark');
-}
-function applyTheme(t) {
-  document.documentElement.setAttribute('data-theme', t === 'dark' ? 'dark' : '');
-  document.getElementById('theme-icon').textContent  = t === 'dark' ? '☀️' : '🌙';
-  document.getElementById('theme-label').textContent = t === 'dark' ? 'Light' : 'Dark';
-  localStorage.setItem('mvp_theme', t);
-}
-function loadTheme() { applyTheme(localStorage.getItem('mvp_theme') || 'dark'); }
+function toggleTheme() { if (window.TopBar) TopBar.toggleTheme(); }
+function applyTheme(t) { /* delegated to topbar.js */ }
+function loadTheme() { /* topbar.js reads 'theme' from localStorage automatically */ }
 
 /* ════════════════════════════════════════
    TABS
 ════════════════════════════════════════ */
 function showTab(tab) {
-  ['timers','loot','members','history'].forEach((t,i) => {
+  ['timers','loot','payments','members','history'].forEach((t,i) => {
     document.getElementById('tab-'+t).classList.toggle('hidden', t !== tab);
     document.querySelectorAll('.nav-tab')[i].classList.toggle('active', t === tab);
   });
-  if (tab === 'loot')    renderLoot();
-  if (tab === 'members') renderMembers();
-  if (tab === 'history') renderHistory();
+  if (tab === 'loot')     renderLoot();
+  if (tab === 'payments') renderPayments();
+  if (tab === 'members')  renderMembers();
+  if (tab === 'history')  renderHistory();
 }
 
 /* ════════════════════════════════════════
@@ -1037,13 +2014,19 @@ function timerKey(mvpId, map) {
   if (mvp?.bio4) return 'bio4::lhz_dun04';
   return mvpId + '::' + map;
 }
+function mvpFromKey(key) {
+  const [id, map] = key.split('::');
+  const lookupId = id === 'bio3' ? 'bio3_slot' : id === 'bio4' ? 'bio4_slot' : id;
+  return { mvp: MVP_DB.find(m => m.id === lookupId), map };
+}
 
 function getStatus(mvp, map) {
   const rec = timerData[timerKey(mvp.id, map)];
   if (!rec) return { type:'unknown' };
+  const eff = getEffectiveMvp(mvp);
   const now = Date.now();
-  const minMs = rec.deathTime + mvp.rMin * 60000;
-  const maxMs = minMs + mvp.rWin * 60000;
+  const minMs = rec.deathTime + eff.rMin * 60000;
+  const maxMs = minMs + eff.rWin * 60000;
   if (now >= maxMs) return { type:'available' };
   if (now >= minMs) return { type:'window', remaining: maxMs - now };
   return { type:'pending', toMin: minMs - now, toMax: maxMs - now };
@@ -1073,35 +2056,40 @@ function renderTimers() {
   grid.innerHTML = '';
 
   let items = [];
-  let sourceLabel = 'empty';
+  const seen = new Set();
 
+  // 1. Always show MVPs with an active timer from any group member
+  Object.keys(timerData).forEach(key => {
+    if (seen.has(key)) return;
+    const { mvp, map } = mvpFromKey(key);
+    if (mvp && map) { seen.add(key); items.push({ mvp, map, fromTimer: true }); }
+  });
+
+  // 2. Add user's personal tracked list (if not already shown)
   if (currentUser?.mvpOrder?.length) {
     currentUser.mvpOrder.forEach(key => {
-      const [mvpId, map] = key.split('::');
-      const mvp = MVP_DB.find(m => m.id === mvpId);
-      if (mvp) items.push({ mvp, map });
+      if (seen.has(key)) return;
+      const { mvp, map } = mvpFromKey(key);
+      if (mvp && map) { seen.add(key); items.push({ mvp, map }); }
     });
-    sourceLabel = 'tracked';
-  } else {
-    const seen = new Set();
-    [...kills].sort((a,b) => b.deathTime - a.deathTime).forEach(k => {
-      const key = k.mvpId + '::' + k.map;
-      if (!seen.has(key)) {
-        seen.add(key);
-        const mvp = MVP_DB.find(m => m.id === k.mvpId);
-        if (mvp) items.push({ mvp, map: k.map });
-      }
-    });
-    sourceLabel = items.length ? 'recent' : 'empty';
   }
+
+  // Sort: timers with active data first (by death time desc), then tracked
+  items.sort((a, b) => {
+    const ra = timerData[timerKey(a.mvp.id, a.map)];
+    const rb = timerData[timerKey(b.mvp.id, b.map)];
+    if (ra && rb) return (rb.deathTime || 0) - (ra.deathTime || 0);
+    if (ra) return -1;
+    if (rb) return 1;
+    return 0;
+  });
+
+  const sourceLabel = items.length ? (seen.size ? 'tracked' : 'recent') : 'empty';
 
   const banner = document.getElementById('no-tracking-banner');
   if (banner) {
-    if (sourceLabel === 'recent') {
-      banner.innerHTML = 'Showing MVPs from your recent kills. Use <b>Edit Tracking</b> to build a permanent watchlist.';
-      banner.classList.remove('hidden');
-    } else if (sourceLabel === 'empty') {
-      banner.innerHTML = 'No MVPs to show. Use <b>Edit Tracking</b> to add MVPs to your watchlist.';
+    if (sourceLabel === 'empty') {
+      banner.innerHTML = 'No active timers. Log a kill to start tracking, or use <b>Edit Tracking</b> to add MVPs to your watchlist.';
       banner.classList.remove('hidden');
     } else {
       banner.classList.add('hidden');
@@ -1128,22 +2116,23 @@ function renderTimers() {
     }
     const imgOpacity = (mvp.bioSlot && !rec?.specificMvpId) ? ' style="opacity:.4"' : '';
 
+    const eff = getEffectiveMvp(mvp);
     let timerText, timerCls, pillText, pillCls;
     if (st.type === 'available') {
-      const aliveAt = rec.deathTime + mvp.rMin * 60000 + mvp.rWin * 60000;
+      const aliveAt = rec.deathTime + eff.rMin * 60000 + eff.rWin * 60000;
       timerText=`ALIVE since ${fmtTime(aliveAt)}`; timerCls='available'; pillText='Alive'; pillCls='pill-available';
     } else if (st.type === 'window') {
       timerText=`WINDOW · ${fmtMs(st.remaining)}`; timerCls='window'; pillText='Window open'; pillCls='pill-window';
     } else if (st.type === 'pending') {
-      timerText=fmtMs(st.toMax); timerCls='pending'; pillText='On timer'; pillCls='pill-pending';
+      timerText=fmtMs(st.toMin); timerCls='pending'; pillText='On timer'; pillCls='pill-pending';
     } else {
-      timerText='No data'; timerCls='unknown'; pillText='Unknown'; pillCls='pill-unknown';
+      timerText='Unknown'; timerCls='unknown'; pillText='Unknown'; pillCls='pill-unknown';
     }
 
     let killInfoHtml = '';
     if (rec) {
-      const winOpen  = rec.deathTime + mvp.rMin * 60000;
-      const winClose = winOpen + mvp.rWin * 60000;
+      const winOpen  = rec.deathTime + eff.rMin * 60000;
+      const winClose = winOpen + eff.rWin * 60000;
       killInfoHtml = `<div style="font-size:9px;color:var(--text4);text-align:center;line-height:1.7;margin-bottom:2px">
         Last kill: <b>${fmtTime(rec.deathTime)}</b><br>
         Window: <b>${fmtTime(winOpen)}</b> – <b>${fmtTime(winClose)}</b>
@@ -1154,7 +2143,7 @@ function renderTimers() {
       ? ` <span style="font-size:8px;color:var(--warn-col)">[${mvp.bio3?'Bio3':'Bio4'}]</span>`
       : mvp.special ? ` <span style="font-size:8px;color:var(--accent)">[Special]</span>` : '';
 
-    const discordBtn = currentGroup?.discordWebhook && (st.type === 'window' || st.type === 'available')
+    const discordBtn = currentGroup?.discordWebhook && rec
       ? `<button class="btn btn-xs" style="width:100%;margin-top:4px;font-size:10px;background:#5865F2;color:#fff;border:none;border-radius:5px;cursor:pointer" onclick="notifyDiscord('${mvp.id}','${map}')">🔔 Notify Discord</button>`
       : '';
 
@@ -1186,26 +2175,9 @@ async function notifyDiscord(mvpId, map) {
   if (!mvp || !currentGroup?.id) return;
   const rec = timerData[timerKey(mvpId, map)];
   const st  = getStatus(mvp, map);
-  let desc = st.type === 'available' ? '✅ **ALIVE NOW** — go go go!'
-           : st.type === 'window'    ? `⚠️ **WINDOW OPEN** — ${fmtMs(st.remaining)} remaining`
-           : '';
-  let mvpName = mvp.name;
-  if (mvp.bioSlot && rec?.specificMvpId) {
-    const spec = (mvp.bio3 ? BIO3_MVPS : BIO4_MVPS).find(b => b.id === rec.specificMvpId);
-    if (spec) mvpName += ` · ${spec.name}`;
-  }
-  const winOpen  = rec ? fmtTime(rec.deathTime + mvp.rMin * 60000) : '?';
-  const winClose = rec ? fmtTime(rec.deathTime + mvp.rMin * 60000 + mvp.rWin * 60000) : '?';
-  const r = await API.post(`/api/notify/discord?groupId=${currentGroup.id}`, {
-    content: `@here **${mvpName}** on \`${map}\` — ${desc}`,
-    embeds: [{
-      title: mvpName,
-      description: `Map: \`${map}\`\nWindow: **${winOpen} – ${winClose}**\n${desc}`,
-      color: st.type === 'available' ? 0x2a9d2a : 0xe67e22,
-    }]
-  });
+  const eventType = st.type === 'available' ? 'available' : 'window';
+  const r = await API.post(`/api/notify/discord?groupId=${currentGroup.id}`, buildSpawnEmbed(mvp, map, eventType, rec));
   if (r.error) { alert('Failed to send notification: ' + r.error); return; }
-  alert('Discord notification sent!');
 }
 
 /* ════════════════════════════════════════
@@ -1225,8 +2197,7 @@ function renderTrackingEditor() {
     trackedEl.innerHTML = '<p style="font-size:12px;color:var(--text4)">None yet — add MVPs from the right column.</p>';
   } else {
     trackedEl.innerHTML = tempTracked.map((key, i) => {
-      const [mvpId, map] = key.split('::');
-      const mvp = MVP_DB.find(m => m.id === mvpId);
+      const { mvp, map } = mvpFromKey(key);
       if (!mvp) return '';
       return `<div class="tracking-item" style="cursor:default">
         <img src="https://static.divine-pride.net/images/mobs/png/${mvp.mid}.png" onerror="this.style.opacity=.2">
@@ -1285,18 +2256,13 @@ function openKillModal(mvpId, map) {
   if (!mvp) return;
   killModalCtx = { mvpId, map };
 
-  keepAllActive = false;
-  const keepBtn = document.getElementById('keep-all-btn');
-  if (keepBtn) { keepBtn.classList.remove('toggled'); keepBtn.textContent = '✓ All kept by me'; }
   document.getElementById('km-coord-x').value = '';
   document.getElementById('km-coord-y').value = '';
   document.getElementById('km-map-marker').style.display = 'none';
   const preview = document.getElementById('navi-preview');
   preview.textContent = 'enter X / Y for /navi';
   preview.classList.add('empty');
-  const kboCb = document.getElementById('km-kbo');
-  kboCb.checked = false;
-  document.getElementById('km-kbo-row').classList.remove('active');
+  document.getElementById('km-kbo').checked = false;
   document.getElementById('km-party-group').classList.remove('hidden');
   document.getElementById('km-drops-group').classList.remove('hidden');
 
@@ -1350,39 +2316,278 @@ function openKillModal(mvpId, map) {
   if (killModalCtx._agoTimer) clearInterval(killModalCtx._agoTimer);
   killModalCtx._agoTimer = setInterval(updateTimeAgo, 10000);
 
-  document.getElementById('km-party-chips').innerHTML = groupMembers.length
-    ? groupMembers.map(u => `<div class="member-chip ${u.id===currentUser?.id?'selected':''}" data-id="${u.id}" onclick="this.classList.toggle('selected')">${u.characterName}</div>`).join('')
-    : '<p style="font-size:11px;color:var(--text4)">No group members yet.</p>';
-  document.getElementById('km-party-hint').textContent = 'Click to toggle party members present.';
+  const kboChip = `<div class="member-chip kbo-chip" id="km-kbo-chip" onclick="toggleKilledByOthers()">🚫 Killed by others</div>`;
+  const memberChipsHtml = groupMembers.map(u =>
+    `<div class="member-chip ${u.id===currentUser?.id?'selected':''}" data-id="${u.id}" onclick="selectMemberChip(this)">${u.characterName}</div>`
+  ).join('');
+  document.getElementById('km-party-chips').innerHTML = kboChip + memberChipsHtml;
+  document.getElementById('km-party-hint').textContent = groupMembers.length
+    ? 'Select members present · or mark as killed by others'
+    : 'No group members yet.';
+  updateQuickAssignButtons();
 
-  document.getElementById('km-drops').innerHTML = mvp.drops.map((d, i) => `
-    <div class="drop-row">
-      <input type="checkbox" class="drop-check" id="dc${i}">
-      <span class="drop-item-name">${d}</span>
-      <select class="drop-taken-sel">
-        <option value="">— who kept it —</option>
-        ${groupMembers.map(u=>`<option value="${u.id}">${u.characterName}</option>`).join('')}
-        <option value="__sell__">🏷 Sell (shared pool)</option>
-      </select>
-    </div>`).join('');
+  // Reset custom respawn panel
+  document.getElementById('km-custom-respawn').classList.add('hidden');
+
+  // Render drops — for bio slots, delegate to updateBioMvpSelection to use correct specific-MVP drops
+  if (mvp.bioSlot) {
+    updateBioMvpSelection();
+  } else {
+    renderKmDrops(getEffectiveMvp(mvp).drops);
+  }
+
+  // Always open in normal (non-edit) mode
+  kmDropEditMode = false;
+  document.getElementById('km-drops-group')?.classList.remove('drop-edit-active');
+  const _editPanel = document.getElementById('km-drop-edit-panel');
+  if (_editPanel) _editPanel.style.display = 'none';
+  const _editBtn = document.getElementById('km-edit-drops-btn');
+  if (_editBtn) { _editBtn.textContent = '✏️ +/− Items'; _editBtn.classList.remove('edit-active'); }
 
   document.getElementById('kill-modal').classList.remove('hidden');
 }
 
-function toggleKeepAllByMe() {
-  if (!currentUser) return;
-  const btn = document.getElementById('keep-all-btn');
-  if (keepAllActive) {
-    document.querySelectorAll('#km-drops .drop-check').forEach(c => c.checked = false);
-    document.querySelectorAll('#km-drops .drop-taken-sel').forEach(s => s.value = '');
-    keepAllActive = false;
-    if (btn) { btn.classList.remove('toggled'); btn.textContent = '✓ All kept by me'; }
-  } else {
-    document.querySelectorAll('#km-drops .drop-check').forEach(c => c.checked = true);
-    document.querySelectorAll('#km-drops .drop-taken-sel').forEach(s => s.value = currentUser.id);
-    keepAllActive = true;
-    if (btn) { btn.classList.add('toggled'); btn.textContent = '↩ Undo (all kept by me)'; }
+async function toggleDropEditMode() {
+  if (kmDropEditMode) {
+    // Leaving edit mode → persist current drop list
+    await saveDropListFromModal();
   }
+  kmDropEditMode = !kmDropEditMode;
+  document.getElementById('km-drops-group')?.classList.toggle('drop-edit-active', kmDropEditMode);
+  const panel = document.getElementById('km-drop-edit-panel');
+  if (panel) panel.style.display = kmDropEditMode ? 'flex' : 'none';
+  const btn = document.getElementById('km-edit-drops-btn');
+  if (btn) {
+    btn.textContent = kmDropEditMode ? '✕ Done' : '✏️ +/− Items';
+    btn.classList.toggle('edit-active', kmDropEditMode);
+  }
+  if (kmDropEditMode) setTimeout(() => document.getElementById('km-add-item-input')?.focus(), 60);
+}
+
+/* Snapshot current drop rows from the DOM and persist to server config */
+async function saveDropListFromModal() {
+  if (!killModalCtx) return;
+  const mvp = MVP_DB.find(m => m.id === killModalCtx.mvpId);
+  const specificBio = document.getElementById('km-specific-mvp')?.value;
+  const configId = specificBio || mvp?.id;
+  if (!configId) return;
+
+  // Read drop list directly from the DOM
+  const newDrops = [];
+  document.querySelectorAll('#km-drops .drop-row').forEach(row => {
+    const idVal = row.dataset.itemId;
+    const numId = idVal ? parseInt(idVal) : NaN;
+    if (!isNaN(numId) && numId > 0) {
+      newDrops.push(numId);
+    } else {
+      const name = (row.dataset.itemName || row.querySelector('.drop-item-name')?.firstChild?.textContent || '').trim();
+      if (name && !name.startsWith('Looking up')) newDrops.push(name);
+    }
+  });
+
+  if (!serverConfig.mvpOverrides) serverConfig.mvpOverrides = {};
+  const ov = serverConfig.mvpOverrides[configId] || {};
+  serverConfig.mvpOverrides[configId] = { ...ov, drops: newDrops };
+  if (currentGroup) await API.post(`/api/server-config/group/${currentGroup.id}`, serverConfig);
+}
+
+/* Assign all drop rows to a specific player with one click */
+function keepAllByPlayer(userId) {
+  if (!userId) return;
+  document.querySelectorAll('#km-drops .drop-taken-sel').forEach(s => s.value = userId);
+}
+
+/* Rebuild the "All kept by:" quick-assign buttons based on selected party chips */
+function updateQuickAssignButtons() {
+  const container = document.getElementById('km-quick-assign-btns');
+  if (!container) return;
+  const selectedIds = Array.from(
+    document.querySelectorAll('#km-party-chips .member-chip.selected:not(.kbo-chip)')
+  ).map(el => el.dataset.id);
+  const members = getEffectiveMembers();
+  // Show only present members; fall back to all members if none selected yet
+  const presentMembers = selectedIds.length ? members.filter(u => selectedIds.includes(u.id)) : members;
+  container.innerHTML = presentMembers.map(u =>
+    `<div class="member-chip" style="cursor:pointer" onclick="keepAllByPlayer('${u.id}')">${u.characterName}</div>`
+  ).join('') || '<span style="font-size:11px;color:var(--text4)">Select party members above first</span>';
+}
+
+/* ── Kill modal helpers ── */
+function getEffectiveMembers() {
+  // Solo group fallback: use currentUser if groupMembers is empty
+  return groupMembers.length ? groupMembers : (currentUser ? [currentUser] : []);
+}
+
+function renderKmDrops(drops) {
+  const defaultTaker = currentUser?.id || '';
+  const members = getEffectiveMembers();
+  updateQuickAssignButtons();
+  if (!drops || !drops.length) {
+    document.getElementById('km-drops').innerHTML =
+      '<p style="font-size:11px;color:var(--text4);padding:6px 0">No items configured. Add items below — they\'ll be saved for future kills of this MVP.</p>';
+    return;
+  }
+  const selOpts = `<option value="">— didn't drop —</option>`
+    + members.map(u=>`<option value="${u.id}" ${u.id===defaultTaker?'selected':''}>${u.characterName}</option>`).join('');
+  document.getElementById('km-drops').innerHTML = drops.map((d) => {
+    const isId = !isNaN(parseInt(d)) && String(d).trim() === String(parseInt(d));
+    const displayName = resolveItemName(d);
+    const itemId = isId ? parseInt(d) : '';
+    const imgUrl = itemId ? itemImageUrl(itemId) : '';
+    const imgHtml = imgUrl ? `<img src="${imgUrl}" class="item-icon" onerror="this.style.display='none'">` : '';
+    const lastSold = itemId && itemDb[itemId]?.lastSoldPrice
+      ? `<span style="font-size:10px;color:var(--text4);margin-left:4px">${(itemDb[itemId].lastSoldPrice/1e6).toFixed(1)}m last</span>` : '';
+    return `<div class="drop-row" data-item-id="${itemId}" data-item-name="${displayName.replace(/"/g,'&quot;')}">
+      ${imgHtml}<span class="drop-item-name" style="flex:1">${displayName}${lastSold}</span>
+      <select class="drop-taken-sel" style="min-width:140px">${selOpts}</select>
+      <button class="btn btn-xs drop-remove-btn" style="padding:1px 5px;font-size:13px;color:var(--text4);background:none;border:none;cursor:pointer;flex-shrink:0" title="Remove from list" onclick="removeDropRow(this, ${itemId || 'null'})">✕</button>
+    </div>`;
+  }).join('');
+}
+
+async function addItemToKillModal() {
+  const input = document.getElementById('km-add-item-input');
+  const val = input.value.trim();
+  if (!val) return;
+  input.value = '';
+
+  const defaultTaker = currentUser?.id || '';
+  const members = getEffectiveMembers();
+  const selOpts = `<option value="">— didn't drop —</option>`
+    + members.map(u=>`<option value="${u.id}" ${u.id===defaultTaker?'selected':''}>${u.characterName}</option>`).join('');
+
+  const container = document.getElementById('km-drops');
+  // Remove the "no items" placeholder if present
+  const placeholder = container.querySelector('p');
+  if (placeholder) placeholder.remove();
+
+  const row = document.createElement('div');
+  row.className = 'drop-row';
+
+  if (/^\d+$/.test(val)) {
+    const itemId = parseInt(val);
+    const cached = resolveItemName(itemId);
+    const alreadyKnown = !cached.startsWith('Item #');
+    const imgUrl = itemImageUrl(itemId);
+    const lastSold = itemDb[itemId]?.lastSoldPrice
+      ? `<span style="font-size:10px;color:var(--text4);margin-left:4px">${(itemDb[itemId].lastSoldPrice/1e6).toFixed(1)}m last</span>` : '';
+
+    const img = document.createElement('img');
+    img.src = imgUrl;
+    img.className = 'item-icon';
+    img.onerror = () => { img.style.display = 'none'; };
+
+    const nameSpan = document.createElement('span');
+    nameSpan.className = 'drop-item-name';
+    nameSpan.style.cssText = 'flex:1' + (alreadyKnown ? '' : ';color:var(--text4)');
+    nameSpan.innerHTML = (alreadyKnown ? cached : `Looking up #${val}…`) + lastSold;
+    row.dataset.itemId = itemId;
+    row.dataset.itemName = alreadyKnown ? cached : '';
+    row.appendChild(img);
+    row.appendChild(nameSpan);
+    row.insertAdjacentHTML('beforeend', `<select class="drop-taken-sel" style="min-width:140px">${selOpts}</select><button class="btn btn-xs drop-remove-btn" style="padding:1px 5px;font-size:13px;color:var(--text4);background:none;border:none;cursor:pointer;flex-shrink:0" title="Remove from list" onclick="removeDropRow(this,${itemId})">✕</button>`);
+    container.appendChild(row);
+
+    if (!alreadyKnown) {
+      try {
+        const r = await API.get(`/api/item-name/${val}`);
+        const resolvedName = (r && !r.error) ? r.name : `Item #${val}`;
+        nameSpan.innerHTML = resolvedName + lastSold;
+        nameSpan.style.color = '';
+        row.dataset.itemName = resolvedName;
+        if (r && !r.error) {
+          const entry = { ...(itemDb[itemId] || {}), name: resolvedName };
+          itemDb[itemId] = entry;
+          saveItemDb({ [itemId]: entry });
+        }
+      } catch(e) {
+        nameSpan.innerHTML = `Item #${val}`;
+        nameSpan.style.color = '';
+        row.dataset.itemName = `Item #${val}`;
+      }
+    }
+  } else {
+    // Free-text name entry (no ID)
+    row.dataset.itemName = val;
+    row.innerHTML = `<span class="drop-item-name" style="flex:1">${val}</span><select class="drop-taken-sel" style="min-width:140px">${selOpts}</select><button class="btn btn-xs drop-remove-btn" style="padding:1px 5px;font-size:13px;color:var(--text4);background:none;border:none;cursor:pointer;flex-shrink:0" title="Remove from list" onclick="removeDropRow(this,null)">✕</button>`;
+    container.appendChild(row);
+  }
+}
+
+/* Remove a drop row from the kill modal (UI only — changes saved when Done is clicked) */
+function removeDropRow(btn, itemId) {
+  const row = btn.closest('.drop-row');
+  if (!row) return;
+  row.remove();
+  // Show placeholder if no rows remain
+  const container = document.getElementById('km-drops');
+  if (container && !container.querySelector('.drop-row')) {
+    container.innerHTML = '<p style="font-size:11px;color:var(--text4);padding:6px 0">No items configured. Add items using the field above — changes are saved when you click Done.</p>';
+  }
+}
+
+function updateBioMvpSelection() {
+  if (!killModalCtx) return;
+  const baseMvp = MVP_DB.find(m => m.id === killModalCtx.mvpId);
+  if (!baseMvp) return;
+  const val = document.getElementById('km-specific-mvp').value;
+  const bioList = baseMvp.bio3 ? BIO3_MVPS : BIO4_MVPS;
+  const bioMvp = bioList.find(b => b.id === val);
+
+  if (bioMvp) {
+    document.getElementById('km-img').src = `https://static.divine-pride.net/images/mobs/png/${bioMvp.mid}.png`;
+    document.getElementById('km-name').textContent = bioMvp.name;
+    document.getElementById('kill-modal-title').textContent = `Register Kill — ${bioMvp.name}`;
+    // Use group's custom overrides if set, otherwise fall back to the default drops defined in the bio MVP array
+    const drops = serverConfig.mvpOverrides?.[bioMvp.id]?.drops ?? bioMvp.drops ?? [];
+    renderKmDrops(drops);
+  } else {
+    document.getElementById('km-img').src = `https://static.divine-pride.net/images/mobs/png/${baseMvp.mid}.png`;
+    document.getElementById('km-name').textContent = baseMvp.name;
+    document.getElementById('kill-modal-title').textContent = `Register Kill — ${baseMvp.name}`;
+    renderKmDrops(getEffectiveMvp(baseMvp).drops);
+  }
+}
+
+function toggleCustomRespawn() {
+  const panel = document.getElementById('km-custom-respawn');
+  const isHidden = panel.classList.toggle('hidden');
+  const btn = document.getElementById('km-custom-respawn-btn');
+  btn.textContent = isHidden ? '⏱ Custom Respawn Time' : '▲ Hide Respawn Config';
+  if (!isHidden && killModalCtx) {
+    const mvp = MVP_DB.find(m => m.id === killModalCtx.mvpId);
+    if (mvp) {
+      const eff = getEffectiveMvp(mvp);
+      document.getElementById('km-custom-rmin').value = eff.rMin || '';
+      document.getElementById('km-custom-rwin').value = eff.rWin || '';
+    }
+  }
+}
+
+async function saveCustomRespawn() {
+  if (!killModalCtx) return;
+  const rMin = parseInt(document.getElementById('km-custom-rmin').value) || null;
+  const rWin = parseInt(document.getElementById('km-custom-rwin').value);
+  if (!rMin) { alert('Enter a valid minimum respawn time (minutes).'); return; }
+
+  // Determine which MVP ID to save under (bio-specific or base)
+  const specificBio = document.getElementById('km-specific-mvp')?.value;
+  const saveId = specificBio || killModalCtx.mvpId;
+
+  if (!serverConfig.mvpOverrides) serverConfig.mvpOverrides = {};
+  if (!serverConfig.mvpOverrides[saveId]) serverConfig.mvpOverrides[saveId] = {};
+  serverConfig.mvpOverrides[saveId].rMin = rMin;
+  if (!isNaN(rWin)) serverConfig.mvpOverrides[saveId].rWin = rWin;
+
+  if (currentGroup) await API.post(`/api/server-config/group/${currentGroup.id}`, serverConfig);
+
+  // Close panel and confirm
+  document.getElementById('km-custom-respawn').classList.add('hidden');
+  document.getElementById('km-custom-respawn-btn').textContent = '⏱ Custom Respawn Time ✓';
+  setTimeout(() => {
+    const btn = document.getElementById('km-custom-respawn-btn');
+    if (btn) btn.textContent = '⏱ Custom Respawn Time';
+  }, 2000);
 }
 
 function updateNaviPreview() {
@@ -1408,21 +2613,6 @@ function copyNaviCmd() {
     btn.textContent = '✓ Copied!';
     setTimeout(() => btn.textContent = orig, 1500);
   });
-}
-
-function addCustomDrop() {
-  const container = document.getElementById('km-drops');
-  const row = document.createElement('div');
-  row.className = 'drop-row';
-  row.innerHTML = `
-    <input type="checkbox" class="drop-check" checked>
-    <input type="text" class="form-input" style="flex:1;padding:4px 8px;font-size:12px" placeholder="Item name…">
-    <select class="drop-taken-sel">
-      <option value="">— who kept it —</option>
-      ${groupMembers.map(u=>`<option value="${u.id}" ${u.id===currentUser?.id?'selected':''}>${u.characterName}</option>`).join('')}
-      <option value="__sell__">🏷 Sell (shared pool)</option>
-    </select>`;
-  container.appendChild(row);
 }
 
 function closeKillModal() {
@@ -1452,10 +2642,31 @@ function updateTimeAgo() {
 }
 
 function toggleKilledByOthers() {
-  const active = document.getElementById('km-kbo').checked;
-  document.getElementById('km-kbo-row').classList.toggle('active', active);
-  document.getElementById('km-party-group').classList.toggle('hidden', active);
-  document.getElementById('km-drops-group').classList.toggle('hidden', active);
+  const chip = document.getElementById('km-kbo-chip');
+  const active = !chip.classList.contains('selected');
+  chip.classList.toggle('selected', active);
+  document.getElementById('km-kbo').checked = active;
+  if (active) {
+    // Deselect all member chips
+    document.querySelectorAll('#km-party-chips .member-chip:not(.kbo-chip)').forEach(c => c.classList.remove('selected'));
+    document.getElementById('km-drops-group').classList.add('hidden');
+  } else {
+    document.getElementById('km-drops-group').classList.remove('hidden');
+  }
+}
+
+function selectMemberChip(chip) {
+  chip.classList.toggle('selected');
+  // If a member chip is being selected, deactivate "killed by others"
+  if (chip.classList.contains('selected')) {
+    const kbo = document.getElementById('km-kbo-chip');
+    if (kbo && kbo.classList.contains('selected')) {
+      kbo.classList.remove('selected');
+      document.getElementById('km-kbo').checked = false;
+      document.getElementById('km-drops-group').classList.remove('hidden');
+    }
+  }
+  updateQuickAssignButtons();
 }
 
 function updateMapPreview() {
@@ -1538,7 +2749,7 @@ async function registerKill() {
   const deathTime = new Date(document.getElementById('kill-time').value).getTime();
   const coordX = parseInt(document.getElementById('km-coord-x').value) || null;
   const coordY = parseInt(document.getElementById('km-coord-y').value) || null;
-  const killedByOthers = document.getElementById('km-kbo').checked;
+  const killedByOthers = document.getElementById('km-kbo-chip')?.classList.contains('selected') || document.getElementById('km-kbo').checked;
   const specificMvpId = mvp.bioSlot ? (document.getElementById('km-specific-mvp')?.value || null) : null;
 
   if (isNaN(deathTime)) { alert('Please set a valid death time.'); return; }
@@ -1546,34 +2757,57 @@ async function registerKill() {
   let party = [], drops = [];
 
   if (!killedByOthers) {
-    party = Array.from(document.querySelectorAll('#km-party-chips .member-chip.selected')).map(el => el.dataset.id);
-    let hasUnassigned = false;
+    party = Array.from(document.querySelectorAll('#km-party-chips .member-chip.selected:not(.kbo-chip)')).map(el => el.dataset.id);
     document.querySelectorAll('#km-drops .drop-row').forEach(row => {
-      const chk = row.querySelector('.drop-check');
-      if (!chk?.checked) return;
-      const nameEl = row.querySelector('.drop-item-name') || row.querySelector('input[type=text]');
-      const name = (nameEl?.textContent || nameEl?.value || '').trim();
-      if (!name) return;
+      // Use data-item-name to avoid picking up child span text (last-sold hint etc.)
+      const name = (row.dataset.itemName || row.querySelector('.drop-item-name')?.firstChild?.textContent || '').trim();
+      if (!name || name.startsWith('Looking up')) return;
       const takenBy = row.querySelector('.drop-taken-sel')?.value || '';
-      if (!takenBy) {
-        hasUnassigned = true;
-        row.querySelector('.drop-taken-sel').style.outline = '2px solid var(--risky-col)';
-      } else {
-        row.querySelector('.drop-taken-sel').style.outline = '';
-        drops.push({ name, takenBy });
-      }
+      if (!takenBy) return; // "— didn't drop —" means item did not drop
+      const itemId = row.dataset.itemId ? parseInt(row.dataset.itemId) : null;
+      drops.push({ name, takenBy, ...(itemId ? { itemId } : {}) });
     });
-    if (hasUnassigned) { alert('Please assign every checked item to a party member or the shared sell pool.'); return; }
+
+    // Persist any newly added items back to the group's MVP config (stored as IDs where available, names otherwise)
+    const specificBio = document.getElementById('km-specific-mvp')?.value;
+    const configId = specificBio || mvp.id;
+    if (!serverConfig.mvpOverrides) serverConfig.mvpOverrides = {};
+    const ov = serverConfig.mvpOverrides[configId] || {};
+    const existingDrops = ov.drops || (specificBio ? [] : getEffectiveMvp(mvp).drops);
+    // Represent each drop as its ID (if available) or name, matching how existingDrops are stored
+    const existingKeys = existingDrops.map(d => {
+      const n = parseInt(d); return (!isNaN(n) && String(d).trim() === String(n)) ? n : String(d);
+    });
+    const newKeys = drops
+      .map(d => d.itemId || d.name)
+      .filter(k => !existingKeys.includes(k) && !existingKeys.includes(String(k)) && !existingKeys.includes(parseInt(k)));
+    if (newKeys.length) {
+      serverConfig.mvpOverrides[configId] = { ...ov, drops: [...existingDrops, ...newKeys] };
+      if (currentGroup) API.post(`/api/server-config/group/${currentGroup.id}`, serverConfig);
+    }
   }
 
   const tKey = timerKey(mvp.id, map);
+  const eff = getEffectiveMvp(mvp);
+  // Resolve display name + monster image ID (Bio3/Bio4 use specific sub-MVP)
+  let timerDisplayName = mvp.name;
+  let timerMid         = mvp.mid;
+  if (specificMvpId) {
+    const spec = [...(BIO3_MVPS || []), ...(BIO4_MVPS || [])].find(b => b.id === specificMvpId);
+    if (spec) { timerDisplayName = spec.name; timerMid = spec.mid; }
+  }
   timerData[tKey] = { timerKey: tKey, mvpId: mvp.id, map, deathTime, specificMvpId, killedByOthers };
-  await saveTimerToServer(tKey, { mvpId: mvp.id, map, deathTime, specificMvpId, killedByOthers, party });
+  await saveTimerToServer(tKey, {
+    mvpId: mvp.id, map, deathTime, specificMvpId, killedByOthers, party,
+    rMin: eff.rMin, rWin: eff.rWin,
+    mid: timerMid, mvpName: timerDisplayName,
+    coordX: coordX || null, coordY: coordY || null
+  });
   await saveKillToServer({ mvpId: mvp.id, mvpName: mvp.name, map, deathTime, coordX, coordY, party, drops, killedByOthers, specificMvpId });
 
   // Refresh kills from server
   const killsRes = await API.get(`/api/kills?groupId=${currentGroup.id}`);
-  if (killsRes && !killsRes.error) kills = Array.isArray(killsRes) ? killsRes : [killsRes];
+  if (killsRes && !killsRes.error) kills = (Array.isArray(killsRes) ? killsRes : [killsRes]).map(normalizeKill);
 
   closeKillModal();
   renderTimers();
@@ -1586,69 +2820,781 @@ function memberName(id) {
   return groupMembers.find(u => u.id === id)?.characterName || '?';
 }
 
-function renderLoot() {
-  const lootContainer    = document.getElementById('loot-list');
-  const paymentContainer = document.getElementById('payment-list');
-  const recentKills = [...kills].sort((a,b) => b.deathTime - a.deathTime);
+/* ── Action log (localStorage, per group) ────────────────────────────── */
+function getActionLog() {
+  if (!currentGroup) return [];
+  try { return JSON.parse(localStorage.getItem(`mvp_alog_${currentGroup.id}`) || '[]'); } catch { return []; }
+}
+function appendActionLog(entry) {
+  if (!currentGroup) return;
+  const log = getActionLog();
+  log.push(entry);
+  // Keep at most 200 entries
+  if (log.length > 200) log.splice(0, log.length - 200);
+  localStorage.setItem(`mvp_alog_${currentGroup.id}`, JSON.stringify(log));
+}
+function getLogClearedAt() {
+  if (!currentGroup) return 0;
+  return parseInt(localStorage.getItem(`mvp_log_cleared_${currentGroup.id}`) || '0');
+}
 
-  if (!recentKills.length) {
-    lootContainer.innerHTML = '<div class="empty-state"><p>No kills yet.</p></div>';
-  } else {
-    lootContainer.innerHTML = recentKills.map(kill => {
-      const mvp = MVP_DB.find(m => m.id === kill.mvpId);
-      const killDate = new Date(kill.deathTime).toLocaleString();
-      const naviStr = (kill.coordX && kill.coordY)
-        ? `<span class="kill-navi" onclick="navigator.clipboard?.writeText('/navi ${kill.map} ${kill.coordX}/${kill.coordY}')" title="Click to copy">/navi ${kill.map} ${kill.coordX}/${kill.coordY}</span>`
-        : '';
-      let dropRows = '';
-      if (kill.drops?.length) {
-        dropRows = kill.drops.map(d => {
-          const keeper = d.takenBy && d.takenBy !== '__sell__' ? memberName(d.takenBy) : null;
-          const statusHtml = d.takenBy === '__sell__'
-            ? `<span class="loot-item-status loot-status-sell">For Sale</span>`
-            : keeper ? `<span class="loot-item-status loot-status-kept">Kept · ${keeper}</span>`
-            : '';
-          if (!statusHtml) return '';
-          return `<div class="loot-item-row"><span class="loot-item-name">${d.name}</span>${statusHtml}</div>`;
-        }).join('');
-      } else {
-        dropRows = `<div class="loot-item-row"><span style="font-size:11px;color:var(--text4)">No items recorded.</span></div>`;
-      }
-      return `<div class="loot-kill-group">
-        <div class="loot-kill-hdr">
-          <img src="https://static.divine-pride.net/images/mobs/png/${mvp?.mid}.png" style="width:22px;height:22px;object-fit:contain" onerror="this.style.opacity=.2">
-          <span><b>${kill.mvpName}</b> <span class="kill-map">${kill.map}</span></span>
-          <span class="kill-date">${killDate}</span>${naviStr}
-        </div>${dropRows}
-      </div>`;
-    }).join('');
+async function undoKill(killId) {
+  const kill = kills.find(k => k.id === killId);
+  if (!kill) return;
+
+  // Permission check (belt-and-suspenders, UI already guards this)
+  const canRemove = kill.registeredBy === currentUser?.id || isCurrentUserAdmin() || isCurrentUserTester();
+  if (!canRemove) { alert('Only the kill registerer, an admin, or a tester can remove this kill.'); return; }
+
+  const mvp = MVP_DB.find(m => m.id === kill.mvpId);
+  let mvpLabel = kill.mvpName || mvp?.name || kill.mvpId || '?';
+  if (kill.specificMvpId) {
+    const spec = [...(typeof BIO3_MVPS !== 'undefined' ? BIO3_MVPS : []),
+                  ...(typeof BIO4_MVPS !== 'undefined' ? BIO4_MVPS : [])].find(b => b.id === kill.specificMvpId);
+    if (spec) mvpLabel = spec.name;
   }
 
-  paymentContainer.innerHTML = '<div class="empty-state"><p>Payment tracking coming soon.</p></div>';
+  if (!confirm(`Remove kill of "${mvpLabel}"? This cannot be undone.`)) return;
+
+  // Try DELETE endpoint
+  const r = await API.del(`/api/kills/${killId}?groupId=${currentGroup.id}`);
+
+  if (r.error) {
+    // Fall back to soft-delete via PUT
+    const fallback = await API.put(
+      `/api/kills/${killId}?groupId=${currentGroup.id}`,
+      { deathTime: kill.deathTime, coordX: kill.coordX, coordY: kill.coordY,
+        party: kill.party, drops: kill.drops, killedByOthers: kill.killedByOthers,
+        specificMvpId: kill.specificMvpId, _deleted: true }
+    );
+    if (fallback.error) { alert('Could not remove kill. Please try again.'); return; }
+  }
+
+  // Log the removal
+  const registererName = memberName(kill.registeredBy);
+  appendActionLog({
+    ts: Date.now(), icon: '🗑️',
+    text: `<b>${currentUser.characterName}</b> removed kill of <b>${mvpLabel}</b> (registered by ${registererName})`
+  });
+
+  kills = kills.filter(k => k.id !== killId);
+  renderLoot();
+  if (!document.getElementById('tab-payments')?.classList.contains('hidden')) renderPayments();
+}
+
+/* ════════════════════════════════════════
+   DROP ROW BUILDER  (shared by Loot views)
+════════════════════════════════════════ */
+function buildDropRow(d, di, kill) {
+  let rowClass = '', statusEl = '';
+  const isHolder = d.takenBy === currentUser?.id;
+  const party    = Array.isArray(kill.party) ? kill.party : (kill.party ? [kill.party] : []);
+  const inParty  = party.includes(currentUser?.id) || kill.registeredBy === currentUser?.id;
+  const imgHtml  = d.itemId ? `<img src="${itemImageUrl(d.itemId)}" class="item-icon-sm" onerror="this.style.display='none'">` : '';
+
+  if (d.takenBy === '__sell__') {
+    if (d.status === 'sold' && d.soldFor) {
+      rowClass  = 'row-sold';
+      statusEl  = `<span class="loot-item-status loot-status-sold">✓ ${d.soldFor.toLocaleString()} z</span>`;
+    } else {
+      rowClass = 'row-selling';
+      const btn = inParty
+        ? `<button class="btn btn-warn btn-sm" style="padding:2px 7px;font-size:10px;margin-left:6px" onclick="openSellModal('${kill.id}',${di})">💰 Mark Sold</button>`
+        : '';
+      statusEl = `<span class="loot-item-status loot-status-sell">For Sale</span>${btn}`;
+    }
+  } else if (d.takenBy) {
+    if (d.status === 'sold' && d.soldFor) {
+      rowClass = 'row-sold';
+      statusEl = `<span class="loot-item-status loot-status-kept" style="opacity:.65">${memberName(d.takenBy)}</span>`
+               + `<span class="loot-item-status loot-status-sold" style="margin-left:4px">Sold · ${d.soldFor.toLocaleString()} z</span>`;
+    } else {
+      rowClass = 'row-kept';
+      const btn = isHolder
+        ? `<button class="btn btn-warn btn-sm" style="padding:2px 7px;font-size:10px;margin-left:6px" onclick="openSellModal('${kill.id}',${di})">💰 Mark Sold</button>`
+        : '';
+      statusEl = `<span class="loot-item-status loot-status-kept">Kept · ${memberName(d.takenBy)}</span>${btn}`;
+    }
+  } else {
+    statusEl = `<span class="loot-item-status" style="background:var(--bg3);color:var(--text4)">Unassigned</span>`;
+  }
+  return `<div class="loot-item-row ${rowClass}">${imgHtml}<span class="loot-item-name">${d.name}</span>${statusEl}</div>`;
+}
+
+function buildKillCard(kill, { collapsible = false } = {}) {
+  const mvp = MVP_DB.find(m => m.id === kill.mvpId);
+  let displayName = kill.mvpName || mvp?.name || kill.mvpId;
+  let displayMid  = mvp?.mid;
+  if (kill.specificMvpId) {
+    const spec = [...BIO3_MVPS, ...BIO4_MVPS].find(b => b.id === kill.specificMvpId);
+    if (spec) { displayName = spec.name; displayMid = spec.mid; }
+  }
+  const killDate  = new Date(kill.deathTime).toLocaleString([], { month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' });
+  const killParty = Array.isArray(kill.party) ? kill.party : (kill.party ? [kill.party] : []);
+  const partyStr  = killParty.length ? killParty.map(id => memberName(id)).join(', ') : null;
+  const canUndo   = kill.registeredBy === currentUser?.id || isCurrentUserAdmin() || isCurrentUserTester();
+  const stopProp  = collapsible ? 'event.stopPropagation();' : '';
+  const undoBtn   = canUndo
+    ? `<button class="btn btn-xs" style="padding:2px 7px;font-size:10px;color:var(--err-col,#e05);border:1px solid currentColor;background:none;border-radius:5px;cursor:pointer;flex-shrink:0" onclick="${stopProp}undoKill('${kill.id}')">🗑 Remove</button>`
+    : '';
+  const editBtn   = canEditKill(kill)
+    ? `<button class="btn btn-xs" style="padding:2px 7px;font-size:10px;color:#3b82f6;border:1px solid currentColor;background:none;border-radius:5px;cursor:pointer;flex-shrink:0;margin-right:3px" onclick="${stopProp}openEditKillModal('${kill.id}')">✏️ Edit</button>`
+    : '';
+
+  let dropRows;
+  if (kill.killedByOthers) {
+    dropRows = `<div class="loot-item-row"><span style="font-size:11px;color:var(--text4)">🚫 Killed by others — no loot recorded</span></div>`;
+  } else if (kill.drops?.length) {
+    // Group same item IDs together (sort by itemId, then preserve original order within same ID)
+    const withIdx = kill.drops.map((d, di) => ({ d, di }));
+    withIdx.sort((a, b) => {
+      if (!a.d.itemId && !b.d.itemId) return a.di - b.di;
+      if (!a.d.itemId) return 1;
+      if (!b.d.itemId) return -1;
+      if (a.d.itemId !== b.d.itemId) return a.d.itemId - b.d.itemId;
+      return a.di - b.di;
+    });
+    dropRows = withIdx.map(({ d, di }) => buildDropRow(d, di, kill)).join('');
+  } else {
+    dropRows = `<div class="loot-item-row"><span style="font-size:11px;color:var(--text4)">No items recorded.</span></div>`;
+  }
+
+  const caretHtml = collapsible ? `<span class="kill-collapse-caret">▼</span>` : '';
+
+  const hdrContent = `
+      <img src="https://static.divine-pride.net/images/mobs/png/${displayMid}.png" style="width:28px;height:28px;object-fit:contain;flex-shrink:0" onerror="this.style.opacity=.2">
+      <div style="flex:1;min-width:0">
+        <div style="font-weight:700;font-size:12px">${displayName}</div>
+        ${partyStr ? `<div style="font-size:10px;color:var(--text4);margin-top:1px">👥 ${partyStr}</div>` : ''}
+      </div>
+      <span style="font-size:11px;color:var(--text4);white-space:nowrap">${killDate}</span>
+      ${editBtn}${undoBtn}${caretHtml}`;
+
+  if (collapsible) {
+    const hasActive = !kill.killedByOthers && (kill.drops || []).some(d => d.takenBy && d.status !== 'sold');
+    return `<details class="loot-kill-group kill-details-card" ${hasActive ? 'open' : ''}>
+      <summary class="loot-kill-hdr">${hdrContent}</summary>
+      ${dropRows}
+    </details>`;
+  }
+
+  return `<div class="loot-kill-group">
+    <div class="loot-kill-hdr">${hdrContent}</div>
+    ${dropRows}
+  </div>`;
+}
+
+/* ════════════════════════════════════════
+   RENDER LOOT
+════════════════════════════════════════ */
+function buildItemGroupRows(groupMap, currentUserId) {
+  // Sort groups: held-first, then by itemId/name
+  const groups = [...groupMap.values()].sort((a, b) => {
+    if (b.held.length !== a.held.length) return b.held.length - a.held.length;
+    if (a.itemId && b.itemId) return a.itemId - b.itemId;
+    return (a.name || '').localeCompare(b.name || '');
+  });
+  return groups.map(g => {
+    const imgHtml = g.itemId
+      ? `<img src="${itemImageUrl(g.itemId)}" class="item-icon-sm" onerror="this.style.display='none'">`
+      : '';
+    const total = g.held.length + g.sold.length;
+    const badge = total > 1 ? `<span class="item-count-badge">×${total}</span>` : '';
+    if (g.held.length === 0) {
+      const totalSoldZ = g.sold.reduce((s, x) => s + x.soldFor, 0);
+      const soldLabel  = g.sold.length > 1 ? `${g.sold.length} sold` : 'Sold';
+      return `<div class="loot-item-row row-sold">
+        ${imgHtml}<span class="loot-item-name" style="flex:1">${g.name}${badge}</span>
+        <span class="loot-item-status loot-status-sold">${soldLabel} · ${totalSoldZ.toLocaleString()} z</span>
+      </div>`;
+    }
+    const heldLbl  = g.held.length > 1 ? `${g.held.length} held` : 'Held';
+    const soldNote = g.sold.length > 0 ? ` · ${g.sold.length} sold` : '';
+    const holdersHtml = g.holderNames
+      ? `<span style="font-size:9px;color:var(--text4);margin-right:5px;white-space:nowrap">${g.holderNames}</span>`
+      : '';
+    // Mark Sold only if current user holds at least one
+    const myOldest = g.held.find(h => h.ownerId === currentUserId);
+    const sellBtn = myOldest
+      ? `<button class="btn btn-warn btn-sm" style="padding:2px 7px;font-size:10px;margin-left:6px"
+           onclick="openSellModal('${myOldest.kill.id}',${myOldest.di})">💰 Mark Sold</button>`
+      : '';
+    return `<div class="loot-item-row row-kept">
+      ${imgHtml}<span class="loot-item-name" style="flex:1">${g.name}${badge}</span>
+      ${holdersHtml}<span class="loot-item-status loot-status-kept">${heldLbl}${soldNote}</span>${sellBtn}
+    </div>`;
+  });
+}
+
+function renderLoot() {
+  const leftEl  = document.getElementById('loot-left-sidebar');
+  const mainEl  = document.getElementById('loot-main');
+  const rightEl = document.getElementById('loot-right-sidebar');
+  if (!leftEl) return;
+
+  const allKills     = [...kills].sort((a, b) => b.deathTime - a.deathTime);
+  const weeks        = getKillWeeks(allKills);
+  const visibleKills = filterKillsByWeek(lootWeekFilter);
+
+  leftEl.innerHTML  = buildWeekSidebar(weeks, lootWeekFilter, 'setLootWeek');
+  rightEl.innerHTML = buildLootSidebar(lootViewMode);
+
+  if (!visibleKills.length) {
+    mainEl.innerHTML = '<div class="empty-state"><p>No kills recorded yet.</p></div>';
+    return;
+  }
+
+  const isPlayerView = lootViewMode && lootViewMode !== '__per_mvp__';
+
+  // ── 1. Player view ──────────────────────────────────────────────────────
+  if (isPlayerView) {
+    const player = groupMembers.find(u => u.id === lootViewMode);
+    const pName  = player?.characterName || 'Player';
+    const groupMap = new Map();
+    [...visibleKills].sort((a, b) => a.deathTime - b.deathTime).forEach(kill => {
+      (kill.drops || []).forEach((d, di) => {
+        if (d.takenBy !== lootViewMode) return;
+        const key = d.itemId ? d.itemId : `n:${d.name}`;
+        if (!groupMap.has(key)) groupMap.set(key, { name: d.name, itemId: d.itemId || null, held: [], sold: [] });
+        const g = groupMap.get(key);
+        if (d.status === 'sold' && d.soldFor) g.sold.push({ soldFor: d.soldFor });
+        else g.held.push({ kill, di, ownerId: lootViewMode });
+      });
+    });
+    if (!groupMap.size) {
+      mainEl.innerHTML = `<div class="empty-state"><p>${pName} has no items in this period.</p></div>`;
+      return;
+    }
+    const totalItems = [...groupMap.values()].reduce((s, g) => s + g.held.length + g.sold.length, 0);
+    const totalHeld  = [...groupMap.values()].reduce((s, g) => s + g.held.length, 0);
+    const rowsHtml   = buildItemGroupRows(groupMap, currentUser?.id).join('');
+    mainEl.innerHTML = `<div class="loot-kill-group">
+      <div class="loot-kill-hdr">
+        <div class="tnr-avatar" style="width:22px;height:22px;font-size:10px;flex-shrink:0">${(pName[0]||'?').toUpperCase()}</div>
+        <b>${pName}</b>
+        <span style="margin-left:auto;font-size:10px;color:var(--text4)">
+          ${totalHeld > 0 ? `${totalHeld} held` : 'all sold'} · ${totalItems} item${totalItems !== 1 ? 's' : ''}
+        </span>
+      </div>${rowsHtml}</div>`;
+    return;
+  }
+
+  // ── 2. All Loot view (flat grouped list across all players) ─────────────
+  if (!lootViewMode) {
+    const groupMap = new Map();
+    [...visibleKills].sort((a, b) => a.deathTime - b.deathTime).forEach(kill => {
+      (kill.drops || []).forEach((d, di) => {
+        if (!d.takenBy || d.takenBy === '__sell__') return;
+        const owner = groupMembers.find(u => u.id === d.takenBy);
+        if (!owner) return;
+        const key = d.itemId ? d.itemId : `n:${d.name}`;
+        if (!groupMap.has(key)) groupMap.set(key, { name: d.name, itemId: d.itemId || null, held: [], sold: [] });
+        const g = groupMap.get(key);
+        if (d.status === 'sold' && d.soldFor) {
+          g.sold.push({ soldFor: d.soldFor });
+        } else {
+          g.held.push({ kill, di, ownerId: d.takenBy });
+        }
+      });
+    });
+    if (!groupMap.size) {
+      mainEl.innerHTML = '<div class="empty-state"><p>No items recorded yet.</p></div>';
+      return;
+    }
+    // Annotate holderNames for display
+    groupMap.forEach(g => {
+      const names = [...new Set(g.held.map(h => groupMembers.find(u => u.id === h.ownerId)?.characterName).filter(Boolean))];
+      g.holderNames = names.join(', ');
+    });
+    const totalItems = [...groupMap.values()].reduce((s, g) => s + g.held.length + g.sold.length, 0);
+    const totalHeld  = [...groupMap.values()].reduce((s, g) => s + g.held.length, 0);
+    const rowsHtml   = buildItemGroupRows(groupMap, currentUser?.id).join('');
+    mainEl.innerHTML = `<div class="loot-kill-group">
+      <div class="loot-kill-hdr">
+        <b>📦 All Loot</b>
+        <span style="margin-left:auto;font-size:10px;color:var(--text4)">
+          ${totalHeld > 0 ? `${totalHeld} held` : 'all sold'} · ${totalItems} item${totalItems !== 1 ? 's' : ''}
+        </span>
+      </div>${rowsHtml}</div>`;
+    return;
+  }
+
+  // ── 3. Per MVP view (collapsible kill cards) ────────────────────────────
+  const activeKills = visibleKills.filter(k =>
+    !k.killedByOthers && (k.drops || []).some(d => d.takenBy && d.status !== 'sold'));
+  const doneKills = visibleKills.filter(k =>
+    k.killedByOthers || !(k.drops || []).some(d => d.takenBy && d.status !== 'sold'));
+  doneKills.sort((a, b) => a.deathTime - b.deathTime);
+
+  let html = '';
+  if (doneKills.length) {
+    html += `<details class="loot-done-details">
+      <summary>
+        <span class="done-caret">▶</span>
+        ✓ Fully sold — ${doneKills.length} kill${doneKills.length !== 1 ? 's' : ''}
+        <span style="margin-left:auto;font-size:10px;opacity:.6">click to expand</span>
+      </summary>
+      <div class="done-body">${doneKills.map(k => buildKillCard(k, { collapsible: true })).join('')}</div>
+    </details>`;
+  }
+  if (activeKills.length) {
+    html += activeKills.map(k => buildKillCard(k, { collapsible: true })).join('');
+  } else if (!doneKills.length) {
+    html = '<div class="empty-state"><p>No kills recorded yet.</p></div>';
+  } else {
+    html += '<div class="empty-state" style="padding:16px"><p>All kills fully sold 🎉</p></div>';
+  }
+  mainEl.innerHTML = html;
+}
+
+/* ════════════════════════════════════════
+   RENDER PAYMENTS
+════════════════════════════════════════ */
+function renderPayments() {
+  const leftEl  = document.getElementById('pay-left-sidebar');
+  const mainEl  = document.getElementById('pay-main');
+  const rightEl = document.getElementById('pay-right-sidebar');
+  if (!leftEl) return;
+
+  const allKills     = [...kills].sort((a, b) => b.deathTime - a.deathTime);
+  const weeks        = getKillWeeks(allKills);
+  const visibleKills = filterKillsByWeek(payWeekFilter);
+
+  leftEl.innerHTML  = buildWeekSidebar(weeks, payWeekFilter, 'setPayWeek');
+  rightEl.innerHTML = buildPlayerSidebar(payPlayerFilter, 'setPayPlayer');
+
+  if (!groupMembers.length) {
+    mainEl.innerHTML = '<div class="empty-state"><p>Join or create a group first.</p></div>';
+    return;
+  }
+
+  // ── Step 1: raw item data per player ────────────────────────────────────
+  // heldItems[id]  = items the player has but hasn't sold yet
+  // personalSales[id] = items they personally sold (they hold this money)
+  // pool items (takenBy === '__sell__') are treated as shared
+  const heldItems    = {};  // id → [{ name, itemId, mvpLabel }]
+  const personalSales = {}; // id → [{ name, soldFor, mvpLabel }]
+  const pool = { held: [], sold: [] };
+
+  groupMembers.forEach(u => { heldItems[u.id] = []; personalSales[u.id] = []; });
+
+  visibleKills.forEach(kill => {
+    const mvp   = MVP_DB.find(m => m.id === kill.mvpId);
+    const label = kill.mvpName || mvp?.name || kill.mvpId;
+    (kill.drops || []).forEach(d => {
+      if (d.takenBy === '__sell__') {
+        if (d.status === 'sold' && d.soldFor)
+          pool.sold.push({ name: d.name, itemId: d.itemId, soldFor: d.soldFor, mvpLabel: label });
+        else
+          pool.held.push({ name: d.name, itemId: d.itemId, mvpLabel: label });
+      } else if (d.takenBy && heldItems[d.takenBy] !== undefined) {
+        if (d.status === 'sold' && d.soldFor)
+          personalSales[d.takenBy].push({ name: d.name, soldFor: d.soldFor, mvpLabel: label });
+        else
+          heldItems[d.takenBy].push({ name: d.name, itemId: d.itemId || null, mvpLabel: label });
+      }
+    });
+  });
+
+  // ── Step 2: participation stats (always computed for display) ───────────
+  const participationCount = {};
+  groupMembers.forEach(u => { participationCount[u.id] = 0; });
+  visibleKills.forEach(kill => {
+    getKillParticipants(kill).forEach(pid => {
+      if (participationCount[pid] !== undefined) participationCount[pid]++;
+    });
+  });
+  // totalTickets = sum of all individual participations across all kills
+  const totalTickets  = Object.values(participationCount).reduce((s, x) => s + x, 0) || 1;
+  const totalSoldFixed = visibleKills.flatMap(k => k.drops || [])
+    .filter(d => d.status === 'sold' && d.soldFor && d.takenBy !== '__sell__')
+    .reduce((s, d) => s + d.soldFor, 0);
+  const ticketValue = totalSoldFixed / totalTickets;
+
+  // ── Step 3: calculate "owed" per player based on payment mode ───────────
+  // "owed" = what each player is entitled to from all sold items
+  // "held" = money they physically have (personal sales)
+  // "balance" = owed - held  (+ = to receive, – = to pay out)
+  const memberCount = Math.max(groupMembers.length, 1);
+  const owed = {}; // id → amount
+  groupMembers.forEach(u => { owed[u.id] = 0; });
+
+  if (payMode === 'variable') {
+    // Each kill's earnings split equally among that kill's participants
+    visibleKills.forEach(kill => {
+      const totalSoldFromKill = (kill.drops || [])
+        .filter(d => d.status === 'sold' && d.soldFor && d.takenBy !== '__sell__')
+        .reduce((s, d) => s + d.soldFor, 0);
+      if (!totalSoldFromKill) return;
+      const participants = getKillParticipants(kill);
+      const n = participants.length || 1;
+      const share = totalSoldFromKill / n;
+      participants.forEach(pid => { if (owed[pid] !== undefined) owed[pid] += share; });
+    });
+  } else {
+    // Fixed (ticket-based): total earnings ÷ total tickets = ticket value
+    // Each player is owed: their_participations × ticket_value
+    groupMembers.forEach(u => {
+      owed[u.id] = participationCount[u.id] * ticketValue;
+    });
+  }
+
+  // ── Step 3: held per player = their personal sales (never modified by paid transfers) ──
+  const held = {};
+  groupMembers.forEach(u => {
+    held[u.id] = personalSales[u.id].reduce((s, x) => s + x.soldFor, 0);
+  });
+
+  // ── Step 3b: settled amounts per directed pair ────────────────────────────
+  // Key: "fromId→toId" → total z already settled (from localStorage)
+  const settledMap = {};
+  getPaidTransfers().forEach(tx => {
+    const k = `${tx.fromId}→${tx.toId}`;
+    settledMap[k] = (settledMap[k] || 0) + tx.amount;
+  });
+
+  // ── Step 4: totals for the big cards ────────────────────────────────────
+  const poolSoldTotal = pool.sold.reduce((s, x) => s + x.soldFor, 0);
+
+  const scopeMembers = payPlayerFilter
+    ? groupMembers.filter(u => u.id === payPlayerFilter)
+    : groupMembers;
+
+  // Yellow: estimated value of unsold items in scope
+  let estVal = 0, estUnknown = 0;
+  scopeMembers.forEach(u => {
+    heldItems[u.id].forEach(d => {
+      if (d.itemId && itemDb[d.itemId]?.lastSoldPrice) estVal += itemDb[d.itemId].lastSoldPrice;
+      else estUnknown++;
+    });
+  });
+  pool.held.forEach(d => {
+    if (d.itemId && itemDb[d.itemId]?.lastSoldPrice)
+      estVal += Math.floor(itemDb[d.itemId].lastSoldPrice / memberCount) * scopeMembers.length;
+    else estUnknown++;
+  });
+
+  // Green card value is computed AFTER settlement algorithm (see below) → placeholder for now
+  const estDisplay = estVal > 0 ? estVal.toLocaleString() + ' z' : (estUnknown > 0 ? '?' : '0 z');
+  const totalSoldCount = visibleKills.flatMap(k => k.drops || []).filter(d => d.status === 'sold').length;
+
+  // Total money from all sold items (including __sell__ pool items — full picture for "profit")
+  const totalSoldAll = visibleKills.flatMap(k => k.drops || [])
+    .filter(d => d.status === 'sold' && d.soldFor)
+    .reduce((s, d) => s + d.soldFor, 0);
+
+  // Kill counts
+  const killsThisScope = visibleKills.length;
+  const killsAllTime   = allKills.length;
+
+  // ── Payment mode toggle + info ───────────────────────────────────────────
+  const fixedStats = payMode === 'fixed' ? `
+    <div style="display:flex;gap:16px;flex-wrap:wrap;padding:8px 12px;background:var(--bg3);border-radius:8px;font-size:11px;color:var(--text3);margin-bottom:12px;border:1px solid var(--border3)">
+      <span>🎟️ <b>${totalTickets}</b> total tickets</span>
+      <span>⚔️ <b>${visibleKills.length}</b> kills</span>
+      <span>💰 Ticket value: <b style="color:var(--text)">${Math.round(ticketValue).toLocaleString()} z</b></span>
+    </div>` : '';
+
+  const modeToggle = `
+  <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px">
+    <div class="pay-mode-toggle" style="flex:1;margin-bottom:0">
+      <button class="pay-mode-btn${payMode === 'variable' ? ' active' : ''}" onclick="setPayMode('variable')">⚖️ Variable</button>
+      <button class="pay-mode-btn${payMode === 'fixed' ? ' active' : ''}" onclick="setPayMode('fixed')">📊 Fixed (tickets)</button>
+    </div>
+    <button onclick="this.nextElementSibling.open=!this.nextElementSibling.open" style="width:22px;height:22px;border-radius:50%;border:1.5px solid var(--border3);background:var(--bg3);font-size:11px;font-weight:700;color:var(--text3);cursor:pointer;flex-shrink:0;line-height:1">?</button>
+    <details style="display:none"><summary></summary></details>
+  </div>
+  <details class="pay-info-box" style="margin-bottom:12px">
+    <summary style="font-size:11px;font-weight:700;color:var(--accent);cursor:pointer;list-style:none;padding:6px 10px;background:color-mix(in srgb,var(--accent) 8%,transparent);border-radius:7px;border:1px solid color-mix(in srgb,var(--accent) 20%,transparent)">
+      ℹ️ How split modes work
+    </summary>
+    <div style="padding:10px 12px;font-size:11px;line-height:1.7;color:var(--text3);background:var(--bg3);border-radius:0 0 7px 7px;border:1px solid var(--border3);border-top:none">
+      <div style="margin-bottom:8px">
+        <b style="color:var(--text)">⚖️ Variable — equal split per kill</b><br>
+        Each MVP kill's total earnings are divided equally among the players who participated in <i>that specific kill</i>. Players who join more valuable kills earn more.<br>
+        <span style="color:var(--text4)">Example: Kill worth 8m with 2 players → each gets 4m. Another kill worth 6m with 3 players → each gets 2m.</span>
+      </div>
+      <div>
+        <b style="color:var(--text)">📊 Fixed — ticket system</b><br>
+        Each kill participation is worth one "ticket". The entire week's earnings are pooled and divided by the total number of tickets. Every player is paid <i>ticket_value × their_tickets</i>.<br>
+        <span style="color:var(--text4)">Example: 2 kills total. Kill 1: lucas+plu (2 tickets). Kill 2: lucas+A+B (3 tickets). Total 5 tickets. If total earned = 13.2m → ticket value = 2.64m. Lucas has 2 tickets = 5.28m. Others have 1 ticket = 2.64m each.</span>
+      </div>
+    </div>
+  </details>
+  ${fixedStats}`;
+
+  // ── Settlement: who pays whom (greedy min-transfers algorithm) ─────────
+  // Build signed balances for ALL group members (paid transfers already in held)
+  const allBalances = groupMembers.map(u => ({
+    id: u.id, name: u.characterName,
+    bal: Math.round((owed[u.id] || 0) - (held[u.id] || 0))
+  }));
+
+  const payers    = allBalances.filter(x => x.bal < -1).map(x => ({ ...x, rem: -x.bal }));
+  const receivers = allBalances.filter(x => x.bal > 1).map(x => ({ ...x, rem: x.bal }));
+  payers.sort((a, b) => b.rem - a.rem);
+  receivers.sort((a, b) => b.rem - a.rem);
+
+  const allTransfers = []; // full computed transfers (before applying settled amounts)
+  let pi = 0, ri = 0;
+  while (pi < payers.length && ri < receivers.length) {
+    const p = payers[pi], r = receivers[ri];
+    const amount = Math.round(Math.min(p.rem, r.rem)); // round to avoid 1z float dust
+    if (amount > 0) allTransfers.push({ fromId: p.id, fromName: p.name, toId: r.id, toName: r.name, amount });
+    p.rem -= amount; r.rem -= amount;
+    if (Math.round(p.rem) <= 0) pi++;
+    if (Math.round(r.rem) <= 0) ri++;
+  }
+
+  // Apply settledMap: compute remaining amounts per transfer pair
+  const remainingTransfers = allTransfers.map(t => {
+    const key  = `${t.fromId}→${t.toId}`;
+    const paid = settledMap[key] || 0;
+    return { ...t, remaining: Math.max(0, t.amount - paid) };
+  }).filter(t => t.remaining > 0);
+
+  // Green card: pending settlement = sum of remaining transfer amounts (0 when all paid)
+  const pendingTotal = remainingTransfers.reduce((s, t) => s + t.remaining, 0);
+
+  // ── Kill count bar ───────────────────────────────────────────────────────
+  const killCountBar = `<div style="display:flex;gap:16px;flex-wrap:wrap;padding:7px 12px;background:var(--bg3);border-radius:8px;font-size:11px;color:var(--text3);margin-bottom:10px;border:1px solid var(--border3);align-items:center">
+    <span>⚔️ <b style="color:var(--text)">${killsThisScope}</b> ${payWeekFilter ? 'kills this week' : 'kills (all)'}</span>
+    ${payWeekFilter ? `<span style="color:var(--border3)">|</span><span>All time: <b style="color:var(--text)">${killsAllTime}</b></span>` : ''}
+    <span style="color:var(--border3)">|</span>
+    <span>${totalSoldCount} items sold</span>
+  </div>`;
+
+  // ── Big numbers ─────────────────────────────────────────────────────────
+  const bigNums = `${killCountBar}<div class="stat-row">
+    <div class="stat-card stat-card-yellow">
+      <div class="stat-lbl" style="color:#b87a08">📦 Estimated (unsold)</div>
+      <div class="stat-val" style="color:#b87a08">${estDisplay}</div>
+      <div class="stat-sub">${
+        scopeMembers.reduce((s, u) => s + heldItems[u.id].length, 0) + pool.held.length
+      } items held${estUnknown ? ` · ${estUnknown} no price` : ''}</div>
+    </div>
+    <div class="stat-card" style="background:color-mix(in srgb,#3b82f6 8%,var(--card-bg));border-color:color-mix(in srgb,#3b82f6 30%,transparent)">
+      <div class="stat-lbl" style="color:#2563eb">💰 ${payWeekFilter ? "Week's Profit" : 'Total Profit'}</div>
+      <div class="stat-val" style="color:#2563eb">${totalSoldAll.toLocaleString()} z</div>
+      <div class="stat-sub">${totalSoldCount} item${totalSoldCount !== 1 ? 's' : ''} sold</div>
+    </div>
+    <div class="stat-card stat-card-green">
+      <div class="stat-lbl" style="color:var(--safe-col)">💸 Pending Settlement</div>
+      <div class="stat-val" style="color:var(--safe-col)">${pendingTotal.toLocaleString()} z</div>
+      <div class="stat-sub">${
+        remainingTransfers.length > 0
+          ? `${remainingTransfers.length} transfer${remainingTransfers.length !== 1 ? 's' : ''} remaining`
+          : `✓ All settled`
+      }</div>
+    </div>
+  </div>`;
+
+  // ── Per-player balance cards (money summary only) ────────────────────────
+  const perPlayerHtml = scopeMembers.map(u => {
+    const owedAmt = Math.round(owed[u.id] || 0);
+    const heldAmt = Math.round(held[u.id] || 0);
+    const balInt  = owedAmt - heldAmt;
+
+    const balColor = balInt > 0 ? 'var(--safe-col)' : balInt < 0 ? '#e05' : 'var(--text4)';
+    const balLabel = balInt > 0 ? 'To receive' : balInt < 0 ? 'To pay out' : 'Settled';
+    const balSign  = balInt > 0 ? '+' : '';
+    const balClass = balInt > 0 ? 'balance-pos' : balInt < 0 ? 'balance-neg' : 'balance-zero';
+
+    const participationBadge = payMode === 'fixed'
+      ? `<span style="font-size:10px;font-weight:600;color:var(--text4);margin-left:6px">🎟️ ${participationCount[u.id]} ticket${participationCount[u.id] !== 1 ? 's' : ''}</span>`
+      : '';
+
+    const summaryLine = `<div style="display:flex;gap:12px;padding:6px 12px 0;font-size:11px;color:var(--text4)">
+      <span>Entitled <b style="color:var(--text)">${owedAmt.toLocaleString()} z</b></span>
+      <span>·</span>
+      <span>In hand <b style="color:var(--text)">${heldAmt.toLocaleString()} z</b></span>
+    </div>`;
+
+    return `<div class="loot-kill-group">
+      <div class="loot-kill-hdr">
+        <div class="tnr-avatar" style="width:22px;height:22px;font-size:10px;flex-shrink:0">${(u.characterName||'?')[0].toUpperCase()}</div>
+        <b>${u.characterName}</b>${participationBadge}
+        <span style="margin-left:auto;font-size:14px;font-weight:700;color:${balColor}">${balSign}${balInt.toLocaleString()} z</span>
+      </div>
+      ${summaryLine}
+      <div class="balance-card ${balClass}">
+        <span class="balance-label" style="color:${balColor}">${balLabel}</span>
+        <span class="balance-val" style="color:${balColor}">${balSign}${balInt.toLocaleString()} z</span>
+      </div>
+    </div>`;
+  }).join('');
+
+  // ── Settlement table ──────────────────────────────────────────────────────
+  const settlementHtml = `<div class="pay-settlement">
+    <div class="pay-settlement-hdr">
+      <span>💸 Settlement</span>
+      ${remainingTransfers.length
+        ? `<span style="margin-left:auto;font-size:10px;color:var(--text4)">${remainingTransfers.length} transfer${remainingTransfers.length !== 1 ? 's' : ''} pending</span>`
+        : `<span style="margin-left:auto;font-size:10px;color:var(--safe-col)">✓ All settled</span>`}
+    </div>
+    ${remainingTransfers.length
+      ? remainingTransfers.map(t => `
+        <div class="pay-transfer-row">
+          <span class="pay-transfer-from">${t.fromName}</span>
+          <span class="pay-transfer-arrow">→</span>
+          <span class="pay-transfer-to">${t.toName}</span>
+          <span class="pay-transfer-amount">${t.remaining.toLocaleString()} z</span>
+          <button class="btn btn-sm pay-transfer-paid-btn"
+            onclick="markTransferPaid('${t.fromId}','${t.toId}',${t.remaining})">✓ Paid</button>
+        </div>`).join('')
+      : `<div style="padding:14px 12px;text-align:center;font-size:12px;color:var(--safe-col)">
+          ✓ No pending transfers — everyone is settled
+        </div>`}
+  </div>`;
+
+  mainEl.innerHTML = bigNums + modeToggle + perPlayerHtml + settlementHtml;
+}
+
+/* ════════════════════════════════════════
+   PAID TRANSFERS
+════════════════════════════════════════ */
+function getPaidTransfers() {
+  if (!currentGroup) return [];
+  try {
+    return JSON.parse(localStorage.getItem(`mvp_paid_${currentGroup.id}`) || '[]')
+      .map(tx => ({
+        // normalise old payerId/receiverId keys → fromId/toId
+        fromId: tx.fromId || tx.payerId,
+        toId:   tx.toId   || tx.receiverId,
+        amount: tx.amount,
+        paidAt: tx.paidAt
+      })).filter(tx => tx.fromId && tx.toId && tx.amount > 0);
+  } catch { return []; }
+}
+function markTransferPaid(fromId, toId, amount) {
+  if (!currentGroup) return;
+  const paid = getPaidTransfers();
+  paid.push({ fromId, toId, amount, paidAt: Date.now() });
+  localStorage.setItem(`mvp_paid_${currentGroup.id}`, JSON.stringify(paid));
+  // Log in the activity log
+  const fromName = groupMembers.find(u => u.id === fromId)?.characterName || '?';
+  const toName   = groupMembers.find(u => u.id === toId)?.characterName   || '?';
+  appendActionLog({ ts: Date.now(), icon: '💸',
+    text: `<b>${fromName}</b> paid <b>${toName}</b> — ${amount.toLocaleString()} z settled` });
+  renderPayments();
+  if (!document.getElementById('tab-history')?.classList.contains('hidden')) renderHistory();
 }
 
 /* ════════════════════════════════════════
    MEMBERS / GROUP
 ════════════════════════════════════════ */
+function isCurrentUserAdmin() {
+  if (!currentGroup || !currentUser) return false;
+  const admins = currentGroup.admins || [currentGroup.createdBy];
+  return admins.includes(currentUser.id);
+}
+
+function isCurrentUserTester() {
+  if (!currentGroup || !currentUser) return false;
+  const testers = currentGroup.testers || [];
+  return (Array.isArray(testers) ? testers : [testers]).includes(currentUser.id);
+}
+
 function renderMembers() {
   document.getElementById('group-name-display').textContent = currentGroup?.name || '';
+  const amAdmin = isCurrentUserAdmin();
+  const groupTesters = currentGroup?.testers || [];
+  const groupBlocked = currentGroup?.blocked || [];
+
   document.getElementById('members-list').innerHTML = groupMembers.map(u => {
     const isSelf = u.id === currentUser?.id;
+    const isAdmin = u.role === 'admin';
+    const isTester = groupTesters.includes(u.id);
     const hasDiscordAvatar = u.discordAvatar && u.discordId;
     const avatar = hasDiscordAvatar
       ? `<img src="https://cdn.discordapp.com/avatars/${u.discordId}/${u.discordAvatar}.png?size=32" style="width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0">`
       : `<div class="user-avatar-lg">${(u.characterName||'?')[0].toUpperCase()}</div>`;
+    const adminToggleBtn = amAdmin && !isSelf
+      ? `<button class="btn btn-xs btn-secondary" onclick="toggleMemberRole('${u.id}','${isAdmin ? 'member' : 'admin'}')">${isAdmin ? '↓ Remove Admin' : '↑ Make Admin'}</button>`
+      : '';
+    const testerToggleBtn = amAdmin && !isSelf && !isAdmin
+      ? `<button class="btn btn-xs btn-secondary" style="margin-left:4px" onclick="toggleMemberRole('${u.id}','${isTester ? 'remove-tester' : 'tester'}')">${isTester ? '↓ Remove Tester' : '🧪 Make Tester'}</button>`
+      : '';
+    const removeBtn = amAdmin && !isSelf
+      ? `<button class="btn btn-xs" style="margin-left:4px;color:#e05;border-color:#e05;background:none" onclick="removeMember('${u.id}','${u.characterName.replace(/'/g,"\\'")}')">🚫 Remove</button>`
+      : '';
     return `<li class="user-item">
       ${avatar}
       <div class="user-item-info">
         <div class="user-item-name">
           ${u.characterName}
+          <span class="role-badge ${isAdmin ? 'admin' : 'member'}">${isAdmin ? 'Admin' : 'Member'}</span>
+          ${isTester && !isAdmin ? `<span class="role-badge" style="background:#f0e6ff;color:#7c3aed;border-color:#c4b5fd">Tester</span>` : ''}
           ${u.discordUsername ? `<span style="font-size:9px;color:#5865F2;font-weight:700;padding:1px 5px;background:#e8eaff;border-radius:3px">@${u.discordUsername}</span>` : ''}
           ${isSelf ? '<span style="font-size:9px;color:var(--text4)">(you)</span>' : ''}
         </div>
       </div>
+      <div style="display:flex;gap:4px;align-items:center;flex-wrap:wrap">${adminToggleBtn}${testerToggleBtn}${removeBtn}</div>
     </li>`;
   }).join('') || '<li style="color:var(--text4);font-size:12px;padding:12px 0">No members in this group yet.</li>';
+
+  // Blocked members section (admin only)
+  const blockedEl = document.getElementById('blocked-members-section');
+  if (blockedEl) {
+    if (amAdmin && groupBlocked.length) {
+      blockedEl.classList.remove('hidden');
+      document.getElementById('blocked-members-list').innerHTML = groupBlocked.map(uid => {
+        const name = groupMembers.find(m => m.id === uid)?.characterName || uid;
+        return `<li class="user-item" style="opacity:.7">
+          <div class="user-avatar-lg" style="font-size:10px;background:#e05;color:#fff">${name[0].toUpperCase()}</div>
+          <div class="user-item-info"><div class="user-item-name">${name} <span class="role-badge" style="background:#ffe5e5;color:#e05;border-color:#f5a0a0">Blocked</span></div></div>
+          <div><button class="btn btn-xs btn-secondary" onclick="unblockMember('${uid}','${name.replace(/'/g,"\\'")}')">✓ Unblock</button></div>
+        </li>`;
+      }).join('');
+    } else {
+      blockedEl.classList.add('hidden');
+    }
+  }
+}
+
+async function removeMember(userId, name) {
+  if (!currentGroup || !isCurrentUserAdmin()) return;
+  if (!confirm(`Remove ${name} from the group? They will be blocked from rejoining until an admin unblocks them.`)) return;
+  const r = await API.del(`/api/groups/${currentGroup.id}/members/${userId}`);
+  if (r.error) { alert('Error: ' + r.error); return; }
+  // Update local state
+  groupMembers = groupMembers.filter(m => m.id !== userId);
+  if (!currentGroup.blocked) currentGroup.blocked = [];
+  if (!currentGroup.blocked.includes(userId)) currentGroup.blocked.push(userId);
+  appendActionLog({ ts: Date.now(), icon: '🚫', text: `<b>${currentUser?.characterName}</b> removed <b>${name}</b> from the group` });
+  renderMembers();
+  if (!document.getElementById('tab-history')?.classList.contains('hidden')) renderHistory();
+}
+
+async function unblockMember(userId, name) {
+  if (!currentGroup || !isCurrentUserAdmin()) return;
+  const r = await API.del(`/api/groups/${currentGroup.id}/blocked/${userId}`);
+  if (r.error) { alert('Error: ' + r.error); return; }
+  currentGroup.blocked = (currentGroup.blocked || []).filter(id => id !== userId);
+  appendActionLog({ ts: Date.now(), icon: '✅', text: `<b>${currentUser?.characterName}</b> unblocked <b>${name}</b> — they can rejoin the group` });
+  renderMembers();
+  if (!document.getElementById('tab-history')?.classList.contains('hidden')) renderHistory();
+}
+
+async function toggleMemberRole(userId, newRole) {
+  const r = await API.put(`/api/groups/${currentGroup.id}/roles`, { userId, role: newRole });
+  if (r.error) { alert('Error: ' + r.error); return; }
+  // refresh members
+  const members = await API.get(`/api/groups/${currentGroup.id}/members`);
+  if (members && !members.error) groupMembers = members;
+  // update currentGroup locally
+  if (newRole === 'admin') {
+    if (!currentGroup.admins) currentGroup.admins = [currentGroup.createdBy];
+    if (!currentGroup.admins.includes(userId)) currentGroup.admins.push(userId);
+  } else if (newRole === 'member') {
+    if (currentGroup.admins) currentGroup.admins = currentGroup.admins.filter(id => id !== userId);
+  } else if (newRole === 'tester') {
+    if (!currentGroup.testers) currentGroup.testers = [];
+    if (!currentGroup.testers.includes(userId)) currentGroup.testers.push(userId);
+  } else if (newRole === 'remove-tester') {
+    if (currentGroup.testers) currentGroup.testers = currentGroup.testers.filter(id => id !== userId);
+  }
+  renderMembers();
 }
 
 function showInviteCode() {
@@ -1721,45 +3667,375 @@ async function switchGroup() {
 }
 
 /* ════════════════════════════════════════
-   HISTORY
+   HISTORY — activity log
 ════════════════════════════════════════ */
 function renderHistory() {
   const container = document.getElementById('history-list');
-  if (!kills.length) {
-    container.innerHTML = '<div class="empty-state"><p>No kills recorded yet.</p></div>'; return;
-  }
-  container.innerHTML = [...kills].sort((a,b)=>b.deathTime-a.deathTime).map(kill => {
-    const mvp = MVP_DB.find(m=>m.id===kill.mvpId);
-    const partyNames = (kill.party||[]).map(id=>memberName(id)).join(', ');
-    const drops = (kill.drops||[]).map(d => {
-      const who = d.takenBy==='__sell__' ? '🏷 Sell' : memberName(d.takenBy);
-      return `<span class="drop-tag">${d.name} → ${who}</span>`;
-    }).join('');
-    const naviStr = (kill.coordX && kill.coordY)
-      ? `<span class="drop-tag" style="cursor:pointer;color:var(--accent)" onclick="navigator.clipboard?.writeText('/navi ${kill.map} ${kill.coordX}/${kill.coordY}')" title="Click to copy">/navi ${kill.map} ${kill.coordX}/${kill.coordY}</span>`
-      : '';
-    let mvpLabel = kill.mvpName;
+  const clearBtn  = document.getElementById('log-clear-btn');
+  // Show Clear All only to admins
+  if (clearBtn) clearBtn.style.display = isCurrentUserAdmin() ? '' : 'none';
+
+  const clearedAt = getLogClearedAt(); // timestamp of last clear (0 = never)
+
+  // ── Kill-derived entries (filtered by clearedAt) ─────────────────────────
+  const entries = [];
+  [...kills].forEach(kill => {
+    const mvp = MVP_DB.find(m => m.id === kill.mvpId);
+    let mvpLabel = kill.mvpName || mvp?.name || kill.mvpId || '?';
     if (kill.specificMvpId) {
-      const spec = [...BIO3_MVPS,...BIO4_MVPS].find(b=>b.id===kill.specificMvpId);
-      if (spec) mvpLabel += ` · ${spec.name}`;
+      const spec = [...BIO3_MVPS, ...BIO4_MVPS].find(b => b.id === kill.specificMvpId);
+      if (spec) mvpLabel = spec.name;
     }
-    return `<div class="history-card">
-      <div class="history-top">
-        <img src="https://static.divine-pride.net/images/mobs/png/${mvp?.mid}.png" style="width:36px;height:36px;object-fit:contain" onerror="this.style.opacity=.2">
-        <div style="flex:1">
-          <b>${mvpLabel}</b> <span style="color:var(--text4);font-size:10px">on ${kill.map}</span>
-          <div style="font-size:10px;color:var(--text4)">${new Date(kill.deathTime).toLocaleString()}</div>
-        </div>
-        <div style="font-size:11px;color:var(--text3);text-align:right">Party: <b>${partyNames||'—'}</b></div>
+    const registerer = memberName(kill.registeredBy);
+    const partyArr2  = Array.isArray(kill.party) ? kill.party : (kill.party ? [kill.party] : []);
+    const partyNames = partyArr2.map(id => memberName(id)).join(', ');
+    const ts = kill.deathTime;
+
+    // Collect kept items for this kill (shown collapsed under the kill entry)
+    const keptItems = (kill.killedByOthers ? [] : (kill.drops || []))
+      .filter(d => d.takenBy && d.takenBy !== '__sell__');
+
+    if (ts > clearedAt) {
+      const keptHtml = keptItems.length
+        ? `<details style="margin-top:4px;margin-left:22px">
+            <summary style="font-size:10px;color:var(--text4);cursor:pointer;list-style:none;user-select:none">
+              🎒 ${keptItems.length} item${keptItems.length !== 1 ? 's' : ''} kept — expand
+            </summary>
+            <div style="margin-top:3px;display:flex;flex-direction:column;gap:2px">
+              ${keptItems.map(d => `<span style="font-size:10px;color:var(--text3)">· <b>${memberName(d.takenBy)}</b> kept <b>${d.name}</b></span>`).join('')}
+            </div>
+          </details>`
+        : '';
+      entries.push({ ts, icon: '⚔️', extraHtml: keptHtml, text:
+        kill.killedByOthers
+          ? `<b>${registerer}</b> recorded <b>${mvpLabel}</b> killed by others`
+          : `<b>${registerer}</b> recorded <b>${mvpLabel}</b> kill${partyNames ? ` · party: ${partyNames}` : ''}`
+      });
+    }
+
+    (kill.drops || []).forEach(d => {
+      if (d.takenBy === '__sell__') {
+        if (d.status === 'sold' && d.soldFor) {
+          const dropTs = d.soldAt ? new Date(d.soldAt).getTime() : ts;
+          if (dropTs > clearedAt)
+            entries.push({ ts: dropTs, icon: '💰', text:
+              `<b>${d.name}</b> sold for <b>${d.soldFor.toLocaleString()} z</b> (sell pool)`
+            });
+        } else if (ts > clearedAt) {
+          entries.push({ ts, icon: '🏷️', text: `<b>${d.name}</b> listed in sell pool` });
+        }
+      } else if (d.takenBy && d.status === 'sold' && d.soldFor) {
+        const dropTs = d.soldAt ? new Date(d.soldAt).getTime() : ts;
+        if (dropTs > clearedAt)
+          entries.push({ ts: dropTs, icon: '💰', text:
+            `<b>${memberName(d.takenBy)}</b> sold <b>${d.name}</b> for <b>${d.soldFor.toLocaleString()} z</b>`
+          });
+        // ← individual "kept" entries intentionally removed (now shown collapsed inside the kill entry)
+      }
+    });
+  });
+
+  // ── Action log entries (kill removals, clears) ───────────────────────────
+  getActionLog()
+    .filter(e => e.ts > clearedAt || e.icon === '🧹') // always show "log cleared" meta-entries
+    .forEach(e => entries.push(e));
+
+  if (!entries.length) {
+    container.innerHTML = '<div class="empty-state"><p>No activity recorded yet.</p></div>';
+    return;
+  }
+
+  entries.sort((a, b) => b.ts - a.ts);
+
+  container.innerHTML = entries.map(e => {
+    const time = new Date(e.ts).toLocaleString([], { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+    return `<div style="padding:7px 4px;border-bottom:1px solid var(--border3);font-size:12px">
+      <div style="display:flex;align-items:baseline;gap:10px">
+        <span style="flex-shrink:0;font-size:14px">${e.icon}</span>
+        <span style="flex:1">${e.text}</span>
+        <span style="flex-shrink:0;font-size:10px;color:var(--text4);white-space:nowrap">${time}</span>
       </div>
-      ${drops||naviStr ? `<div>${drops}${naviStr}</div>` : ''}
+      ${e.extraHtml || ''}
     </div>`;
   }).join('');
 }
 
 async function clearHistory() {
-  if (!confirm('Clear all kill history?')) return;
-  kills = [];
+  if (!isCurrentUserAdmin()) { alert('Only admins can clear the activity log.'); return; }
+  if (!confirm('Hide all current log entries? This sets a "cleared at" timestamp — underlying kill data is not deleted.')) return;
+
+  const now = Date.now();
+  localStorage.setItem(`mvp_log_cleared_${currentGroup.id}`, now.toString());
+
+  // Log the clear action itself (survives future clears since icon === '🧹')
+  appendActionLog({
+    ts: now, icon: '🧹',
+    text: `<b>${currentUser.characterName}</b> cleared the activity log`
+  });
+
+  renderHistory();
+}
+
+/* ════════════════════════════════════════
+   EDIT KILL
+════════════════════════════════════════ */
+function canEditKill(kill) {
+  if (!currentUser || !kill) return false;
+  if (kill.registeredBy === currentUser.id) return true;
+  return isCurrentUserAdmin();
+}
+
+function openEditKillModal(killId) {
+  const kill = kills.find(k => k.id === killId);
+  if (!kill || !canEditKill(kill)) return;
+  editKillCtx = { killId };
+  const mvp = MVP_DB.find(m => m.id === kill.mvpId);
+  const effMvp = mvp ? getEffectiveMvp(mvp) : null;
+
+  // Resolve specific bio MVP if applicable
+  const bioList = mvp?.bio3 ? BIO3_MVPS : mvp?.bio4 ? BIO4_MVPS : null;
+  const specificBio = bioList ? bioList.find(b => b.id === kill.specificMvpId) : null;
+  const headerMid = specificBio?.mid || mvp?.mid || '';
+
+  // MVP header
+  document.getElementById('ekm-img').src = headerMid
+    ? `https://static.divine-pride.net/images/mobs/png/${headerMid}.png` : '';
+  const displayName = specificBio?.name || kill.mvpName || mvp?.name || kill.mvpId;
+  document.getElementById('ekm-name').textContent = displayName;
+  document.getElementById('ekm-title').textContent = `Edit Kill — ${displayName}`;
+  document.getElementById('ekm-map-text').textContent = kill.map || '';
+
+  // Bio slot selector
+  const specificGroup = document.getElementById('ekm-specific-mvp-group');
+  const specificSel   = document.getElementById('ekm-specific-mvp');
+  if (mvp?.bioSlot && bioList) {
+    specificSel.innerHTML = '<option value="">— Unknown / not sure —</option>' +
+      bioList.map(b => `<option value="${b.id}">${b.name}</option>`).join('');
+    specificSel.value = kill.specificMvpId || '';
+    specificGroup.classList.remove('hidden');
+  } else {
+    specificGroup.classList.add('hidden');
+  }
+
+  // Map selector
+  const mapGroup = document.getElementById('ekm-map-group');
+  const mapSel   = document.getElementById('ekm-map-sel');
+  if (mvp && mvp.maps.length > 1) {
+    mapSel.innerHTML = mvp.maps.map(m => `<option value="${m}" ${m===kill.map?'selected':''}>${m}</option>`).join('');
+    mapGroup.classList.remove('hidden');
+  } else {
+    mapGroup.classList.add('hidden');
+  }
+
+  // Death time
+  const dt = new Date(kill.deathTime);
+  dt.setMinutes(dt.getMinutes() - dt.getTimezoneOffset());
+  document.getElementById('ekm-time').value = dt.toISOString().slice(0,16);
+  updateEkmTimeAgo();
+
+  // Coords
+  document.getElementById('ekm-coord-x').value = kill.coordX || '';
+  document.getElementById('ekm-coord-y').value = kill.coordY || '';
+
+  // Party chips
+  const killPartyIds = Array.isArray(kill.party) ? kill.party : (kill.party ? [kill.party] : []);
+  document.getElementById('ekm-party-chips').innerHTML = groupMembers.map(u => {
+    const sel = killPartyIds.includes(u.id) ? 'selected' : '';
+    return `<div class="member-chip ${sel}" style="cursor:pointer" data-id="${u.id}"
+      onclick="this.classList.toggle('selected');updateEkmQuickAssignButtons()">${u.characterName}</div>`;
+  }).join('');
+
+  // Build display drops: kill.drops first, then fill in any standard drops not yet present
+  const killDrops = (kill.drops || []).map(d => ({
+    name: d.name || resolveItemName(d.itemId) || '',
+    itemId: d.itemId || null,
+    takenBy: d.takenBy || ''
+  }));
+  const baseRaw = (mvp?.bioSlot && specificBio)
+    ? (serverConfig.mvpOverrides?.[specificBio.id]?.drops ?? specificBio.drops ?? [])
+    : (effMvp?.drops || []);
+  const displayDrops = [...killDrops];
+  for (const raw of baseRaw) {
+    const stdName = resolveItemName(raw);
+    const stdId   = !isNaN(parseInt(raw)) ? parseInt(raw) : null;
+    const alreadyIn = displayDrops.some(d =>
+      d.name === stdName || (stdId && d.itemId === stdId)
+    );
+    if (!alreadyIn) displayDrops.push({ name: stdName, itemId: stdId, takenBy: '' });
+  }
+
+  renderEkmDrops(displayDrops);
+  document.getElementById('edit-kill-modal').classList.remove('hidden');
+}
+
+function updateEkmTimeAgo() {
+  const el = document.getElementById('ekm-time-ago');
+  if (!el) return;
+  const val = document.getElementById('ekm-time')?.value;
+  if (!val) { el.textContent = ''; return; }
+  const diff = Date.now() - new Date(val).getTime();
+  if (isNaN(diff) || diff < 0) { el.textContent = ''; return; }
+  const s = Math.floor(diff/1000);
+  if (s < 60) el.textContent = `${s}s ago`;
+  else if (s < 3600) el.textContent = `${Math.floor(s/60)}m ago`;
+  else el.textContent = `${Math.floor(s/3600)}h ${Math.floor((s%3600)/60)}m ago`;
+}
+
+/* Render drop rows for the edit-kill modal (no checkboxes — empty = didn't drop) */
+function renderEkmDrops(drops) {
+  const members = getEffectiveMembers();
+  updateEkmQuickAssignButtons();
+  const container = document.getElementById('ekm-drops');
+  if (!drops || !drops.length) {
+    container.innerHTML = '<p style="font-size:11px;color:var(--text4);padding:6px 0">No items on record.</p>';
+    return;
+  }
+  container.innerHTML = drops.map(d => {
+    const name    = d.name || resolveItemName(d.itemId) || '';
+    const itemId  = d.itemId || '';
+    const takenBy = d.takenBy || '';
+    const imgUrl  = itemId ? itemImageUrl(itemId) : '';
+    const imgHtml = imgUrl ? `<img src="${imgUrl}" class="item-icon" onerror="this.style.display='none'">` : '';
+    const lastSold = itemId && itemDb[itemId]?.lastSoldPrice
+      ? `<span style="font-size:10px;color:var(--text4);margin-left:4px">${(itemDb[itemId].lastSoldPrice/1e6).toFixed(1)}m last</span>` : '';
+    const selOpts = `<option value="">— didn't drop —</option>`
+      + members.map(u => `<option value="${u.id}" ${takenBy===u.id?'selected':''}>${u.characterName}</option>`).join('')
+      + `<option value="__sell__" ${takenBy==='__sell__'?'selected':''}>🏷 Sell (shared pool)</option>`;
+    return `<div class="drop-row" data-item-id="${itemId}" data-item-name="${name.replace(/"/g,'&quot;')}">
+      ${imgHtml}<span class="drop-item-name" style="flex:1">${name}${lastSold}</span>
+      <select class="drop-taken-sel" style="min-width:140px">${selOpts}</select>
+    </div>`;
+  }).join('');
+}
+
+/* Rebuild "All kept by:" quick-assign buttons for the edit modal */
+function updateEkmQuickAssignButtons() {
+  const container = document.getElementById('ekm-quick-assign-btns');
+  if (!container) return;
+  const selectedIds = Array.from(
+    document.querySelectorAll('#ekm-party-chips .member-chip.selected')
+  ).map(el => el.dataset.id).filter(Boolean);
+  const members = getEffectiveMembers();
+  const present = selectedIds.length ? members.filter(u => selectedIds.includes(u.id)) : members;
+  container.innerHTML = present.map(u =>
+    `<div class="member-chip" style="cursor:pointer" onclick="keepAllByPlayerEkm('${u.id}')">${u.characterName}</div>`
+  ).join('') || '<span style="font-size:11px;color:var(--text4)">Select party members above first</span>';
+}
+
+/* Assign all drop rows in the edit modal to one player */
+function keepAllByPlayerEkm(userId) {
+  if (!userId) return;
+  document.querySelectorAll('#ekm-drops .drop-taken-sel').forEach(s => s.value = userId);
+}
+
+/* Rebuild drop list when bio-slot MVP selector changes */
+function updateEkmBioMvpDrops() {
+  if (!editKillCtx) return;
+  const kill = kills.find(k => k.id === editKillCtx.killId);
+  const baseMvp = MVP_DB.find(m => m.id === kill?.mvpId);
+  if (!baseMvp) return;
+
+  // Collect current assignments to preserve them after rebuild
+  const current = {};
+  document.querySelectorAll('#ekm-drops .drop-row').forEach(row => {
+    const key = (row.dataset.itemName || '').toLowerCase();
+    const takenBy = row.querySelector('.drop-taken-sel')?.value || '';
+    if (key) current[key] = takenBy;
+  });
+
+  const val = document.getElementById('ekm-specific-mvp').value;
+  const bioList = baseMvp.bio3 ? BIO3_MVPS : BIO4_MVPS;
+  const bioMvp  = bioList.find(b => b.id === val);
+
+  let rawDrops;
+  if (bioMvp) {
+    document.getElementById('ekm-img').src = `https://static.divine-pride.net/images/mobs/png/${bioMvp.mid}.png`;
+    document.getElementById('ekm-name').textContent = bioMvp.name;
+    rawDrops = serverConfig.mvpOverrides?.[bioMvp.id]?.drops ?? bioMvp.drops ?? [];
+  } else {
+    document.getElementById('ekm-img').src = `https://static.divine-pride.net/images/mobs/png/${baseMvp.mid}.png`;
+    document.getElementById('ekm-name').textContent = baseMvp.name;
+    rawDrops = getEffectiveMvp(baseMvp).drops || [];
+  }
+
+  const drops = rawDrops.map(d => {
+    const name   = resolveItemName(d);
+    const itemId = !isNaN(parseInt(d)) ? parseInt(d) : null;
+    return { name, itemId, takenBy: current[name.toLowerCase()] || '' };
+  });
+  renderEkmDrops(drops);
+}
+
+function ekmAddCustomDrop() {
+  const members = getEffectiveMembers();
+  const selOpts = `<option value="">— didn't drop —</option>`
+    + members.map(u => `<option value="${u.id}">${u.characterName}</option>`).join('')
+    + `<option value="__sell__">🏷 Sell (shared pool)</option>`;
+  const row = document.createElement('div');
+  row.className = 'drop-row';
+  row.dataset.itemName = '';
+  row.innerHTML = `
+    <input type="text" class="form-input" style="flex:1;padding:4px 8px;font-size:12px" placeholder="Item name…"
+      oninput="this.closest('.drop-row').dataset.itemName=this.value">
+    <select class="drop-taken-sel" style="min-width:140px">${selOpts}</select>`;
+  document.getElementById('ekm-drops').appendChild(row);
+}
+
+async function saveEditedKill() {
+  if (!editKillCtx) return;
+  const kill = kills.find(k => k.id === editKillCtx.killId);
+  if (!kill) return;
+  const deathTime = new Date(document.getElementById('ekm-time').value).getTime();
+  if (isNaN(deathTime)) { alert('Invalid death time.'); return; }
+  const coordX = parseInt(document.getElementById('ekm-coord-x').value) || null;
+  const coordY = parseInt(document.getElementById('ekm-coord-y').value) || null;
+
+  // Party
+  const party = Array.from(document.querySelectorAll('#ekm-party-chips .member-chip.selected')).map(el => el.dataset.id);
+
+  // Map (only if the map selector is visible)
+  const mapGroup = document.getElementById('ekm-map-group');
+  const mapSel   = document.getElementById('ekm-map-sel');
+  const map = (!mapGroup.classList.contains('hidden') && mapSel.value) ? mapSel.value : kill.map;
+
+  // Specific bio MVP
+  const specificGroup = document.getElementById('ekm-specific-mvp-group');
+  const specificMvpId = (!specificGroup.classList.contains('hidden'))
+    ? (document.getElementById('ekm-specific-mvp').value || null) : null;
+
+  // Drops — empty select means "didn't drop", so skip those rows
+  const drops = [];
+  document.querySelectorAll('#ekm-drops .drop-row').forEach(row => {
+    const takenBy = row.querySelector('.drop-taken-sel')?.value || '';
+    if (!takenBy) return;  // "— didn't drop —" → omit
+    const name = (row.dataset.itemName || '').trim()
+              || (row.querySelector('.drop-item-name')?.firstChild?.textContent || '').trim()
+              || (row.querySelector('input[type=text]')?.value || '').trim();
+    if (!name) return;
+    const itemId = row.dataset.itemId ? parseInt(row.dataset.itemId) : null;
+    drops.push({ name, takenBy, ...(itemId ? { itemId } : {}) });
+  });
+
+  const payload = { deathTime, coordX, coordY, party, map, drops };
+  if (specificMvpId !== null) payload.specificMvpId = specificMvpId;
+
+  const r = await API.put(`/api/kills/${editKillCtx.killId}?groupId=${currentGroup.id}`, payload);
+  if (r.error) { alert('Error saving: ' + r.error); return; }
+
+  // Keep timer in sync with the updated death time
+  const tKey = timerKey(kill.mvpId, kill.map);
+  if (timerData[tKey]) {
+    timerData[tKey].deathTime = deathTime;
+    await saveTimerToServer(tKey, { ...timerData[tKey], deathTime });
+  }
+
+  // Refresh kills list
+  const killsRes = await API.get(`/api/kills?groupId=${currentGroup.id}`);
+  if (killsRes && !killsRes.error) kills = (Array.isArray(killsRes) ? killsRes : [killsRes]).map(normalizeKill);
+
+  closeModal('edit-kill-modal');
+  editKillCtx = null;
+  renderTimers();
   renderHistory();
 }
 
@@ -1785,7 +4061,14 @@ function setFilter(f, el) {
 /* ════════════════════════════════════════
    BOOT
 ════════════════════════════════════════ */
-loadTheme();
+// When topbar Sign Out is clicked directly (not via doLogout), clean up app state
+document.addEventListener('topbar:logout', function() {
+  if (currentUser === null) return; // already handled by doLogout()
+  if (_pollInterval) clearInterval(_pollInterval);
+  localStorage.removeItem('mvp_group_id');
+  currentUser = null; currentGroup = null;
+  showAuthScreen();
+});
 initApp();
 setInterval(renderTimers, 1000);
 </script>

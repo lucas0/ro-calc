@@ -3,7 +3,17 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<title>RO Refine Calculator</title>
+<title>RO Tools — Refine Calculator &amp; MVP Tracker</title>
+<meta name="description" content="Compute the best path to +N for any Ragnarok Online equipment. Success probability, expected cost, and ore sequence for Pre-Renewal, Renewal, and Hercules servers.">
+<meta property="og:type" content="website">
+<meta property="og:url" content="https://ro-calc.com/">
+<meta property="og:title" content="RO Tools — Refine Calculator &amp; MVP Tracker">
+<meta property="og:description" content="Compute the best path to +N for any Ragnarok Online equipment. Success probability, expected cost, and ore sequence for Pre-Renewal, Renewal, and Hercules servers.">
+<meta property="og:image" content="https://ro-calc.com/og-image.png">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="RO Tools — Refine Calculator &amp; MVP Tracker">
+<meta name="twitter:description" content="Compute the best path to +N for any Ragnarok Online equipment. Success probability, expected cost, and ore sequence.">
+<meta name="twitter:image" content="https://ro-calc.com/og-image.png">
 <link rel="icon" type="image/x-icon" href="favicon.ico">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
@@ -117,97 +127,46 @@
 
 /* ══ Base ══ */
 *{box-sizing:border-box;margin:0;padding:0}
-body{font-family:sans-serif;font-size:14px;color:var(--text);background:var(--bg);padding:20px;transition:background .2s,color .2s}
+body{font-family:sans-serif;font-size:14px;color:var(--text);background:var(--bg);padding:0;transition:background .2s,color .2s}
 h2{font-size:18px;font-weight:600;margin-bottom:4px;color:var(--text)}
 .subtitle{font-size:13px;color:var(--text4);margin-bottom:16px}
 h3{font-size:14px;font-weight:600;margin-bottom:10px;color:var(--text2)}
 .section{margin-bottom:24px}
 
-/* ══ Top tool nav ══ */
-.tool-nav {
-  display: flex;
-  align-items: center;
-  gap: 0;
-  background: var(--bg3);
-  border-bottom: 1px solid var(--border);
-  padding: 0 20px;
-  height: 36px;
-  position: sticky;
-  top: 0;
-  z-index: 300;
-}
-.tool-nav-brand {
-  font-size: 13px;
-  font-weight: 800;
-  color: var(--text2);
-  margin-right: 24px;
-  letter-spacing: 0.3px;
-  white-space: nowrap;
-}
-.tool-nav-links {
+/* ══ Top tool nav — styles injected by /topbar.js ══ */
+
+/* ══ Bookmark tabs (now in secondary top-bar) ══ */
+.bookmark-strip { display: none; } /* legacy — hidden */
+.view-tabs {
   display: flex;
   align-items: stretch;
+  gap: 0;
   height: 100%;
-  gap: 2px;
+  padding-left: 8px;
 }
-.tool-nav-item {
+.view-tab {
   display: flex;
   align-items: center;
   padding: 0 16px;
   font-size: 12px;
-  font-weight: 600;
-  color: var(--text4);
-  text-decoration: none;
-  border-bottom: 2px solid transparent;
-  cursor: pointer;
-  transition: color .15s, border-color .15s;
-  white-space: nowrap;
-  user-select: none;
-}
-.tool-nav-item:hover { color: var(--text); }
-.tool-nav-item.active { color: var(--text); border-bottom-color: var(--accent, #6c63ff); }
-
-/* ══ Bookmark tabs (right edge) ══ */
-.bookmark-strip {
-  position: fixed;
-  right: 0;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-  z-index: 200;
-}
-.bm-tab {
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
-  transform: rotate(180deg);
-  padding: 16px 8px;
-  background: var(--bm-inactive-bg);
-  border: 1px solid var(--border);
-  border-right: none;
-  border-radius: 6px 0 0 6px;
-  cursor: pointer;
-  font-size: 12px;
   font-weight: 700;
   color: var(--text3);
-  letter-spacing: 0.8px;
+  background: none;
+  border: none;
+  border-bottom: 2px solid transparent;
+  cursor: pointer;
   text-transform: uppercase;
-  transition: all .15s;
-  user-select: none;
-  box-shadow: -2px 0 6px rgba(0,0,0,0.06);
+  letter-spacing: 0.5px;
+  transition: color .15s, border-color .15s;
+  white-space: nowrap;
+  margin-bottom: -1px;
 }
-.bm-tab:hover { background: var(--bg2); color: var(--text); }
-.bm-tab.active {
-  background: var(--bm-active-bg);
-  color: var(--text);
-  border-color: var(--border);
-  box-shadow: -3px 0 10px rgba(0,0,0,0.10);
-}
+.view-tab:hover { color: var(--text); }
+.view-tab.active { color: var(--text); border-bottom-color: #5a7de8; }
 
 /* ══ Top bar ══ */
-.top-bar{display:flex;align-items:flex-start;justify-content:space-between;margin-bottom:4px;max-width:1800px;margin-left:auto;margin-right:auto}
-.top-bar-right{display:flex;align-items:center;gap:10px}
+.top-bar{display:flex;align-items:stretch;justify-content:space-between;background:var(--bg2);border-bottom:1px solid var(--border);padding:0;height:44px;position:sticky;top:42px;z-index:200;gap:0}
+.top-bar-right{display:flex;align-items:center;gap:10px;padding:0 14px;border-left:1px solid var(--border)}
 .theme-toggle{display:flex;align-items:center;gap:7px;cursor:pointer;background:var(--toggle-bg);border:1px solid var(--toggle-br);border-radius:20px;padding:5px 12px;font-size:12px;font-weight:600;color:var(--text3);transition:background .2s;user-select:none;white-space:nowrap}
 .theme-toggle:hover{color:var(--text)}
 .toggle-track{width:28px;height:16px;background:var(--border2);border-radius:8px;position:relative;transition:background .2s;flex-shrink:0}
@@ -379,85 +338,232 @@ tr:last-child td{border-bottom:none}
 .server-mode-sel{font-size:12px;font-weight:600;color:var(--text);background:var(--bg2);border:1px solid var(--border3);border-radius:6px;padding:5px 8px;cursor:pointer;outline:none}
 .server-mode-sel:focus{border-color:#5a7de8}
 .hidden{display:none!important}
+/* ══ Tool nav right (shared controls) ══ */
+.tool-nav-right{display:flex;align-items:center;gap:8px;margin-left:auto;padding-left:12px}
+/* ── tnr-* classes provided by /topbar.js ── */
+/* ══ Ore prices popover ══ */
+.ore-popover-wrap{position:relative}
+.ore-popover-btn{display:flex;align-items:center;gap:6px;padding:5px 12px;border-radius:6px;border:1px solid var(--border3);background:var(--bg3);font-size:12px;font-weight:600;color:var(--text);cursor:pointer;white-space:nowrap;transition:background .15s;line-height:1}
+.ore-popover-btn:hover{border-color:var(--text4)}
+.ore-popover{position:absolute;top:calc(100% + 6px);right:0;background:var(--bg2);border:1px solid var(--border);border-radius:10px;padding:14px 16px 12px;box-shadow:0 8px 24px rgba(0,0,0,.18);z-index:400;display:none}
+.ore-popover.open{display:block}
+.ore-popover .shared-grid{grid-template-columns:repeat(4,1fr);min-width:580px}
+.ore-popover-fee{font-size:11px;color:var(--text5);padding:4px 0 2px;margin-top:10px;line-height:1.5}
+/* ══ Content wrapper ══ */
+.content-wrap{max-width:1400px;margin:0 auto;padding:20px}
+#calc-anchor{scroll-margin-top:86px}
+
+/* ══ Hero ══ */
+.hero{background:linear-gradient(150deg,#1a1d2e 0%,#1e2445 55%,#252840 100%);padding:52px 24px 60px;text-align:center;border-bottom:2px solid #5a7de8}
+.hero-eyebrow{font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:1.8px;color:#5a7de8;margin-bottom:14px}
+.hero-title{font-size:44px;font-weight:900;color:#fff;line-height:1.08;margin-bottom:12px;letter-spacing:-.5px}
+.hero-subtitle{font-size:17px;color:rgba(255,255,255,.62);max-width:500px;margin:0 auto 30px;line-height:1.6}
+.hero-ctas{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;margin-bottom:44px}
+.hero-cta-primary{padding:13px 28px;border-radius:8px;background:#5a7de8;color:#fff;font-size:14px;font-weight:700;border:none;cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:background .15s,transform .1s,box-shadow .15s;box-shadow:0 4px 16px rgba(90,125,232,.4)}
+.hero-cta-primary:hover{background:#4a6dd8;transform:translateY(-2px);box-shadow:0 6px 20px rgba(90,125,232,.55)}
+.hero-cta-secondary{padding:13px 28px;border-radius:8px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.22);color:#fff;font-size:14px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:background .15s,transform .1s}
+.hero-cta-secondary:hover{background:rgba(255,255,255,.16);transform:translateY(-2px)}
+.hero-media{max-width:900px;margin:0 auto;border-radius:12px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.1)}
+.hero-media img,.hero-media video{width:100%;display:block}
+@media(max-width:600px){.hero{padding:36px 16px 44px}.hero-title{font-size:32px}.hero-subtitle{font-size:15px}}
 </style>
 </head>
 <body>
 
 <!-- ══ Top tool nav ══ -->
-<div class="tool-nav">
-  <span class="tool-nav-brand">⚔️ RO Tools</span>
-  <div class="tool-nav-links">
-    <span class="tool-nav-item active">🔧 Refine Calculator</span>
-    <a class="tool-nav-item" href="/mvp">⏱ MVP Tracker</a>
+<script>
+(function(){
+'use strict';
+var API_BASE=(location.port==='8766'||location.port==='8080')?'http://localhost:9500':'';
+var CSS='.tool-nav{display:flex;align-items:center;background:#1a1d2e;border-bottom:2px solid #5a7de8;padding:0 20px;height:42px;position:sticky;top:0;z-index:300;gap:0;box-shadow:0 2px 8px rgba(0,0,0,.18)}'
++'.tool-nav-brand{font-size:14px;font-weight:800;color:#fff;padding-right:20px;border-right:1px solid rgba(255,255,255,.15);letter-spacing:.4px;white-space:nowrap;user-select:none;text-decoration:none;flex-shrink:0}'
++'.tool-nav-links{display:flex;align-items:stretch;height:100%;padding-left:8px;gap:2px}'
++'.tool-nav-item{display:flex;align-items:center;padding:0 14px;font-size:12px;font-weight:600;color:rgba(255,255,255,.5);text-decoration:none;border-bottom:2px solid transparent;cursor:pointer;transition:color .15s,background .15s;white-space:nowrap;user-select:none;border-radius:4px 4px 0 0;margin-bottom:-2px}'
++'.tool-nav-item:hover{color:rgba(255,255,255,.85);background:rgba(255,255,255,.08)}'
++'.tool-nav-item.active{color:#fff;background:rgba(90,125,232,.2);border-bottom-color:#5a7de8}'
++'.tnr-coffee{position:absolute;left:50%;transform:translateX(-50%);display:flex;align-items:center;gap:5px;padding:5px 13px;background:#FFDD00;border:none;border-radius:20px;color:#000;text-decoration:none;font-size:11px;font-weight:800;white-space:nowrap;cursor:pointer;z-index:1;transition:background .15s,transform .15s}'
++'.tnr-coffee:hover{background:#FFC700;transform:translateX(-50%) scale(1.04)}'
++'.tool-nav-right{display:flex;align-items:center;gap:6px;margin-left:auto;padding-left:12px;flex-shrink:0}'
++'.tnr-divider{width:1px;height:18px;background:rgba(255,255,255,.15);flex-shrink:0}'
++'.tnr-sel-wrap{display:flex;align-items:center;gap:5px}'
++'.tnr-sel-lbl{font-size:10px;font-weight:600;text-transform:uppercase;letter-spacing:.4px;color:rgba(255,255,255,.5);white-space:nowrap}'
++'.tnr-sel{font-size:12px;font-weight:600;color:#fff;background:rgba(255,255,255,.1);border:1px solid rgba(255,255,255,.2);border-radius:5px;padding:4px 8px;cursor:pointer;outline:none}'
++'.tnr-sel option{background:#1a1d2e;color:#fff}'
++'.tnr-user{display:flex;align-items:center;gap:6px;padding:4px 9px;border-radius:5px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);font-size:11px;font-weight:600;color:rgba(255,255,255,.75);flex-shrink:0}'
++'.tnr-avatar{width:20px;height:20px;border-radius:50%;background:#5a7de8;display:flex;align-items:center;justify-content:center;font-size:9px;font-weight:700;color:#fff;flex-shrink:0;overflow:hidden}'
++'.tnr-icon-btn{display:flex;align-items:center;justify-content:center;width:28px;height:28px;border-radius:6px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);font-size:13px;color:rgba(255,255,255,.7);cursor:pointer;transition:background .15s;text-decoration:none;flex-shrink:0;user-select:none;padding:0}'
++'.tnr-icon-btn:hover{background:rgba(255,255,255,.18);color:#fff}'
++'.tnr-signout{background:rgba(200,40,40,.7);border-color:rgba(200,40,40,.4);color:#fff}'
++'.tnr-signout:hover{background:rgba(220,50,50,.95)}'
++'#tnr-auth-slot{display:flex;align-items:center;gap:6px}'
++'.tnr-tip{position:relative}'
++'.tnr-tip[data-tip]::after{content:attr(data-tip);position:absolute;top:calc(100% + 7px);left:50%;transform:translateX(-50%);background:rgba(15,17,30,.93);color:#e8eaf6;font-size:10px;font-weight:600;white-space:nowrap;padding:4px 8px;border-radius:4px;pointer-events:none;opacity:0;transition:opacity .15s;z-index:2000;letter-spacing:.2px}'
++'.tnr-tip[data-tip]:hover::after{opacity:1}';
+
+function isMvp(){return location.pathname==='/mvp'||location.pathname.startsWith('/mvp/')||location.pathname.includes('mvp-tracker');}
+function getStoredType(){return localStorage.getItem('ro_server_type')||localStorage.getItem('roCalcServerMode')||localStorage.getItem('mvp_server_type')||'pre-re';}
+function getStoredTheme(){return localStorage.getItem('theme')||localStorage.getItem('mvp_theme')||localStorage.getItem('ro-calc-theme')||'light';}
+
+function injectCSS(){if(document.getElementById('topbar-css'))return;var s=document.createElement('style');s.id='topbar-css';s.textContent=CSS;document.head.insertBefore(s,document.head.firstChild);}
+
+function applyThemeInternal(t){
+  document.documentElement.setAttribute('data-theme',t==='dark'?'dark':'light');
+  var btn=document.getElementById('tnr-theme-btn');if(btn)btn.textContent=t==='dark'?'☀️':'🌙';
+}
+
+function setTypeInternal(val){
+  localStorage.setItem('ro_server_type',val);
+  document.dispatchEvent(new CustomEvent('topbar:servertype',{detail:val}));
+}
+
+function buildNav(){
+  var mvp=isMvp();
+  var t=getStoredType();
+  var nav=document.createElement('div');
+  nav.className='tool-nav';nav.id='tool-nav';
+  nav.style.cssText='position:sticky!important;top:0!important;z-index:300!important';
+  nav.innerHTML=
+    '<a class="tool-nav-brand" href="/">⚔️ RO Tools</a>'+
+    '<div class="tool-nav-links">'+
+      '<a class="tool-nav-item'+(mvp?'':' active')+'" href="/">🔧 Refine Calculator</a>'+
+      '<a class="tool-nav-item'+(mvp?' active':'')+'" href="/mvp">⏱ MVP Tracker</a>'+
+    '</div>'+
+    '<a href="https://buymeacoffee.com/lucazedo" target="_blank" class="tnr-coffee tnr-tip" data-tip="Support the project" style="position:absolute!important;left:50%!important;transform:translateX(-50%)!important">☕ Buy me a coffee</a>'+
+    '<div class="tool-nav-right" id="tnr-right">'+
+      '<div class="tnr-sel-wrap">'+
+        '<span class="tnr-sel-lbl">Type</span>'+
+        '<select id="tnr-type-sel" class="tnr-sel">'+
+          '<option value="pre-re"'+(t==='pre-re'?' selected':'')+'>Pre-Renewal</option>'+
+          '<option value="hercules"'+(t==='hercules'?' selected':'')+'>Hercules</option>'+
+          '<option value="re"'+(t==='re'?' selected':'')+'>Renewal</option>'+
+        '</select>'+
+      '</div>'+
+      '<div class="tnr-divider"></div>'+
+      '<div id="tnr-auth-slot"></div>'+
+      '<div class="tnr-divider" id="tnr-post-auth-div"></div>'+
+      '<a href="https://forms.gle/Y5v2BzeCTe7XeErUA" target="_blank" class="tnr-icon-btn tnr-tip" data-tip="Send Feedback">💬</a>'+
+      '<div class="tnr-icon-btn tnr-tip" id="tnr-theme-btn" data-tip="Toggle Theme" onclick="TopBar.toggleTheme()">🌙</div>'+
+    '</div>';
+  nav.querySelector('#tnr-type-sel').addEventListener('change',function(){setTypeInternal(this.value);});
+  return nav;
+}
+
+function renderUser(user){
+  var slot=document.getElementById('tnr-auth-slot');
+  var pd=document.getElementById('tnr-post-auth-div');
+  if(!slot)return;
+  var name=user.discordUsername||user.characterName||'?';
+  var av=name[0].toUpperCase();
+  if(user.discordAvatar&&user.discordId)av='<img src="https://cdn.discordapp.com/avatars/'+user.discordId+'/'+user.discordAvatar+'.png?size=32" style="width:20px;height:20px;border-radius:50%;object-fit:cover;display:block">';
+  slot.innerHTML='<div class="tnr-user tnr-tip" data-tip="'+name+'"><div class="tnr-avatar">'+av+'</div><span>'+name+'</span></div>'
+    +'<button class="tnr-icon-btn tnr-signout tnr-tip" data-tip="Sign Out" onclick="TopBar.logout()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></button>';
+  if(pd)pd.style.display='';
+}
+
+function renderSignIn(){
+  var slot=document.getElementById('tnr-auth-slot');
+  var pd=document.getElementById('tnr-post-auth-div');
+  if(!slot)return;
+  slot.innerHTML='<a href="/mvp" class="tnr-icon-btn tnr-tip" data-tip="Sign In" style="width:auto;padding:0 9px;font-size:11px;font-weight:600;color:rgba(255,255,255,.8)">🔑 Sign In</a>';
+  if(pd)pd.style.display='';
+}
+
+async function checkAuth(){
+  var token=localStorage.getItem('mvp_token');
+  if(!token){renderSignIn();document.dispatchEvent(new CustomEvent('topbar:auth',{detail:null}));return;}
+  try{
+    var r=await fetch(API_BASE+'/api/auth/me',{headers:{'X-Session-Token':token}});
+    if(r.ok){var u=await r.json();renderUser(u);document.dispatchEvent(new CustomEvent('topbar:auth',{detail:u}));return;}
+  }catch(e){}
+  localStorage.removeItem('mvp_token');renderSignIn();document.dispatchEvent(new CustomEvent('topbar:auth',{detail:null}));
+}
+
+window.TopBar={
+  apiBase:API_BASE,
+  getServerType:function(){return getStoredType();},
+  setServerType:function(val){var s=document.getElementById('tnr-type-sel');if(s)s.value=val;setTypeInternal(val);},
+  showUser:function(user){renderUser(user);},
+  showSignIn:function(){renderSignIn();},
+  toggleTheme:function(){
+    var cur=document.documentElement.getAttribute('data-theme')||'light';
+    var next=cur==='dark'?'light':'dark';
+    localStorage.setItem('theme',next);
+    applyThemeInternal(next);
+    document.dispatchEvent(new CustomEvent('topbar:theme',{detail:next}));
+  },
+  logout:async function(){
+    var token=localStorage.getItem('mvp_token');
+    if(token){try{await fetch(API_BASE+'/api/auth/logout',{method:'POST',headers:{'X-Session-Token':token}});}catch(e){}localStorage.removeItem('mvp_token');}
+    renderSignIn();document.dispatchEvent(new CustomEvent('topbar:logout',{}));
+  }
+};
+
+function init(){
+  injectCSS();
+  var nav=buildNav();
+  document.body.insertBefore(nav,document.body.firstChild);
+  applyThemeInternal(getStoredTheme());
+  checkAuth();
+}
+if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded',init);}else{init();}
+})();
+</script>
+
+<!-- ══ Hero ══ -->
+<section class="hero" id="hero">
+  <div class="hero-eyebrow">Ragnarok Online Toolkit</div>
+  <h1 class="hero-title">⚔️ RO Tools</h1>
+  <p class="hero-subtitle">Refine success calculator + group MVP tracker with loot splits, Discord notifications, and real-time timers.</p>
+  <div class="hero-ctas">
+    <button class="hero-cta-primary" onclick="document.getElementById('calc-anchor').scrollIntoView({behavior:'smooth'})">🔧 Open Calculator</button>
+    <a href="/mvp" class="hero-cta-secondary">⏱ Try MVP Tracker</a>
   </div>
-</div>
+  <!-- hero-demo.gif: 10–15 s screen recording at ~900 px wide (kill modal → loot tab → payments) -->
+  <div class="hero-media">
+    <img src="/hero-demo.gif" alt="MVP Tracker demo — kill registration, loot splits and payments" onerror="this.parentElement.style.display='none'">
+  </div>
+</section>
 
-<!-- ══ Bookmark tabs ══ -->
-<div class="bookmark-strip">
-  <button class="bm-tab active" id="bm-simple" onclick="setView('simple')">Simple</button>
-  <button class="bm-tab" id="bm-advanced" onclick="setView('advanced')">Advanced</button>
-  <button class="bm-tab" id="bm-profit" onclick="setView('profit')">Profit / Loss</button>
-</div>
-
-<!-- ══ Global top bar ══ -->
-<div class="top-bar" style="max-width:1800px;margin:0 auto 12px">
-  <div>
-    <h2>RO Refine Calculator</h2>
-    <p class="subtitle" id="page-subtitle">Quick cost estimate · Use the bookmarks on the right to switch views</p>
+<!-- ══ Secondary bar: view tabs + ore prices ══ -->
+<div class="top-bar">
+  <div class="view-tabs">
+    <button class="view-tab active" id="bm-simple" onclick="setView('simple')">Simple</button>
+    <button class="view-tab" id="bm-advanced" onclick="setView('advanced')">Advanced</button>
+    <button class="view-tab" id="bm-profit" onclick="setView('profit')">Profit / Loss</button>
   </div>
   <div class="top-bar-right">
-    <div class="server-mode-wrap">
-      <label class="server-mode-lbl">Server</label>
-      <select id="server-mode" class="server-mode-sel" onchange="setServerMode(this.value)">
-        <option value="pre-re">Pre-Renewal (rAthena)</option>
-        <option value="hercules">Pre-Renewal (Hercules)</option>
-        <option value="re">Renewal (rAthena / Hercules)</option>
-      </select>
-    </div>
-    <a href="https://buymeacoffee.com/lucazedo" target="_blank" class="coffee-btn-top"><span>☕</span><span>Buy me a coffee</span></a>
-    <a href="https://forms.gle/Y5v2BzeCTe7XeErUA" target="_blank" class="feedback-btn"><span>💬</span><span>Send Feedback</span></a>
-    <div class="theme-toggle" onclick="toggleTheme()">
-      <span id="theme-icon">🌙</span>
-      <div class="toggle-track"><div class="toggle-thumb"></div></div>
-      <span id="theme-label">Dark</span>
+    <div class="ore-popover-wrap">
+      <button class="ore-popover-btn" onclick="toggleOrePopover(event)">⛏ Ore Prices ▾</button>
+      <div class="ore-popover" id="ore-popover">
+        <div class="shared-grid">
+          <div class="price-card elu">
+            <label><img src="https://static.divine-pride.net/images/items/item/985.png" alt="">Elunium</label>
+            <input type="text" inputmode="numeric" id="s-elu" value="7,000" class="zeny-input" oninput="onSharedChange()">
+            <div class="sublabel">Armor / Shadow</div>
+          </div>
+          <div class="price-card ori">
+            <label><img src="https://static.divine-pride.net/images/items/item/984.png" alt="">Oridecon</label>
+            <input type="text" inputmode="numeric" id="s-ori" value="7,000" class="zeny-input" oninput="onSharedChange()">
+            <div class="sublabel">All Weapon levels</div>
+          </div>
+          <div class="price-card enrelu">
+            <label><img src="https://static.divine-pride.net/images/items/item/7619.png" alt="">Enriched Elunium</label>
+            <input type="text" inputmode="numeric" id="s-enr-elu" value="1,500,000" class="zeny-input" oninput="onSharedChange()">
+            <div class="sublabel">Armor / Shadow enriched</div>
+          </div>
+          <div class="price-card enrori">
+            <label><img src="https://static.divine-pride.net/images/items/item/7620.png" alt="">Enriched Oridecon</label>
+            <input type="text" inputmode="numeric" id="s-enr-ori" value="1,500,000" class="zeny-input" oninput="onSharedChange()">
+            <div class="sublabel">All Weapon levels enriched</div>
+          </div>
+        </div>
+        <div class="ore-popover-fee">NPC fees applied automatically — Regular: Armor 2,000z · Wep Lv1 50z · Lv2 200z · Lv3 5,000z · Lv4 20,000z &nbsp;·&nbsp; Enriched (Suhnbi): always 2,000z</div>
+      </div>
     </div>
   </div>
 </div>
 
-<!-- ══ Global ore prices (collapsible, always visible) ══ -->
-<div class="ore-panel">
-  <div class="ore-panel-hdr" onclick="toggleOre()">
-    <h3>Ore Prices</h3>
-    <span id="ore-arrow">▼</span>
-  </div>
-  <div id="ore-body" class="ore-panel-body">
-    <div class="shared-grid">
-      <div class="price-card elu">
-        <label><img src="https://static.divine-pride.net/images/items/item/985.png" alt="">Elunium</label>
-        <input type="text" inputmode="numeric" id="s-elu" value="7,000" class="zeny-input" oninput="onSharedChange()">
-        <div class="sublabel">Armor / Shadow</div>
-      </div>
-      <div class="price-card ori">
-        <label><img src="https://static.divine-pride.net/images/items/item/984.png" alt="">Oridecon</label>
-        <input type="text" inputmode="numeric" id="s-ori" value="7,000" class="zeny-input" oninput="onSharedChange()">
-        <div class="sublabel">All Weapon levels</div>
-      </div>
-      <div class="price-card enrelu">
-        <label><img src="https://static.divine-pride.net/images/items/item/7619.png" alt="">Enriched Elunium</label>
-        <input type="text" inputmode="numeric" id="s-enr-elu" value="1,500,000" class="zeny-input" oninput="onSharedChange()">
-        <div class="sublabel">Armor / Shadow enriched</div>
-      </div>
-      <div class="price-card enrori">
-        <label><img src="https://static.divine-pride.net/images/items/item/7620.png" alt="">Enriched Oridecon</label>
-        <input type="text" inputmode="numeric" id="s-enr-ori" value="1,500,000" class="zeny-input" oninput="onSharedChange()">
-        <div class="sublabel">All Weapon levels enriched</div>
-      </div>
-    </div>
-  </div>
-  <div id="ore-fee-note" class="ore-fee-note">
-    NPC fees applied automatically — Regular: Armor 2,000z · Wep Lv1 50z · Lv2 200z · Lv3 5,000z · Lv4 20,000z &nbsp;·&nbsp; Enriched (Suhnbi): always 2,000z
-  </div>
-</div>
+<div class="content-wrap" id="calc-anchor">
 
 <!-- ══════════════════════════════════════
      SIMPLE VIEW
@@ -655,6 +761,8 @@ tr:last-child td{border-bottom:none}
   </div>
 </div><!-- .column -->
 </div><!-- #view-profit -->
+
+</div><!-- .content-wrap -->
 
 <div class="footer">
   <div class="footer-grid">
@@ -855,7 +963,21 @@ function setView(v) {
   if (v === 'profit') { calcProfit(); }
 }
 
-/* ── Ore panel toggle ── */
+/* ── Ore prices popover ── */
+function toggleOrePopover(e) {
+  e && e.stopPropagation();
+  document.getElementById('ore-popover').classList.toggle('open');
+}
+document.addEventListener('click', function(e) {
+  const pop = document.getElementById('ore-popover');
+  if (pop && pop.classList.contains('open')) {
+    if (!pop.closest('.ore-popover-wrap')?.contains(e.target)) {
+      pop.classList.remove('open');
+    }
+  }
+});
+
+/* ── Ore panel toggle (legacy — kept for compat) ── */
 function toggleOre() {
   const body = document.getElementById('ore-body');
   const note = document.getElementById('ore-fee-note');
@@ -865,26 +987,8 @@ function toggleOre() {
   arrow.style.transform = hidden ? 'rotate(-90deg)' : '';
 }
 
-/* ── Theme toggle ── */
-function toggleTheme() {
-  const html = document.documentElement;
-  const isDark = html.getAttribute('data-theme') === 'dark';
-  html.setAttribute('data-theme', isDark ? 'light' : 'dark');
-  const icon = isDark ? '🌙' : '☀️', label = isDark ? 'Dark' : 'Light';
-  const ti = document.getElementById('theme-icon'); if(ti) ti.textContent = icon;
-  const tl = document.getElementById('theme-label'); if(tl) tl.textContent = label;
-  localStorage.setItem('ro-calc-theme', isDark ? 'light' : 'dark');
-}
-(function(){
-  const saved = localStorage.getItem('ro-calc-theme');
-  if(saved === 'dark'){
-    document.documentElement.setAttribute('data-theme','dark');
-    document.addEventListener('DOMContentLoaded', () => {
-      const ti = document.getElementById('theme-icon'); if(ti) ti.textContent='☀️';
-      const tl = document.getElementById('theme-label'); if(tl) tl.textContent='Light';
-    });
-  }
-})();
+/* ── Theme — delegated to topbar.js ── */
+function toggleTheme() { if (window.TopBar) TopBar.toggleTheme(); }
 
 /* ── Save/Load ── */
 function saveInputs(){
@@ -1188,8 +1292,17 @@ function simpleCalc() {
 /* ── Init ── */
 loadInputs();
 setServerMode(serverMode); // sets REG/ENR from REFINE_DB and triggers initial calc
-document.getElementById('server-mode').value = serverMode;
 setView('simple');
+
+// Sync with shared topbar server type selector
+document.addEventListener('topbar:servertype', function(e) {
+  setServerMode(e.detail);
+});
+// On load, sync serverMode from topbar's stored value (may differ from old roCalcServerMode key)
+document.addEventListener('DOMContentLoaded', function() {
+  const stored = localStorage.getItem('ro_server_type');
+  if (stored && stored !== serverMode) setServerMode(stored);
+});
 </script>
 </body>
 </html>

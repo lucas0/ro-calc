@@ -1,0 +1,13 @@
+# RO MVP Tracker - Discord Bot dependencies
+# Install with: pip install -r requirements_bot.txt
+#
+# Note: easyocr pulls in PyTorch (~2 GB download on first install).
+# If you already have PyTorch installed (e.g. CUDA version), install the
+# other packages first and let pip reuse your existing torch:
+#   pip install "discord.py>=2.3" requests Pillow easyocr --no-deps
+#   pip install easyocr
+
+discord.py>=2.3.0
+easyocr>=1.7.0
+requests>=2.28.0
+Pillow>=10.0.0

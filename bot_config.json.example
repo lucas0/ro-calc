@@ -1,0 +1,35 @@
+{
+  "_comment": "Copy this file to bot_config.json and fill in your values.",
+
+  "discord_token": "YOUR_BOT_TOKEN_HERE",
+
+  "bot_secret": "CHANGE_THIS_TO_A_RANDOM_STRING",
+
+  "backend_url": "http://localhost:9500",
+
+  "confidence_min": 0.5,
+
+  "gpu_ocr": false,
+
+  "groups": [
+    {
+      "_comment": "Add one entry per tracker group. Find your group_id in the tracker URL.",
+      "group_id": "YOUR_GROUP_ID_HERE",
+      "channel_ids": [
+        "YOUR_DISCORD_CHANNEL_ID_HERE"
+      ]
+    }
+  ],
+
+  "_setup_notes": [
+    "1. Go to https://discord.com/developers/applications and create a new Application.",
+    "2. Under Bot, create a bot user and copy the token into discord_token above.",
+    "3. Under Bot > Privileged Gateway Intents, enable MESSAGE CONTENT INTENT.",
+    "4. Under OAuth2 > URL Generator, select scopes: bot. Select permissions: Read Messages, Send Messages, Add Reactions, Embed Links. Copy the URL and invite the bot to your server.",
+    "5. Right-click the channel you want the bot to watch, copy its ID (enable Developer Mode in Discord settings first), and paste into channel_ids.",
+    "6. Find your group_id: open the tracker, open your group, copy the ID from the URL or from the invite code settings.",
+    "7. Set bot_secret to any random string (e.g. output of: python -c \"import secrets; print(secrets.token_hex(32))\"). This same secret is read by the backend to authenticate bot requests.",
+    "8. Run: pip install -r requirements_bot.txt",
+    "9. Run: python discord_bot.py"
+  ]
+}
