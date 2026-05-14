@@ -363,6 +363,8 @@ tr:last-child td{border-bottom:none}
 .hero-cta-primary:hover{background:#4a6dd8;transform:translateY(-2px);box-shadow:0 6px 20px rgba(90,125,232,.55)}
 .hero-cta-secondary{padding:13px 28px;border-radius:8px;background:rgba(255,255,255,.08);border:1.5px solid rgba(255,255,255,.22);color:#fff;font-size:14px;font-weight:700;text-decoration:none;display:inline-flex;align-items:center;gap:6px;transition:background .15s,transform .1s}
 .hero-cta-secondary:hover{background:rgba(255,255,255,.16);transform:translateY(-2px)}
+.hero-cta-ghost{padding:13px 20px;border-radius:8px;background:transparent;border:none;color:rgba(255,255,255,.45);font-size:13px;font-weight:600;text-decoration:none;display:inline-flex;align-items:center;gap:5px;transition:color .15s}
+.hero-cta-ghost:hover{color:rgba(255,255,255,.8)}
 .hero-media{max-width:900px;margin:0 auto;border-radius:12px;overflow:hidden;box-shadow:0 24px 64px rgba(0,0,0,.6);border:1px solid rgba(255,255,255,.1)}
 .hero-media img,.hero-media video{width:100%;display:block}
 @media(max-width:600px){.hero{padding:36px 16px 44px}.hero-title{font-size:32px}.hero-subtitle{font-size:15px}}
@@ -516,7 +518,8 @@ if(document.readyState==='loading'){document.addEventListener('DOMContentLoaded'
   <p class="hero-subtitle">Refine success calculator + group MVP tracker with loot splits, Discord notifications, and real-time timers.</p>
   <div class="hero-ctas">
     <button class="hero-cta-primary" onclick="document.getElementById('calc-anchor').scrollIntoView({behavior:'smooth'})">🔧 Open Calculator</button>
-    <a href="/mvp" class="hero-cta-secondary">⏱ Try MVP Tracker</a>
+    <a href="/mvp?demo=1" class="hero-cta-secondary">⏱ Try MVP Tracker</a>
+    <a href="/mvp" class="hero-cta-ghost">Sign in →</a>
   </div>
   <!-- hero-demo.gif: 10–15 s screen recording at ~900 px wide (kill modal → loot tab → payments) -->
   <div class="hero-media">

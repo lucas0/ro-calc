@@ -1503,11 +1503,155 @@ async function saveServerConfig() {
 }
 
 /* ════════════════════════════════════════
+   DEMO MODE
+════════════════════════════════════════ */
+async function initDemoMode() {
+  window._DEMO_MODE = true;
+  sessionStorage.setItem('ro_demo', '1');
+
+  const NOW = Date.now();
+  const H   = 3600000;
+
+  currentUser = { id:'demo_user', characterName:'RedKnight', discordUsername:'RedKnight', mvpOrder:[], trackedMVPs:[] };
+  currentGroup = { id:'demo_group', name:'Demo Guild', admins:['demo_user'], members:['demo_user','demo_zephyr','demo_ash'], solo:false, inviteCode:'DEMO0000' };
+  allGroups    = [currentGroup];
+  groupMembers = [
+    { id:'demo_user',   characterName:'RedKnight',  discordUsername:'RedKnight'  },
+    { id:'demo_zephyr', characterName:'Zephyr',      discordUsername:'Zephyr'     },
+    { id:'demo_ash',    characterName:'AshWalker',   discordUsername:'AshWalker'  },
+  ];
+
+  const H_3 = NOW - 3*H, H_1 = NOW - 1*H, H_045 = NOW - 0.75*H;
+  timerData = {
+    'baphomet::prt_maze03':  { timerKey:'baphomet::prt_maze03',  mvpId:'baphomet',  map:'prt_maze03',  deathTime:H_3,   rMin:120, rWin:10, mid:1039, mvpName:'Baphomet'         },
+    'eddga::pay_fild10':     { timerKey:'eddga::pay_fild10',     mvpId:'eddga',     map:'pay_fild10',  deathTime:H_1,   rMin:120, rWin:10, mid:1115, mvpName:'Eddga'            },
+    'moonlight::pay_dun04':  { timerKey:'moonlight::pay_dun04',  mvpId:'moonlight', map:'pay_dun04',   deathTime:H_045, rMin:60,  rWin:10, mid:1150, mvpName:'Moonlight Flower' },
+  };
+
+  kills = [
+    { id:'dk1', groupId:'demo_group', mvpId:'baphomet', mvpName:'Baphomet', map:'prt_maze03',
+      deathTime:H_3, registeredBy:'demo_user', party:['demo_user','demo_zephyr','demo_ash'],
+      drops:[
+        { itemId:4015, name:'Baphomet Card',      takenBy:'demo_user',   status:'sold',    soldFor:180000000, soldAt:new Date(H_3+30*60000).toISOString() },
+        { itemId:1411, name:"Baphomet's Horn",     takenBy:'demo_zephyr', status:'forsale' },
+      ]},
+    { id:'dk2', groupId:'demo_group', mvpId:'eddga', mvpName:'Eddga', map:'pay_fild10',
+      deathTime:H_1, registeredBy:'demo_ash', party:['demo_user','demo_ash'],
+      drops:[
+        { itemId:1261, name:'Fireblend', takenBy:'demo_user', status:'kept' },
+      ]},
+    { id:'dk3', groupId:'demo_group', mvpId:'moonlight', mvpName:'Moonlight Flower', map:'pay_dun04',
+      deathTime:H_045, registeredBy:'demo_zephyr', party:['demo_zephyr'],
+      drops:[
+        { itemId:1252, name:'Moonlight Dagger', takenBy:'demo_ash', status:'forsale' },
+      ]},
+  ].map(normalizeKill);
+
+  // Pre-populate item DB so names resolve without hitting the API
+  itemDb = {
+    4015: { name:'Baphomet Card',      lastSoldPrice:180000000 },
+    1411: { name:"Baphomet's Horn",    lastSoldPrice:12000000  },
+    1261: { name:'Fireblend',          lastSoldPrice:8000000   },
+    1252: { name:'Moonlight Dagger',   lastSoldPrice:5500000   },
+  };
+
+  serverConfig = { mvpOverrides:{}, groupId:'demo_group' };
+
+  // ── Intercept API so reads return in-memory demo state;
+  //    writes mutate it locally (full interactivity within the session).
+  const _origGet = API.get.bind(API);
+  API.get = async (path) => {
+    if (path === '/api/groups')                               return [currentGroup];
+    if (path.startsWith('/api/timers'))                       return timerData;
+    if (path.startsWith('/api/kills'))                        return kills;
+    if (path.startsWith('/api/groups/demo_group/members'))    return groupMembers;
+    if (path === '/api/prefs')                                return { mvpOrder:[], trackedMVPs:[] };
+    if (path.startsWith('/api/groups/demo_group'))            return currentGroup;
+    if (path === '/api/auth/me')                              return currentUser;
+    if (path.startsWith('/api/items'))                        return itemDb;
+    if (path.startsWith('/api/server-config'))                return serverConfig;
+    return { error:'demo mode' };
+  };
+  API.post = async (path, body) => {
+    if (path === '/api/kills' && body) {
+      const k = normalizeKill({ ...body, id:'dk_'+Date.now() });
+      kills = [k, ...kills];
+      return k;
+    }
+    if (path === '/api/timers' && body?.timerKey) {
+      timerData[body.timerKey] = body;
+      return { ok:true };
+    }
+    if (path.startsWith('/api/items'))   { Object.assign(itemDb, body); return { ok:true }; }
+    if (path.startsWith('/api/prefs'))   return { ok:true };
+    if (path.startsWith('/api/notify'))  return { ok:true };
+    if (path.startsWith('/api/server-config')) { serverConfig = { ...serverConfig, ...body }; return { ok:true }; }
+    return { demo:true };
+  };
+  API.put = async (path, body) => {
+    // Kill update (mark-sold etc.)
+    const killIdMatch = path.match(/\/api\/kills\/([^?]+)/);
+    if (killIdMatch && body) {
+      const idx = kills.findIndex(k => k.id === killIdMatch[1]);
+      if (idx >= 0) { kills[idx] = normalizeKill({ ...kills[idx], ...body }); return kills[idx]; }
+    }
+    return { ok:true };
+  };
+  API.del = async (path) => {
+    const killIdMatch = path.match(/\/api\/kills\/([^?]+)/);
+    if (killIdMatch) { kills = kills.filter(k => k.id !== killIdMatch[1]); return { ok:true }; }
+    return { ok:true };
+  };
+
+  // ── Show the app without going through auth ──
+  await showMainApp();
+
+  // ── Demo banner ──
+  const app = document.getElementById('app');
+  const banner = document.createElement('div');
+  banner.id = 'demo-banner';
+  banner.style.cssText = [
+    'background:#1a2040',
+    'border-bottom:2px solid #5a7de8',
+    'padding:9px 20px',
+    'display:flex',
+    'align-items:center',
+    'justify-content:space-between',
+    'gap:12px',
+    'font-size:13px',
+    'flex-wrap:wrap',
+    'z-index:150',
+    'position:sticky',
+    'top:86px',
+  ].join(';');
+  banner.innerHTML =
+    '<span style="color:rgba(232,234,246,.85)">' +
+      '<strong style="color:#a0b8f8">👁 Demo mode</strong> — ' +
+      'pre-seeded kills, full interactivity. Nothing is saved. ' +
+    '</span>' +
+    '<button onclick="sessionStorage.removeItem(\'ro_demo\');location.href=\'/mvp\'" ' +
+      'style="padding:6px 18px;background:#5a7de8;border:none;border-radius:6px;color:#fff;font-size:12px;font-weight:700;cursor:pointer;white-space:nowrap;flex-shrink:0">' +
+      'Sign in to save →' +
+    '</button>';
+  // Insert after the secondary top-bar (first child of #app that is .top-bar)
+  const topBar = app.querySelector('.top-bar');
+  if (topBar) topBar.after(banner);
+  else app.insertBefore(banner, app.firstChild);
+}
+
+/* ════════════════════════════════════════
    INIT
 ════════════════════════════════════════ */
 async function initApp() {
-  const _urlInvite = new URLSearchParams(window.location.search).get('invite');
+  const _urlParams  = new URLSearchParams(window.location.search);
+  const _urlInvite  = _urlParams.get('invite');
   if (_urlInvite) window._pendingInvite = _urlInvite.toUpperCase();
+
+  // Demo mode: ?demo=1 or returning visitor with sessionStorage flag
+  if (_urlParams.get('demo') === '1' || sessionStorage.getItem('ro_demo') === '1') {
+    await initDemoMode();
+    return;
+  }
 
   const token = localStorage.getItem('mvp_token');
   if (!token) {
